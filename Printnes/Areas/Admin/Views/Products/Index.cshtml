@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Printnes.Models.Product>
+@{
+    ViewData["Title"] = "إدارة المنتجات";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-box-open"></i> إدارة المنتجات</h1>
+    <a href="/Admin/Products/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة منتج جديد</a>
+</div>
+
+<div class="erp-card">
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">الصورة</th>
+                <th>اسم المنتج</th>
+                <th>القسم</th>
+                <th>القيود (كمية)</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="@item.CoverImageUrl" style="width: 55px; height: 55px; object-fit: cover; border-radius: 10px; border: 1px solid var(--erp-border);" alt="Product">
+                        </td>
+                        <td style="font-weight: 800; color: var(--erp-dark);">@item.NameAr</td>
+                        <td><span style="background: var(--erp-bg); color: var(--erp-text); padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">@(item.Category?.NameAr ?? "غير محدد")</span></td>
+                        <td style="font-size: 12px; color: var(--erp-text-light);">
+                            من: @item.MinQuantity <br> إلى: @item.MaxQuantity
+                        </td>
+                        <td>
+                            @(item.IsActive? Html.Raw("<span class='status-badge status-success'>نشط</span>") : Html.Raw("<span class='status-badge status-danger'>غير نشط</span>"))
+                        </td>
+                        <td>
+                            <a href="/Admin/Products/Edit/@item.Id" style="color: var(--erp-text-light); margin-left: 10px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-edit"></i></a>
+                            <a href="/Products/Details/@item.Id" target="_blank" style="color: var(--erp-text-light); font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-external-link-alt"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
+                        <i class="fas fa-box" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد منتجات مضافة حتى الآن.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

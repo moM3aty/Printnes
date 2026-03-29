@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "طباعة الملصقات والاستيكرات";
+}
+
+<div class="category-header-bar">
+    <div class="container">
+        <nav class="breadcrumb-white">
+            <a href="/">الرئيسية</a> <span>/</span> <strong>طباعة الملصقات والاستيكرات</strong>
+        </nav>
+    </div>
+</div>
+
+<section class="sub-categories-pills">
+    <div class="container pills-wrapper">
+        <button class="pill active">عرض الكل</button>
+        <button class="pill" onclick="location.href='/Category/Stickers-Rect'">استيكرات مستطيلة</button>
+        <button class="pill">استيكرات بشكل مخصص</button>
+        <button class="pill">ستيكر شيت</button>
+        <button class="pill">استيكرات 3D</button>
+        <button class="pill">استيكرات دائرية</button>
+        <button class="pill">استيكرات مربعة</button>
+    </div>
+</section>
+
+<main class="container py-4">
+    <div class="shop-controls">
+        <h2 class="page-title-main">طباعة الملصقات والاستيكرات</h2>
+        <div class="sort-filter">
+            <label>ترتيب</label>
+            <div class="custom-select-wrapper">
+                <select id="sort-options">
+                    <option value="suggestions" selected>مقترحاتنا</option>
+                    <option value="best-selling">الأكثر مبيعاً</option>
+                    <option value="top-rated">الأعلى تقييماً</option>
+                    <option value="price-high">السعر من الأعلى إلى الأقل</option>
+                    <option value="price-low">السعر من الأقل إلى الأعلى</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- حاوية عرض منتجات الاستيكرات -->
+    <div class="products-grid" id="stickers-render">
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderSection === "function") {
+                renderSection("stickers", "stickers-render");
+            }
+        });
+    </script>
+}

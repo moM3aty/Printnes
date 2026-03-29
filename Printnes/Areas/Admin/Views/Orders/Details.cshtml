@@ -1,0 +1,102 @@
+﻿@model Printnes.Models.Order
+@{
+    ViewData["Title"] = "تفاصيل الطلب " + Model.OrderNumber;
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-file-invoice"></i> طلب رقم: @Model.OrderNumber</h1>
+    <a href="/Admin/Orders" class="btn-erp btn-erp-outline"><i class="fas fa-arrow-right"></i> عودة للطلبات</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    <!-- الجانب الأيمن: عناصر الطلب -->
+    <div>
+        <div class="erp-card" style="padding: 0; overflow: hidden;">
+            <div style="padding: 20px 25px; border-bottom: 1px solid var(--erp-border); background: #f8fafc;">
+                <h3 style="margin: 0; color: var(--erp-dark); font-weight: 800; font-size: 18px;"><i class="fas fa-box-open" style="color: var(--erp-orange); margin-left: 5px;"></i> عناصر الطلب</h3>
+            </div>
+            <table class="erp-table">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>السعر</th>
+                        <th>الإجمالي</th>
+                        <th>ملف التصميم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.OrderItems != null)
+                    {
+                        foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>
+                                    <strong style="color: var(--erp-dark);">@item.ProductName</strong><br>
+                                    <small style="color: var(--erp-text-light); font-size: 12px;">@item.SelectedOptionsJson</small>
+                                </td>
+                                <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px; font-weight: bold;">@item.Quantity</span></td>
+                                <td style="color: var(--erp-text-light);">@item.CalculatedUnitPrice.ToString("0.00")</td>
+                                <td style="font-weight: 800; color: var(--erp-orange);">@item.ItemTotal.ToString("0.00") ر.س</td>
+                                <td>
+                                    <a href="#" class="btn-erp btn-erp-outline" style="padding: 5px 10px; font-size: 12px; color: var(--erp-text);"><i class="fas fa-download"></i> تحميل</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- الجانب الأيسر: معلومات العميل وتحديث الحالة -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+        <div class="erp-card">
+            <h3 style="margin-top: 0; color: var(--erp-dark); border-bottom: 2px solid var(--erp-bg); padding-bottom: 15px; font-weight: 800; font-size: 18px;"><i class="fas fa-user-circle" style="color: var(--erp-orange); margin-left: 5px;"></i> معلومات العميل</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--erp-text-light); font-size: 14px;">الاسم:</span>
+                    <strong style="color: var(--erp-dark);">@Model.CustomerName</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--erp-text-light); font-size: 14px;">الجوال:</span>
+                    <strong style="color: var(--erp-dark);" dir="ltr">@Model.CustomerPhone</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; flex-direction: column; margin-top: 5px;">
+                    <span style="color: var(--erp-text-light); font-size: 14px; margin-bottom: 5px;">العنوان للتوصيل:</span>
+                    <div style="background: var(--erp-bg); padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.6; color: var(--erp-text);">
+                        @Model.City، @Model.District<br>@Model.Address
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="erp-card">
+            <h3 style="margin-top: 0; color: var(--erp-dark); border-bottom: 2px solid var(--erp-bg); padding-bottom: 15px; font-weight: 800; font-size: 18px;"><i class="fas fa-sync-alt" style="color: var(--erp-orange); margin-left: 5px;"></i> تحديث الحالة</h3>
+            
+            <form asp-action="UpdateStatus" method="post" style="margin-top: 20px;">
+                <input type="hidden" name="id" value="@Model.Id" />
+                
+                <div class="erp-form-group">
+                    <label class="erp-form-label">الحالة الجديدة للمرحلة</label>
+                    <select name="newStatus" class="erp-form-control">
+                        <option value="1" selected="@(Model.OrderStatus == 1)">جديد (بانتظار المراجعة)</option>
+                        <option value="2" selected="@(Model.OrderStatus == 2)">قيد المراجعة / التصميم</option>
+                        <option value="3" selected="@(Model.OrderStatus == 3)">جاري الطباعة والتجهيز</option>
+                        <option value="4" selected="@(Model.OrderStatus == 4)">تم الشحن / التوصيل</option>
+                        <option value="5" selected="@(Model.OrderStatus == 5)">مكتمل</option>
+                    </select>
+                </div>
+
+                <div class="erp-form-group">
+                    <label class="erp-form-label">ملاحظة (للسجل الداخلي فقط)</label>
+                    <textarea name="note" rows="3" class="erp-form-control" placeholder="اكتب ملاحظة حول سبب التحديث..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-erp" style="width: 100%; justify-content: center;"><i class="fas fa-save"></i> حفظ وتحديث الحالة</button>
+            </form>
+        </div>
+    </div>
+</div>

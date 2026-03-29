@@ -1,0 +1,63 @@
+﻿@model Printnes.Models.Category
+@{
+    ViewData["Title"] = "تعديل قسم";
+    Layout = "_AdminLayout";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 class="page-title">تعديل القسم: @Model.NameAr</h1>
+    <a href="/Admin/Categories" style="color: var(--admin-primary); text-decoration: none;"><i class="fas fa-arrow-right"></i> عودة للأقسام</a>
+</div>
+
+<div class="erp-card" style="max-width: 800px;">
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly" style="color: red; margin-bottom: 15px;"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">الاسم بالعربية *</label>
+                <input asp-for="NameAr" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                <span asp-validation-for="NameAr" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">الاسم بالإنجليزية *</label>
+                <input asp-for="NameEn" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                <span asp-validation-for="NameEn" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">الرابط (Slug) *</label>
+                <input asp-for="Slug" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                <span asp-validation-for="Slug" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">الترتيب (Sort Order)</label>
+                <input asp-for="SortOrder" type="number" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+                <span asp-validation-for="SortOrder" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">كلاس الأيقونة (FontAwesome)</label>
+                <input asp-for="IconClass" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="fa-box" />
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">رابط الصورة (إن وجد)</label>
+                <input asp-for="ImageUrl" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight:bold;">
+                <input type="checkbox" asp-for="IsActive" /> القسم نشط
+            </label>
+        </div>
+
+        <button type="submit" style="background: var(--admin-secondary); color: #fff; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer;">حفظ التعديلات</button>
+    </form>
+</div>

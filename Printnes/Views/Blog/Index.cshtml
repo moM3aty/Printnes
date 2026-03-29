@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "المدونة";
+}
+
+<main class="container py-5">
+    <nav class="breadcrumb-simple">
+        <a href="/">الرئيسية</a> <span>&gt;</span> <strong>المدونة</strong>
+    </nav>
+
+    <div class="blog-layout">
+        <div class="blog-main-content">
+            <!-- المقال المميز -->
+            <article class="featured-post" onclick="location.href='/Blog/Details/1'">
+                <div class="post-img-wrap">
+                    <img src="https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png" alt="أفضل مواقع الطباعة">
+                    <div class="post-overlay-info">
+                        <span class="post-tag">عام</span>
+                        <h2>أفضل مواقع الطباعة أونلاين في السعودية</h2>
+                        <div class="post-meta">
+                            <span><i class="far fa-calendar"></i> 23 أكتوبر 2024</span>
+                            <span><i class="far fa-user"></i> Mena Malak</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- حاوية عرض باقي المقالات -->
+            <div class="blog-grid" id="blog-posts-render">
+                <!-- سيتم تعبئتها من الـ JS -->
+            </div>
+
+            <div class="pagination-area">
+                <button class="btn-load-more">تحميل المزيد</button>
+            </div>
+        </div>
+
+        <!-- القائمة الجانبية للمدونة -->
+        <aside class="blog-sidebar">
+            <div class="sidebar-box">
+                <h3>التصنيفات</h3>
+                <ul class="side-cats">
+                    <li><a href="#" class="active">عام <span>(8)</span></a></li>
+                    <li><a href="#">نصائح تصميم <span>(4)</span></a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-box">
+                <h3>أحدث المقالات</h3>
+                <div id="mini-posts-list">
+                    <!-- سيتم تعبئتها لاحقاً -->
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderBlogGrid === "function") {
+                // تعديل مسارات الروابط في دالة renderBlogGrid في الـ script.js
+                // لتشير إلى /Blog/Details/ بدلاً من ملفات الـ html المباشرة
+                renderBlogGrid();
+            }
+        });
+    </script>
+}

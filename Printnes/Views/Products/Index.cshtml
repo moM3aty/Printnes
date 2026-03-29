@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "كل المنتجات";
+}
+
+<div class="category-header-bar">
+    <div class="container">
+        <nav class="breadcrumb-white">
+            <a href="/">الرئيسية</a> <span>/</span> <strong>كل المنتجات</strong>
+        </nav>
+    </div>
+</div>
+
+<main class="container py-4">
+    <div class="shop-controls">
+        <h2 class="page-title-main">كل المنتجات</h2>
+        <div class="sort-filter">
+            <label>ترتيب</label>
+            <div class="custom-select-wrapper">
+                <select id="sort-options">
+                    <option value="suggestions" selected>مقترحاتنا</option>
+                    <option value="best-selling">الأكثر مبيعاً</option>
+                    <option value="top-rated">الأعلى تقييماً</option>
+                    <option value="price-high">السعر من الأعلى إلى الأقل</option>
+                    <option value="price-low">السعر من الأقل إلى الأعلى</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- حاوية عرض كل المنتجات -->
+    <div class="products-grid" id="all-products-render">
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderSection === "function") {
+                // دمج عدة أقسام لعرضها كـ "كل المنتجات"
+                renderSection("featured", "all-products-render");
+                renderSection("boxes", "all-products-render");
+                renderSection("cartons", "all-products-render");
+            }
+        });
+    </script>
+}

@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+@{
+    ViewData["Title"] = "إدارة الصلاحيات";
+    Layout = "_AdminLayout";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 class="page-title">الصلاحيات (Roles)</h1>
+    <a href="#" class="btn-main" style="margin-top: 0; padding: 10px 20px; font-size: 14px; background: var(--admin-secondary); color: #fff; text-decoration:none; border-radius: 5px;"><i class="fas fa-plus"></i> إضافة صلاحية جديدة</a>
+</div>
+
+<div class="erp-card">
+    <table style="width: 100%; border-collapse: collapse; text-align: right;">
+        <thead>
+            <tr style="background: #f9f9f9; color: #666;">
+                <th style="padding: 12px; border-bottom: 2px solid #eee;">المعرف (ID)</th>
+                <th style="padding: 12px; border-bottom: 2px solid #eee;">اسم الصلاحية</th>
+                <th style="padding: 12px; border-bottom: 2px solid #eee;">إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var role in Model)
+                {
+                    <tr>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee; color: #888;">@role.Id</td>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: var(--admin-primary);">@role.Name</td>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">
+                            <a href="#" style="color: var(--admin-primary); margin-left: 10px;"><i class="fas fa-edit"></i> تعديل</a>
+                            <a href="#" style="color: red;"><i class="fas fa-trash"></i> حذف</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" style="padding: 20px; text-align: center; color: #999;">لا توجد صلاحيات مسجلة. سيتم إنشاء الصلاحيات الافتراضية قريباً.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

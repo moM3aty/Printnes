@@ -1,0 +1,127 @@
+﻿@model Printnes.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "إتمام الطلب";
+}
+
+<div class="category-header-bar">
+    <div class="container">
+        <nav class="breadcrumb-white">
+            <a href="/">الرئيسية</a> <span>/</span> <a href="/Cart">سلة المشتريات</a> <span>/</span> <strong>إتمام الطلب</strong>
+        </nav>
+    </div>
+</div>
+
+<main class="container py-5">
+    <div class="shop-controls">
+        <h2 class="orange-line-title">معلومات الشحن والدفع</h2>
+    </div>
+
+    <div class="product-details-wrapper" style="flex-direction: row-reverse;">
+        <!-- ملخص الطلب الجانبي -->
+        <div class="product-info-side" style="flex: 1; background: #f9f9f9; padding: 25px; border-radius: 15px;">
+            <h3 style="color: var(--navy); margin-bottom: 20px;">ملخص الطلب</h3>
+            <div id="checkout-summary-items">
+                <!-- سيتم تعبئته بواسطة الجافاسكريبت -->
+            </div>
+            <hr style="border-color: #eee; margin: 20px 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: var(--orange);">
+                <span>الإجمالي:</span>
+                <span id="checkout-total">0 ر.س</span>
+            </div>
+        </div>
+
+        <!-- فورم بيانات العميل -->
+        <div class="product-image-side" style="flex: 2;">
+            <form asp-action="Checkout" method="post" id="checkoutForm" class="options-body" style="background: #fff; padding: 30px; border-radius: 15px; border: 1px solid #eee;">
+                <div asp-validation-summary="ModelOnly" class="text-danger" style="color: red; margin-bottom: 15px;"></div>
+
+                <!-- حقل مخفي يحتوي على بيانات السلة -->
+                <input type="hidden" asp-for="CartItemsJson" id="CartItemsJson" />
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label asp-for="CustomerName">الاسم الكامل *</label>
+                    <input asp-for="CustomerName" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" placeholder="اكتب اسمك الثلاثي" />
+                    <span asp-validation-for="CustomerName" style="color: red; font-size: 12px;"></span>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label asp-for="CustomerPhone">رقم الجوال *</label>
+                        <input asp-for="CustomerPhone" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" placeholder="05XXXXXXXX" />
+                        <span asp-validation-for="CustomerPhone" style="color: red; font-size: 12px;"></span>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label asp-for="CustomerEmail">البريد الإلكتروني</label>
+                        <input asp-for="CustomerEmail" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" placeholder="example@domain.com" />
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label asp-for="City">المدينة *</label>
+                        <input asp-for="City" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" />
+                        <span asp-validation-for="City" style="color: red; font-size: 12px;"></span>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label asp-for="District">الحي</label>
+                        <input asp-for="District" class="form-control" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;" />
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label asp-for="Address">العنوان بالتفصيل *</label>
+                    <textarea asp-for="Address" rows="3" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: none;"></textarea>
+                    <span asp-validation-for="Address" style="color: red; font-size: 12px;"></span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label asp-for="PaymentMethod">طريقة الدفع *</label>
+                    <select asp-for="PaymentMethod" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                        <option value="1">بطاقة مدى (Mada)</option>
+                        <option value="2">البطاقة الائتمانية (Visa/Mastercard)</option>
+                        <option value="3">Apple Pay</option>
+                        <option value="4">تحويل بنكي</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-add-main" style="width: 100%; font-size: 18px; padding: 15px;">تأكيد الطلب والدفع</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // سحب بيانات السلة من LocalStorage ووضعها في الحقل المخفي ليتم إرسالها للـ Backend
+        document.addEventListener("DOMContentLoaded", function() {
+            const cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
+            if(cart.length === 0) {
+                alert("سلتك فارغة، سيتم توجيهك للرئيسية.");
+                window.location.href = "/";
+                return;
+            }
+
+            // تخزين الـ JSON في الحقل المخفي
+            document.getElementById('CartItemsJson').value = JSON.stringify(cart);
+
+            // عرض ملخص مبسط
+            const summaryContainer = document.getElementById('checkout-summary-items');
+            let total = 0;
+            let html = "";
+
+            cart.forEach(item => {
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                            <span>${item.name} (x${item.quantity || 1})</span>
+                            <strong>${parseFloat(item.price).toFixed(2)} ر.س</strong>
+                         </div>`;
+                total += parseFloat(item.price) * (item.quantity || 1);
+            });
+
+            summaryContainer.innerHTML = html;
+            document.getElementById('checkout-total').innerText = total.toFixed(2) + " ر.س";
+        });
+
+        // مسح السلة عند تقديم الطلب بنجاح (سيتم استدعاؤها في صفحة Success)
+    </script>
+}

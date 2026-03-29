@@ -1,0 +1,63 @@
+﻿@model Printnes.Models.PricingMatrix
+@{
+    ViewData["Title"] = "إضافة تسعيرة للخيارات";
+    Layout = "_AdminLayout";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 class="page-title">إضافة تسعيرة للخيارات</h1>
+    <a href="/Admin/Pricing" style="color: var(--admin-primary); text-decoration: none;"><i class="fas fa-arrow-right"></i> عودة للمصفوفة</a>
+</div>
+
+<div class="erp-card" style="max-width: 800px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" style="color: red; margin-bottom: 15px;"></div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">اختر المنتج *</label>
+            <select asp-for="ProductId" asp-items="ViewBag.ProductId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <option value="">-- اختر المنتج --</option>
+            </select>
+            <span asp-validation-for="ProductId" style="color: red; font-size: 12px;"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">نوع الورق *</label>
+                <select asp-for="PaperOptionId" asp-items="ViewBag.PaperOptionId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- اختر --</option>
+                </select>
+                <span asp-validation-for="PaperOptionId" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">المقاس *</label>
+                <select asp-for="SizeOptionId" asp-items="ViewBag.SizeOptionId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- اختر --</option>
+                </select>
+                <span asp-validation-for="SizeOptionId" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">عدد الأوجه *</label>
+                <select asp-for="SidesOptionId" asp-items="ViewBag.SidesOptionId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- اختر --</option>
+                </select>
+                <span asp-validation-for="SidesOptionId" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">تكلفة التجهيز (Base Price) *</label>
+                <input asp-for="BasePrice" type="number" step="0.01" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="0.00" />
+                <span asp-validation-for="BasePrice" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">سعر الحبة (Unit Price) *</label>
+                <input asp-for="UnitPrice" type="number" step="0.0001" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="0.00" />
+                <span asp-validation-for="UnitPrice" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <button type="submit" style="background: var(--admin-primary); color: #fff; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer;">إضافة التسعيرة</button>
+    </form>
+</div>

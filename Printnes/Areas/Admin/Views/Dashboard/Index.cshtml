@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "لوحة القيادة";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-chart-pie"></i> نظرة عامة على نشاط المطبعة</h1>
+    <button class="btn-erp btn-erp-outline"><i class="fas fa-download"></i> تقرير اليوم</button>
+</div>
+
+<!-- KPI Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 30px;">
+
+    <div class="erp-card" style="padding: 25px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid var(--erp-orange); margin-bottom: 0;">
+        <div>
+            <div style="color: var(--erp-text-light); font-size: 13px; font-weight: 800; text-transform: uppercase;">طلبات جديدة</div>
+            <div style="font-size: 32px; font-weight: 900; color: var(--erp-dark); margin-top: 5px;">24</div>
+        </div>
+        <div style="background: rgba(242, 106, 46, 0.1); color: var(--erp-orange); width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 28px;">
+            <i class="fas fa-shopping-bag"></i>
+        </div>
+    </div>
+
+    <div class="erp-card" style="padding: 25px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #10b981; margin-bottom: 0;">
+        <div>
+            <div style="color: var(--erp-text-light); font-size: 13px; font-weight: 800; text-transform: uppercase;">مبيعات اليوم</div>
+            <div style="font-size: 32px; font-weight: 900; color: var(--erp-dark); margin-top: 5px;">4,850 <span style="font-size:16px;">ر.س</span></div>
+        </div>
+        <div style="background: rgba(16, 185, 129, 0.1); color: #10b981; width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 28px;">
+            <i class="fas fa-wallet"></i>
+        </div>
+    </div>
+
+    <div class="erp-card" style="padding: 25px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #3b82f6; margin-bottom: 0;">
+        <div>
+            <div style="color: var(--erp-text-light); font-size: 13px; font-weight: 800; text-transform: uppercase;">جاري الطباعة</div>
+            <div style="font-size: 32px; font-weight: 900; color: var(--erp-dark); margin-top: 5px;">12</div>
+        </div>
+        <div style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 28px;">
+            <i class="fas fa-print"></i>
+        </div>
+    </div>
+
+    <div class="erp-card" style="padding: 25px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #8b5cf6; margin-bottom: 0;">
+        <div>
+            <div style="color: var(--erp-text-light); font-size: 13px; font-weight: 800; text-transform: uppercase;">إجمالي العملاء</div>
+            <div style="font-size: 32px; font-weight: 900; color: var(--erp-dark); margin-top: 5px;">8,054</div>
+        </div>
+        <div style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 28px;">
+            <i class="fas fa-users"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders Table -->
+<div class="erp-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 25px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--erp-border);">
+        <h3 style="margin: 0; color: var(--erp-dark); font-weight: 900; font-size: 18px;">أحدث الطلبات النشطة</h3>
+        <a href="/Admin/Orders" style="color: var(--erp-orange); text-decoration: none; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+            عرض الكل <i class="fas fa-arrow-left"></i>
+        </a>
+    </div>
+
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>رقم الطلب</th>
+                <th>العميل</th>
+                <th>المبلغ</th>
+                <th>حالة الدفع</th>
+                <th>المرحلة</th>
+                <th>إجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="font-weight: 900; color: var(--erp-dark);">PN-2024-8841</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--erp-bg); display: flex; align-items: center; justify-content: center; color: var(--erp-text-light);"><i class="fas fa-user"></i></div>
+                        <div style="font-weight: 700;">أحمد محمد</div>
+                    </div>
+                </td>
+                <td style="font-weight: 800;">350.00 ر.س</td>
+                <td><span class="status-badge status-success">مدفوع</span></td>
+                <td><span class="status-badge status-warning">مراجعة التصميم</span></td>
+                <td>
+                    <button class="btn-erp btn-erp-outline" style="padding: 6px 12px; font-size: 12px;">معالجة</button>
+                </td>
+            </tr>
+            <tr>
+                <td style="font-weight: 900; color: var(--erp-dark);">PN-2024-8842</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--erp-bg); display: flex; align-items: center; justify-content: center; color: var(--erp-text-light);"><i class="fas fa-user"></i></div>
+                        <div style="font-weight: 700;">مؤسسة الأفق</div>
+                    </div>
+                </td>
+                <td style="font-weight: 800;">1,250.00 ر.س</td>
+                <td><span class="status-badge status-danger">مرفوض</span></td>
+                <td><span class="status-badge status-info">ملغي</span></td>
+                <td>
+                    <button class="btn-erp btn-erp-outline" style="padding: 6px 12px; font-size: 12px;">معالجة</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

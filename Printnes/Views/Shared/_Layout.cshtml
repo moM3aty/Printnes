@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] | برنتس</title>
+    <!-- استدعاء ملف الـ CSS الأساسي -->
+    <link rel="stylesheet" href="~/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- مكتبة Swiper للـ Sliders -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="bg-light">
+
+    <!-- رسالة الإضافة للسلة (Toast) -->
+    <div id="cart-toast" class="cart-toast-container hidden">
+        <div class="toast-progress"></div>
+        <div class="toast-header">
+            <span class="status-icon"><i class="fas fa-check-circle"></i> تمت الإضافة بنجاح</span>
+            <span class="close-toast" onclick="hideToast()">&times;</span>
+        </div>
+        <div class="toast-body">
+            <img id="toast-product-img" src="" alt="">
+            <div class="toast-info">
+                <h4 id="toast-product-name">اسم المنتج</h4>
+                <span class="toast-price"><span id="toast-product-price">0</span> ر.س</span>
+            </div>
+        </div>
+        <div class="toast-footer" id="toast-footer" style="display:none;">
+            <button class="btn-white-toast" onclick="location.href='/Cart'"><i class="fas fa-shopping-bag"></i> عرض السلة</button>
+            <button class="btn-orange-toast" onclick="checkoutFullCart()"><i class="fas fa-check"></i> اتمام الطلب</button>
+        </div>
+    </div>
+
+    <!-- الهيدر الرئيسي -->
+    <header class="main-header">
+        <div class="container header-content">
+            <div class="brand-area">
+                <div class="logo-and-text" onclick="location.href='/'" style="cursor:pointer">
+                    <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes" class="logo-img">
+                    <div class="brand-text">
+                        <h1>Printnes</h1>
+                        <span>للطباعة والمطبوعات</span>
+                    </div>
+                </div>
+                <button class="menu-toggle-btn" onclick="openSideMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="search-wrapper">
+                <form action="/Products/Search" method="get" style="display: flex; width: 100%;">
+                    <input type="text" name="q" placeholder="ابحث عن منتج...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <div class="user-nav">
+                <div class="nav-item" onclick="openLoginModal()"><i class="far fa-user"></i></div>
+                <div class="nav-item cart" onclick="location.href='/Cart'">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- القائمة الجانبية للجوال -->
+    <div id="menu-overlay" class="menu-overlay hidden" onclick="closeSideMenu()"></div>
+    <aside id="side-menu" class="side-menu shadow-lg">
+        <div class="menu-header">
+            <div class="brand-small">
+                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes">
+                <span>برنتس</span>
+            </div>
+            <button class="close-menu-btn" onclick="closeSideMenu()">&times;</button>
+        </div>
+
+        <!-- الأقسام (يمكن جعلها Dynamic لاحقاً من الـ Database) -->
+        <div class="menu-body">
+            <ul class="main-nav-list">
+                <li><a href="/"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="/Products">كل المنتجات</a></li>
+                <li><a href="/Packages">عروض البكجات</a></li>
+
+                <li class="has-submenu">
+                    <div class="menu-item-flex" onclick="toggleSubMenu(this)">
+                        <a href="/Category/stickers" style="padding:0; flex:1; background:none; color:inherit;">طباعة الملصقات والاستيكرات</a>
+                        <i class="fas fa-chevron-left arrow"></i>
+                    </div>
+                    <ul class="submenu-list">
+                        <li><a href="/Category/stickers">عرض الكل</a></li>
+                        <li><a href="/Category/stickers-rect">استيكرات مستطيلة</a></li>
+                        <li class="menu-promo-item">
+                            <img src="https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png" alt="Promo">
+                            <p>طباعة ديجيتال عالية الدقة</p>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="/Category/paper-prints">مطبوعات ورقية</a></li>
+                <li><a href="/Category/boxes">الطباعة على البوكسات</a></li>
+                <li><a href="/Category/packaging">التغليف والتعبئة</a></li>
+                <li><a href="/Blog"><i class="fas fa-book"></i> المدونة</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- محتوى الصفحات الديناميكي يظهر هنا -->
+    @RenderBody()
+
+    <!-- الفوتر الرئيسي -->
+    <footer class="main-footer">
+        <div class="container footer-inner">
+            <div class="footer-col brand-col">
+                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes" class="footer-logo">
+                <p class="footer-desc">
+                    PRINTNES مؤسسة سعودية معرّفه في وزارة التجارة "معروف" متخصصين في تصنيع المطبوعات وتقديم خدمات التصميم الفريدة والمتميزة
+                </p>
+                <div class="footer-socials">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-col links-col">
+                <h3>روابط مهمة</h3>
+                <ul class="footer-links">
+                    <li><a href="#">سياسة الخصوصية</a></li>
+                    <li><a href="#">الأسئلة الشائعة</a></li>
+                    <li><a href="#">للشكاوي والاقتراحات</a></li>
+                    <li><a href="#">سياسة الاستبدال والاسترجاع</a></li>
+                    <li><a href="#">سياسة الطباعة والتصميم</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col contact-col">
+                <h3>تواصل معنا</h3>
+                <div class="contact-item">
+                    <i class="fab fa-whatsapp"></i>
+                    <a href="tel:+966554804857">+966554804857</a>
+                </div>
+                <div class="contact-item">
+                    <i class="far fa-envelope"></i>
+                    <a href="mailto:support@printnes.co">support@printnes.co</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container bottom-wrap">
+                <div class="payment-icons">
+                    <img src="https://img.icons8.com/color/48/visa.png" alt="visa">
+                    <img src="https://img.icons8.com/color/48/mastercard.png" alt="mastercard">
+                    <img src="https://img.icons8.com/color/48/apple-pay.png" alt="apple-pay">
+                    <span class="tabby-tamara">Tabby | Tamara</span>
+                </div>
+                <div class="tax-info">
+                    الرقم الضريبي : <span>310595349100003</span>
+                </div>
+                <div class="copyright">
+                    الحقوق محفوظة @DateTime.Now.Year | <a href="#">Printnes</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- زر الواتساب العائم -->
+    <div class="whatsapp-fixed">
+        <a href="https://wa.me/966554804857" target="_blank" class="wa-icon">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <div class="wa-tooltip">راسلنا على الواتساب</div>
+    </div>
+
+    <!-- نافذة تسجيل الدخول (Modal) -->
+    <div id="login-modal" class="modal-overlay hidden">
+        <div class="login-box">
+            <span class="close-login" onclick="closeLoginModal()">&times;</span>
+            <div class="user-avatar-circle"><i class="far fa-user"></i></div>
+            <h2>تسجيل الدخول</h2>
+            <div class="login-form">
+                <div class="input-group-login">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="email-input" placeholder="your@email.com">
+                </div>
+                <button class="btn-login-main" onclick="handleLogin()">دخول</button>
+                <div class="login-divider"><span>أو سجل دخولك من خلال</span></div>
+                <div class="social-login-grid">
+                    <a href="#" class="social-btn"><i class="fab fa-apple"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-google"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- استدعاء ملف الـ JS الأساسي -->
+    <script src="~/js/script.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,64 @@
+﻿@model Printnes.Models.ProductOption
+@{
+    ViewData["Title"] = "إضافة خيار منتج";
+    Layout = "_AdminLayout";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 class="page-title">إضافة خيار جديد</h1>
+    <a href="/Admin/ProductOptions" style="color: var(--admin-primary); text-decoration: none;"><i class="fas fa-arrow-right"></i> عودة للخيارات</a>
+</div>
+
+<div class="erp-card" style="max-width: 800px;">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" style="color: red; margin-bottom: 15px;"></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">المنتج المرتبط *</label>
+                <select asp-for="ProductId" asp-items="ViewBag.ProductId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- اختر المنتج --</option>
+                </select>
+                <span asp-validation-for="ProductId" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">نوع الخيار *</label>
+                <select asp-for="OptionType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                    <option value="">-- اختر --</option>
+                    <option value="1">ورق (Paper)</option>
+                    <option value="2">مقاس (Size)</option>
+                    <option value="3">أوجه (Sides)</option>
+                    <option value="4">تشطيب/حماية (Finish)</option>
+                </select>
+                <span asp-validation-for="OptionType" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">الاسم بالعربية *</label>
+                <input asp-for="NameAr" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="مثال: ورق كوشيه 300 جرام" />
+                <span asp-validation-for="NameAr" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div>
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">الاسم بالإنجليزية *</label>
+                <input asp-for="NameEn" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="e.g: Coated Paper 300g" />
+                <span asp-validation-for="NameEn" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; margin-bottom:5px; font-weight:bold;">بيانات إضافية (Extra Data JSON)</label>
+            <input asp-for="ExtraData" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder='{"width": 9, "height": 5.5}' />
+            <small style="color: #888;">استخدم هذا الحقل لتخزين مقاسات فعلية أو متغيرات إضافية بصيغة JSON.</small>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight:bold;">
+                <input type="checkbox" asp-for="IsActive" checked /> الخيار نشط
+            </label>
+        </div>
+
+        <button type="submit" style="background: var(--admin-primary); color: #fff; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer;">حفظ الخيار</button>
+    </form>
+</div>

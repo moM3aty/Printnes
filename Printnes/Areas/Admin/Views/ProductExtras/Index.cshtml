@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Printnes.Models.ProductExtra>
+@{
+    ViewData["Title"] = "الإضافات الاختيارية";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-puzzle-piece"></i> الإضافات الاختيارية للمنتجات</h1>
+    <a href="/Admin/ProductExtras/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة خيار إضافي</a>
+</div>
+
+<div class="erp-card">
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>المنتج</th>
+                <th>اسم الإضافة (عربي)</th>
+                <th>السعر (ثابت)</th>
+                <th>الترتيب</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td><span style="color: var(--erp-primary); font-weight: 800;">@item.Product?.NameAr</span></td>
+                        <td>@item.NameAr</td>
+                        <td><span style="color: var(--erp-orange); font-weight: bold;">@item.Price.ToString("0.00") ر.س</span></td>
+                        <td>@item.SortOrder</td>
+                        <td>
+                            @(item.IsActive? Html.Raw("<span class='status-badge status-success'>نشط</span>") : Html.Raw("<span class='status-badge status-danger'>معطل</span>"))
+                        </td>
+                        <td>
+                            <a href="#" style="color: var(--erp-text-light); margin-left: 10px;"><i class="fas fa-edit"></i></a>
+                            <a href="#" style="color: #ef4444;"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--erp-text-light);">لا توجد إضافات اختيارية مضافة حالياً.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

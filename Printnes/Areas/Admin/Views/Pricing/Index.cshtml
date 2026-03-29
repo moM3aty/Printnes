@@ -1,0 +1,56 @@
+﻿@model IEnumerable<Printnes.Models.PricingMatrix>
+@{
+    ViewData["Title"] = "مصفوفة الأسعار";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-calculator"></i> إدارة مصفوفة التسعير</h1>
+    <a href="/Admin/Pricing/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة تسعيرة تقاطع جديدة</a>
+</div>
+
+<div class="erp-card" style="padding: 0; overflow: hidden;">
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>المنتج</th>
+                <th>نوع الورق</th>
+                <th>المقاس</th>
+                <th>الأوجه</th>
+                <th>تكلفة التجهيز</th>
+                <th>سعر الحبة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="font-weight: 900; color: var(--erp-dark);">@item.Product.NameAr</td>
+                        <td><span style="background: var(--erp-bg); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700;">@item.PaperOption.NameAr</span></td>
+                        <td><span style="background: var(--erp-bg); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700;">@item.SizeOption.NameAr</span></td>
+                        <td><span style="background: var(--erp-bg); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700;">@item.SidesOption.NameAr</span></td>
+                        <td style="color: var(--erp-text-light);">@item.BasePrice.ToString("0.00") ر.س</td>
+                        <td style="font-weight: 800; color: #10b981;">@item.UnitPrice.ToString("0.000") ر.س</td>
+                        <td>
+                            <a href="#" style="color: var(--erp-text-light); margin-left: 15px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-edit"></i></a>
+                            <a href="#" class="btn-delete-confirm" style="color: #ef4444; font-size: 18px;"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
+                        <i class="fas fa-table" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لم يتم إدراج أي تسعيرة في المصفوفة حتى الآن.</p>
+                        <a href="/Admin/Pricing/Create" style="color: var(--erp-orange); font-weight: 700; text-decoration: none;">ابدأ بإضافة أول تسعيرة</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

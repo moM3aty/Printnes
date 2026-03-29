@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Printnes.Models.QuantityTier>
+@{
+    ViewData["Title"] = "شرائح خصم الكميات";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-percent"></i> إدارة شرائح خصم الكميات</h1>
+    <a href="/Admin/QuantityTiers/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة شريحة خصم جديدة</a>
+</div>
+
+<div class="erp-card" style="padding: 0; overflow: hidden;">
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>المنتج المرتبط</th>
+                <th>من كمية</th>
+                <th>إلى كمية</th>
+                <th>نسبة الخصم (%)</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="font-weight: 800; color: var(--erp-dark);">@item.Product?.NameAr</td>
+                        <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px; font-weight: 700;">@item.MinQuantity</span> <span style="font-size: 12px; color: var(--erp-text-light);">نسخة</span></td>
+                        <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px; font-weight: 700;">@item.MaxQuantity</span> <span style="font-size: 12px; color: var(--erp-text-light);">نسخة</span></td>
+                        <td><span class="status-badge status-success" style="font-size: 14px;"><i class="fas fa-tags" style="margin-left: 5px; opacity: 0.7;"></i> @item.DiscountPercent.ToString("0.00") %</span></td>
+                        <td>
+                            <a href="#" style="color: var(--erp-text-light); margin-left: 15px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-edit"></i></a>
+                            <a href="#" class="btn-delete-confirm" style="color: #ef4444; font-size: 18px;"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
+                        <i class="fas fa-percentage" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد شرائح خصم مضافة حالياً.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

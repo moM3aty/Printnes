@@ -1,0 +1,205 @@
+﻿@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<main class="container">
+    <!-- Hero Slider -->
+    <section class="hero-slider-wrapper">
+        <div class="swiper hero-swiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <a href="#">
+                        <img src="https://cdn.salla.sa/form-builder/wzsdRwVsUbNJVFVyQS6oTkganoSdKqnn1KADKYWk.png"
+                             alt="بانر 1" class="full-banner-img">
+                    </a>
+                </div>
+                <div class="swiper-slide">
+                    <a href="#">
+                        <img src="https://cdn.salla.sa/form-builder/A0XG5v5RJTUUeuVfuYGf71WMOTP39IAvdDsmF3Sl.png"
+                             alt="بانر 2" class="full-banner-img">
+                    </a>
+                </div>
+                <div class="swiper-slide">
+                    <a href="#">
+                        <img src="https://cdn.salla.sa/form-builder/dHO6KuaEQvL0pmgVStKz0wItK3vD2MZWpIsu4ehi.png"
+                             alt="بانر 3" class="full-banner-img">
+                    </a>
+                </div>
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+
+    <!-- الأقسام الرئيسية -->
+    <section class="main-categories">
+        <div class="section-title-box">
+            <h2>الأقسام الرئيسية</h2>
+            <p>حرك القائمة لليسار لعرض جميع الأقسام</p>
+        </div>
+        <div class="categories-scroll">
+            <div class="cat-card" onclick="location.href='/Packages'">
+                <div class="circle-img">
+                    <img src="https://cdn.salla.sa/form-builder/PD53rr1LUNb19Hj3je9ULKSfhYUGg0o3TOBdz1T7.png">
+                </div>
+                <h4>العروض والبكجات</h4>
+            </div>
+            <div class="cat-card" onclick="location.href='/Category/Boxes'">
+                <div class="circle-img">
+                    <img src="https://cdn.salla.sa/form-builder/lnB9NCS8slVsu7xfA6j6Ka37ZIEGCnEu9de9JiR3.png">
+                </div>
+                <h4>طباعة بوكسات</h4>
+            </div>
+            <div class="cat-card" onclick="location.href='/Category/Stickers'">
+                <div class="circle-img">
+                    <img src="https://cdn.salla.sa/form-builder/pIbiSL3zp7u4cSqnsrhMcq0D0fQPT2pVkcK72f6g.png">
+                </div>
+                <h4>طباعة الملصقات</h4>
+            </div>
+            <div class="cat-card" onclick="location.href='/Category/Bags'">
+                <div class="circle-img">
+                    <img src="https://cdn.salla.sa/form-builder/iVj6NojrRm6YOmBH6CTKeHbUWUfrpoYsK3D8hqB9.png">
+                </div>
+                <h4>طباعة الأكياس</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- الأكثر مبيعاً (Slider) -->
+    <section class="products-slider-section container">
+        <div class="section-header">
+            <div class="right-side">
+                <h2 class="section-title">الأكثر مبيعاً</h2>
+            </div>
+            <div class="left-side">
+                <a href="/Products" class="view-all">عرض الكل</a>
+                <div class="slider-controls">
+                    <div class="swiper-button-prev-prod"><i class="fas fa-chevron-right"></i></div>
+                    <div class="swiper-button-next-prod"><i class="fas fa-chevron-left"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="swiper most-selling-swiper">
+            <!-- يتم حقن السلايدات بواسطة الـ JS من الداتا المؤقتة -->
+            <div class="swiper-wrapper" id="featured-products-slider">
+                <!-- Data rendered from script.js -->
+            </div>
+        </div>
+    </section>
+
+    <!-- مجموعات المنتجات -->
+    <section class="product-group">
+        <div class="group-header">
+            <h2>بوكسات</h2> <a href="/Category/Boxes">عرض الكل</a>
+        </div>
+        <div class="products-grid" id="render-boxes"></div>
+    </section>
+
+    <section class="product-group">
+        <div class="group-header">
+            <h2>طباعة كراتين شحن</h2> <a href="/Category/Cartons">عرض الكل</a>
+        </div>
+        <div class="products-grid" id="render-cartons"></div>
+    </section>
+
+    <section class="product-group">
+        <div class="group-header">
+            <h2>طباعة على الأكياس</h2> <a href="/Category/Bags">عرض الكل</a>
+        </div>
+        <div class="products-grid" id="render-bags"></div>
+    </section>
+
+    <section class="product-group">
+        <div class="group-header">
+            <h2>التغليف والتعبئة</h2> <a href="/Category/Packaging">عرض الكل</a>
+        </div>
+        <div class="products-grid" id="render-packaging"></div>
+    </section>
+
+    <!-- إحصائيات -->
+    <section class="premium-stats">
+        <div class="container">
+            <div class="section-header-right">
+                <h2 class="orange-line-title">لماذا برنتنس ؟!</h2>
+            </div>
+            <div class="stats-container">
+                <div class="stat-card-new">
+                    <div class="icon-circle-navy"><i class="far fa-user-circle"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-num">+8000</span>
+                        <p class="stat-desc">عميل جرب منتجاتنا</p>
+                    </div>
+                </div>
+                <div class="stat-card-new">
+                    <div class="icon-circle-navy"><i class="fas fa-location-arrow"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-num">+500</span>
+                        <p class="stat-desc">شحنة دولية ناجحة</p>
+                    </div>
+                </div>
+                <div class="stat-card-new">
+                    <div class="icon-circle-navy"><i class="far fa-envelope-open"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-num">+160000</span>
+                        <p class="stat-desc">رسالة رددنا عليها</p>
+                    </div>
+                </div>
+                <div class="stat-card-new">
+                    <div class="icon-circle-navy"><i class="fas fa-store-alt"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-num">+700</span>
+                        <p class="stat-desc">متجر يستفيد شهرياً</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- الأسئلة الشائعة -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-title-wrapper">
+                <h2 class="orange-title">الأسئلة الشائعة</h2>
+            </div>
+            <div class="faq-grid">
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
+                        <span>هل يمكنني تغيير طلبي الاضافة او التعديل ؟</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم يمكنك الاضافة او التعديل في فترة اقصاها 24 ساعة ولكن بعد تنفيذ المنتج أو شحنه يجب طلب اضافتك في طلب جديد.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
+                        <span>كيف يمكنني الطلب من الموقع ؟</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>يمكنك بكل سهولة اضافة جميع البيانات من خلال صفحة طلب المنتج وفي حال واجهت اي مشكلة بإمكانك التواصل معنا من خلال الواتس اب او الايميل.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
+                        <span>هل يمكن تعديل بياناتي؟</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم. يمكنك من خلال التواصل معنا ويتم تعديلها بشكل فوري.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
+                        <span>هل تعملون افكار خارج ما هو بالموقع ؟</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم، يعتمد على الفكرة والمنتج المطبوع يرجى مشاركتنا المنتج الذي تود تصنيعه من خلال الواتس اب او الايميل حتى يتسنى لنا اعطائك المزيد من التفاصيل.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>

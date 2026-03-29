@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "سلة المشتريات";
+}
+
+<main class="container cart-page-main">
+    <nav class="breadcrumb">
+        <a href="/">الرئيسية</a> &gt; <span>سلة المشتريات</span>
+    </nav>
+
+    <!-- واجهة السلة الفارغة -->
+    <div id="empty-cart-view" class="empty-state hidden">
+        <div class="empty-icon-circle">
+            <i class="fas fa-shopping-bag"></i>
+        </div>
+        <h2>السلة فارغة</h2>
+        <button class="btn-orange-outline" onclick="location.href='/'">العودة للرئيسية</button>
+    </div>
+
+    <!-- واجهة السلة الممتلئة -->
+    <div id="full-cart-view" class="full-cart-container hidden">
+        <div class="cart-table-wrapper">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الصورة</th>
+                        <th>السعر</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-table-body">
+                    <!-- سيتم تعبئته بواسطة الجافاسكريبت بناءً على اللوكل ستورج -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ملخص السلة النهائي -->
+        <div class="cart-summary-final">
+            <div class="summary-box">
+                <!-- فورم يوجه إلى الاكشن Checkout في الكنترولر -->
+                <form asp-controller="Cart" asp-action="Checkout" method="post">
+                    <div class="s-row">
+                        <span>إجمالي السلة:</span>
+                        <strong id="grand-total">0</strong> <span>ر.س</span>
+                    </div>
+
+                    <!-- يمكن تحويل هذه الدالة لإرسال البيانات للخادم لاحقاً بدلاً من الواتساب -->
+                    <button type="button" class="btn-complete-order" onclick="checkoutFullCart()">
+                        إتمام الطلب عبر واتساب <i class="fab fa-whatsapp"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        // تشغيل دالة السلة فور فتح الصفحة
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderCartPage === "function") {
+                renderCartPage();
+            }
+        });
+    </script>
+}

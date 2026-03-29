@@ -1,0 +1,77 @@
+﻿@model Printnes.ViewModels.StoreSettingsViewModel
+@{
+    ViewData["Title"] = "إعدادات النظام";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-cog"></i> إعدادات النظام والمتجر</h1>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div style="background: #dcfce7; color: #166534; padding: 15px 20px; border-radius: var(--erp-radius); border: 1px solid #bbf7d0; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: bold;">
+        <i class="fas fa-check-circle" style="font-size: 20px;"></i> @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="erp-card" style="max-width: 900px;">
+    <form asp-action="Save" method="post">
+
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+            <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(242, 106, 46, 0.1); color: var(--erp-orange); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fas fa-store"></i>
+            </div>
+            <h3 style="color: var(--erp-dark); margin: 0; font-weight: 800;">الإعدادات العامة</h3>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="erp-form-group">
+                <label asp-for="StoreName" class="erp-form-label">اسم المتجر</label>
+                <input asp-for="StoreName" class="erp-form-control" />
+                <span asp-validation-for="StoreName" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div class="erp-form-group">
+                <label asp-for="ContactEmail" class="erp-form-label">البريد الإلكتروني للدعم</label>
+                <input asp-for="ContactEmail" class="erp-form-control" />
+                <span asp-validation-for="ContactEmail" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;">
+            <div class="erp-form-group">
+                <label asp-for="ContactPhone" class="erp-form-label">رقم جوال الواتساب</label>
+                <input asp-for="ContactPhone" class="erp-form-control" dir="ltr" style="text-align: right;" />
+                <span asp-validation-for="ContactPhone" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--erp-border); margin-bottom: 30px;">
+
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+            <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(16, 185, 129, 0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <h3 style="color: var(--erp-dark); margin: 0; font-weight: 800;">الإعدادات المالية</h3>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div class="erp-form-group">
+                <label asp-for="TaxPercentage" class="erp-form-label">الضريبة المضافة (%)</label>
+                <input asp-for="TaxPercentage" type="number" step="0.1" class="erp-form-control" />
+                <span asp-validation-for="TaxPercentage" style="color: red; font-size: 12px;"></span>
+            </div>
+            <div class="erp-form-group">
+                <label asp-for="DefaultShippingCost" class="erp-form-label">تكلفة الشحن الافتراضية (ر.س)</label>
+                <input asp-for="DefaultShippingCost" type="number" step="0.1" class="erp-form-control" />
+                <span asp-validation-for="DefaultShippingCost" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-erp" style="padding: 14px 40px; font-size: 16px;"><i class="fas fa-save"></i> حفظ كافة الإعدادات</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

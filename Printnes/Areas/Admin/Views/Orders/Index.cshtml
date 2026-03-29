@@ -1,0 +1,81 @@
+﻿@model IEnumerable<Printnes.Models.Order>
+@{
+    ViewData["Title"] = "إدارة الطلبات";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-file-invoice-dollar"></i> إدارة الطلبات</h1>
+    <button class="btn-erp btn-erp-outline"><i class="fas fa-file-export"></i> تصدير إكسيل</button>
+</div>
+
+<div class="erp-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 20px 30px; border-bottom: 1px solid var(--erp-border); background: #fafbfc; display: flex; gap: 15px;">
+        <input type="text" placeholder="ابحث برقم الطلب أو جوال العميل..." class="erp-form-control" style="max-width: 300px; padding: 10px 15px;" />
+        <select class="erp-form-control" style="max-width: 200px; padding: 10px 15px;">
+            <option value="">كل الحالات</option>
+            <option value="1">جديد</option>
+            <option value="3">جاري الطباعة</option>
+            <option value="5">مكتمل</option>
+        </select>
+        <button class="btn-erp" style="padding: 10px 20px;"><i class="fas fa-filter"></i> تصفية</button>
+    </div>
+
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>رقم الطلب</th>
+                <th>العميل</th>
+                <th>تاريخ الطلب</th>
+                <th>المبلغ الإجمالي</th>
+                <th>حالة الدفع</th>
+                <th>المرحلة</th>
+                <th>إجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="font-weight: 900; color: var(--erp-dark);">@item.OrderNumber</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--erp-bg); display: flex; align-items: center; justify-content: center; color: var(--erp-text-light);"><i class="fas fa-user"></i></div>
+                                <div>
+                                    <div style="font-weight: 700; color: var(--erp-dark);">@item.CustomerName</div>
+                                    <div style="font-size: 11px; color: var(--erp-text-light);">@item.CustomerPhone</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="color: var(--erp-text-light); font-size: 13px;">@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td style="font-weight: 800; color: var(--erp-orange);">@item.TotalAmount.ToString("0.00") ر.س</td>
+                        <td>
+                            @(item.PaymentStatus == 1 ? Html.Raw("<span class='status-badge status-success'>مدفوع</span>") : Html.Raw("<span class='status-badge status-warning'>معلق</span>"))
+                        </td>
+                        <td>
+                            @{
+                                string statusClass = item.OrderStatus == 1 ? "status-info" : (item.OrderStatus == 5 ? "status-success" : "status-warning");
+                                string statusText = item.OrderStatus == 1 ? "جديد" : (item.OrderStatus == 5 ? "مكتمل" : "قيد المعالجة");
+                            }
+                            <span class="status-badge @statusClass">@statusText</span>
+                        </td>
+                        <td>
+                            <a href="/Admin/Orders/Details/@item.Id" class="btn-erp btn-erp-outline" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-eye"></i> عرض</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
+                        <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد طلبات مسجلة حالياً.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

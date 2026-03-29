@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Printnes.Models.Category>
+@{
+    ViewData["Title"] = "إدارة الأقسام";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-layer-group"></i> إدارة الأقسام</h1>
+    <a href="/Admin/Categories/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة قسم جديد</a>
+</div>
+
+<div class="erp-card">
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th style="width: 80px; text-align: center;">الأيقونة</th>
+                <th>اسم القسم</th>
+                <th>الرابط (Slug)</th>
+                <th>الترتيب</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="text-align: center;">
+                            @if (!string.IsNullOrEmpty(item.IconClass))
+                            {
+                                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--erp-bg); display: flex; align-items: center; justify-content: center; margin: 0 auto; color: var(--erp-orange); font-size: 18px;">
+                                    <i class="fas @item.IconClass"></i>
+                                </div>
+                            }
+                        </td>
+                        <td style="font-weight: 800; color: var(--erp-dark);">@item.NameAr</td>
+                        <td style="color: var(--erp-text-light);">@item.Slug</td>
+                        <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px;">@item.SortOrder</span></td>
+                        <td>
+                            @(item.IsActive? Html.Raw("<span class='status-badge status-success'><i class='fas fa-check'></i> نشط</span>") : Html.Raw("<span class='status-badge status-danger'><i class='fas fa-times'></i> غير نشط</span>"))
+                        </td>
+                        <td>
+                            <a href="/Admin/Categories/Edit/@item.Id" style="color: var(--erp-text-light); margin-left: 15px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'" title="تعديل"><i class="fas fa-edit"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
+                        <i class="fas fa-folder-open" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد أقسام مضافة حتى الآن.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

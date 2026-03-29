@@ -1,0 +1,77 @@
+﻿@model Printnes.Models.ProductOption
+@{
+    ViewData["Title"] = "تعديل خيار الطباعة";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-edit"></i> تعديل خيار: @Model.NameAr</h1>
+    <a href="/Admin/ProductOptions" class="btn-erp btn-erp-outline"><i class="fas fa-arrow-right"></i> عودة للخيارات</a>
+</div>
+
+<div class="erp-card" style="max-width: 800px;">
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly" class="status-danger" style="margin-bottom: 20px; display: block; border-radius: 8px; padding: 15px;"></div>
+
+        <input type="hidden" asp-for="Id" />
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="erp-form-group">
+                <label class="erp-form-label">المنتج المرتبط *</label>
+                <select asp-for="ProductId" asp-items="ViewBag.ProductId" class="erp-form-control" required></select>
+                <span asp-validation-for="ProductId" style="color: red; font-size: 12px;"></span>
+            </div>
+
+            <div class="erp-form-group">
+                <label class="erp-form-label">نوع الخيار *</label>
+                <select asp-for="OptionType" class="erp-form-control" required>
+                    <option value="1">ورق (Paper)</option>
+                    <option value="2">مقاس (Size)</option>
+                    <option value="3">أوجه (Sides)</option>
+                    <option value="4">تشطيب/حماية (Finish)</option>
+                </select>
+                <span asp-validation-for="OptionType" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="erp-form-group">
+                <label class="erp-form-label">الاسم بالعربية *</label>
+                <input asp-for="NameAr" class="erp-form-control" required />
+                <span asp-validation-for="NameAr" style="color: red; font-size: 12px;"></span>
+            </div>
+
+            <div class="erp-form-group">
+                <label class="erp-form-label">الاسم بالإنجليزية *</label>
+                <input asp-for="NameEn" class="erp-form-control" required />
+                <span asp-validation-for="NameEn" style="color: red; font-size: 12px;"></span>
+            </div>
+        </div>
+
+        <div class="erp-form-group">
+            <label class="erp-form-label">بيانات إضافية (Extra Data JSON)</label>
+            <input asp-for="ExtraData" class="erp-form-control" placeholder='{"width": 9, "height": 5.5}' />
+            <small style="color: var(--erp-text-light);">مفيدة في حالة أردت تخزين أبعاد حقيقية لبرمجيات الحساب.</small>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="erp-form-group">
+                <label class="erp-form-label">الترتيب في القائمة</label>
+                <input asp-for="SortOrder" type="number" class="erp-form-control" />
+            </div>
+        </div>
+
+        <div class="erp-form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+            <input type="checkbox" asp-for="IsActive" style="width: 18px; height: 18px; accent-color: var(--erp-orange);" />
+            <label asp-for="IsActive" class="erp-form-label" style="margin: 0; cursor: pointer;">تفعيل الخيار للعملاء</label>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--erp-border); margin: 30px 0;">
+
+        <button type="submit" class="btn-erp"><i class="fas fa-save"></i> حفظ التعديلات</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

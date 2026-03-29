@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "خدمات التصميم";
+}
+
+<div class="category-header-bar">
+    <div class="container">
+        <nav class="breadcrumb-white">
+            <a href="/">الرئيسية</a> <span>/</span> <strong>خدمات التصميم</strong>
+        </nav>
+    </div>
+</div>
+
+<main class="container py-4">
+    <div class="shop-controls">
+        <h2 class="orange-line-title">خدمات التصميم</h2>
+        <div class="sort-filter">
+            <label>ترتيب</label>
+            <div class="custom-select-wrapper">
+                <select>
+                    <option>مقترحاتنا</option>
+                    <option>الأكثر طلباً</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- حاوية عرض خدمات التصميم -->
+    <div class="products-grid" id="render-design-services">
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderSection === "function") {
+                renderSection("design_services", "render-design-services");
+            }
+        });
+    </script>
+}

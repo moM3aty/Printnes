@@ -1,0 +1,194 @@
+﻿@model Printnes.Models.Product
+@{
+    // إذا كان الموديل موجود نضع اسم المنتج كعنوان للصفحة، وإلا نضع نص افتراضي
+    ViewData["Title"] = Model != null ? Model.NameAr : "تفاصيل المنتج";
+}
+
+<main class="container py-5">
+    <!-- مسار التنقل Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="/">الرئيسية</a> &gt;
+        <span id="breadcrumb-cat">@(Model != null ? Model.Category?.NameAr : "القسم")</span> &gt;
+        <span id="breadcrumb-name">@(Model != null ? Model.NameAr : "اسم المنتج")</span>
+    </nav>
+
+    <div class="product-details-wrapper">
+        <!-- قسم الصورة -->
+        <div class="product-image-side">
+            <div class="main-img-holder">
+                <img id="main-product-img" src="@(Model != null ? Model.CoverImageUrl : "https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png")" alt="@(Model?.NameAr)">
+            </div>
+        </div>
+
+        <!-- قسم التفاصيل والخيارات -->
+        <div class="product-info-side">
+            <h1 id="product-title">@(Model != null ? Model.NameAr : "اسم المنتج")</h1>
+
+            <div class="rating-stars">
+                <i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i>
+                <span>(1 تقييم)</span>
+            </div>
+
+            <div class="short-desc" id="product-short-desc">
+                @(Model != null ? Model.DescriptionAr : "وصف مختصر ومميز للمنتج يظهر في هذه المنطقة لشرح الفوائد والميزات للعميل.")
+            </div>
+
+            <!-- خدمة الدفع بالأقساط -->
+            <div class="tabby-box">
+                <img src="https://img.icons8.com/color/48/tabby.png" width="30" alt="Tabby">
+                <p>قسم مشترياتك على 4 دفعات بدون فوائد بقيمة <span id="tabby-price">0</span> ر.س</p>
+            </div>
+
+            <!-- خيارات المنتج -->
+            <div class="options-container">
+                <div class="options-tabs">
+                    <button class="tab-btn active">خيارات المنتج</button>
+                    <button class="tab-btn">تقييمات المنتج</button>
+                </div>
+                <div class="options-body">
+                    <!-- سيتم توليد هذه الخيارات ديناميكياً من قاعدة البيانات (ProductOptions) لاحقاً بناءً على الـ PricingMatrix -->
+
+                    <div class="form-group">
+                        <label>اختر عدد أوجه الطباعة *</label>
+                        <select id="option-sides">
+                            <option value="">اختر</option>
+                            <option value="1">وجه واحد</option>
+                            <option value="2">وجهين</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>خدمة التصميم *</label>
+                        <small class="label-hint">لديك نموذج تصميم خاص أم تريد خدمة تصميم</small>
+                        <select id="option-design" onchange="calculateFinalPrice()">
+                            <option value="">اختر</option>
+                            <option value="0">رفع تصميمي الخاص</option>
+                            <option value="46">لدي تصميم يحتاج تعديل (+46 ر.س)</option>
+                            <option value="250">طلب خدمة تصميم (+250 ر.س)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>طبقة الحماية *</label>
+                        <select id="option-cover">
+                            <option value="">اختر</option>
+                            <option value="none">بدون</option>
+                            <option value="matte">مطفي (Matte)</option>
+                            <option value="glossy">لامع (Glossy)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>مدة التنفيذ للمنتج *</label>
+                        <select id="option-duration">
+                            <option value="">اختر</option>
+                            <option value="normal">عادي (3-5 أيام)</option>
+                            <option value="urgent">مستعجل (24-48 ساعة)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>النوع *</label>
+                        <small class="label-hint">اختر جودة ونوع الورق المستخدم</small>
+                        <select id="option-paper-type">
+                            <option value="">اختر</option>
+                            <option value="standard">ورق كوشيه 350 جرام (قياسي)</option>
+                            <option value="luxury">ورق فخم مطفي (Luxury Matte)</option>
+                            <option value="textured">ورق منقوش (Textured Paper)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>أطراف الكرت *</label>
+                        <small class="label-hint">شكل زوايا الكرت النهائية</small>
+                        <select id="option-corners">
+                            <option value="">اختر</option>
+                            <option value="straight">زوايا مستقيمة (حادة)</option>
+                            <option value="rounded">زوايا منحنية (Rounded)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة المساعدة السريعة -->
+            <div class="help-center-card">
+                <div class="help-content-wrap">
+                    <div class="help-text">
+                        <h3>تحتاج مساعدة في اتمام طلبك ؟ <i class="fab fa-whatsapp"></i></h3>
+                        <p>ما عرفت تكمل طلبك أو واجهت أي مشكلة تواصل معنا على الواتس اب</p>
+                        <a href="https://wa.me/966554804857" target="_blank" class="btn-click-here">اضغط هنا</a>
+                    </div>
+                </div>
+                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" class="bg-logo-fade" alt="">
+            </div>
+
+            <!-- التنبيهات -->
+            <div class="important-notes">
+                <h4>تنبيهات هامة:</h4>
+                <ul>
+                    <li>يجب أن يكون التصميم بجودة عالية.</li>
+                    <li>يتم الطباعة بحسب ألوان CMYK.</li>
+                    <li>مدة التنفيذ المتوقعة 3-5 أيام عمل.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- قسم المنتجات ذات الصلة -->
+    <section class="related-products mt-5">
+        <h2 class="sec-title">منتجات قد تعجبك</h2>
+        <div class="products-grid" id="related-render"></div>
+    </section>
+</main>
+
+<!-- الشريط السفلي الثابت (للسعر والإضافة للسلة) -->
+<div class="sticky-footer-bar">
+    <div class="container bar-content">
+        <div class="price-side">
+            <span class="final-price" id="sticky-price">0 ر.س</span>
+            <small>السعر شامل الضريبة</small>
+        </div>
+        <div class="action-side">
+            <div class="quantity-picker">
+                <button type="button" onclick="changeQty(-1)">-</button>
+                <input type="number" id="prod-qty" value="1" readonly>
+                <button type="button" onclick="changeQty(1)">+</button>
+            </div>
+            <button class="btn-add-main" onclick="addToCartFromDetails()">إضافة للسلة</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // تشغيل دوال الجافاسكريبت المخصصة لهذه الصفحة عند التحميل
+        document.addEventListener("DOMContentLoaded", function() {
+            // سيقوم هذا الكود برسم المنتجات المقترحة في الأسفل من الداتا المؤقتة (storeData)
+            if (typeof renderSection === "function") {
+                renderSection("featured", "related-render");
+            }
+
+            // في حال وجود منتج ممرر، سيتم جلب بياناته، وإلا سيتم تشغيل كود تجريبي
+            @if (Model == null)
+            {
+                    <text>
+                    if (typeof renderProductDetails === "function") {
+                        renderProductDetails();
+                    }
+                    </text>
+            }
+        });
+
+        function calculateFinalPrice() {
+            // هذه دالة تجريبية لتغيير السعر، وسيتم استبدالها لاحقاً بالتسعير الديناميكي القادم من الـ PricingMatrix
+            let base = 50;
+            let designCost = parseFloat(document.getElementById('option-design').value) || 0;
+            let qty = parseInt(document.getElementById('prod-qty').value) || 1;
+
+            let total = (base * qty) + designCost;
+
+            document.getElementById('sticky-price').innerText = total.toFixed(2) + ' ر.س';
+            document.getElementById('tabby-price').innerText = (total / 4).toFixed(2);
+        }
+    </script>
+}

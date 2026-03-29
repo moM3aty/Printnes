@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Printnes.Models.ProductOption>
+@{
+    ViewData["Title"] = "خيارات المنتجات";
+    Layout = "_AdminLayout";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-sliders-h"></i> إدارة خيارات المنتجات</h1>
+    <a href="/Admin/ProductOptions/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة خيار جديد</a>
+</div>
+
+<div class="erp-card" style="padding: 0; overflow: hidden;">
+    <table class="erp-table">
+        <thead>
+            <tr>
+                <th>المنتج المرتبط</th>
+                <th>نوع الخيار</th>
+                <th>الاسم (عربي)</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="font-weight: 800; color: var(--erp-dark);">@item.Product?.NameAr</td>
+                        <td>
+                            @{
+                                string typeBadgeClass = "background: var(--erp-bg); color: var(--erp-text);";
+                                string typeText = "";
+                                
+                                switch(item.OptionType)
+                                {
+                                    case 1: typeText = "ورق"; typeBadgeClass = "background: #e0f2fe; color: #0369a1;"; break;
+                                    case 2: typeText = "مقاس"; typeBadgeClass = "background: #f3e8ff; color: #6b21a8;"; break;
+                                    case 3: typeText = "أوجه"; typeBadgeClass = "background: #ffedd5; color: #b45309;"; break;
+                                    default: typeText = "تشطيب/حماية"; break;
+                                }
+                            }
+                            <span style="@typeBadgeClass padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;">@typeText</span>
+                        </td>
+                        <td style="color: var(--erp-text-light);">@item.NameAr</td>
+                        <td>
+                            @(item.IsActive ? Html.Raw("<span class='status-badge status-success'>نشط</span>") : Html.Raw("<span class='status-badge status-danger'>غير نشط</span>"))
+                        </td>
+                        <td>
+                            <a href="/Admin/ProductOptions/Edit/@item.Id" style="color: var(--erp-text-light); margin-left: 10px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-edit"></i></a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
+                        <i class="fas fa-stream" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد خيارات مضافة. قم بإضافة خيارات لربطها بمصفوفة الأسعار.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "إضافة صلاحية جديدة";
+}
+
+<div class="erp-page-header">
+    <h1 class="erp-page-title"><i class="fas fa-user-shield"></i> إضافة صلاحية جديدة</h1>
+    <a href="/Admin/Roles" style="color: var(--erp-primary); text-decoration: none; font-weight:bold;"><i class="fas fa-arrow-right"></i> عودة للصلاحيات</a>
+</div>
+
+<div class="erp-card" style="max-width: 600px;">
+    <form asp-action="Create" method="post">
+
+        <div asp-validation-summary="All" style="color: #ef4444; margin-bottom: 15px;"></div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--erp-text);">اسم الصلاحية (باللغة الإنجليزية) *</label>
+            <input type="text" name="roleName" style="width: 100%; padding: 12px; border: 1px solid var(--erp-border); border-radius: 8px; background: var(--erp-bg); font-family: inherit;" placeholder="مثال: Accountant أو Designer" required />
+            <small style="color: var(--erp-text-light); margin-top: 5px; display: block;">يُفضل كتابة اسم الصلاحية باللغة الإنجليزية لسهولة استخدامها في الكود (Roles="Accountant").</small>
+        </div>
+
+        <button type="submit" class="btn-erp" style="padding: 12px 35px; font-size: 16px;"><i class="fas fa-plus-circle"></i> إنشاء الصلاحية</button>
+    </form>
+</div>

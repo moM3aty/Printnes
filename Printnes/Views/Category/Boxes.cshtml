@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "الطباعة على البوكسات";
+}
+
+<div class="category-header-bar">
+    <div class="container">
+        <nav class="breadcrumb-white">
+            <a href="/">الرئيسية</a> <span>/</span> <strong>الطباعة على البوكسات</strong>
+        </nav>
+    </div>
+</div>
+
+<section class="sub-categories-pills">
+    <div class="container pills-wrapper">
+        <button class="pill active">عرض الكل</button>
+        <button class="pill">بوكس مع حامل</button>
+        <button class="pill">بوكسات سحاب</button>
+        <button class="pill">بوكسات سحاب مقسمة</button>
+        <button class="pill">بوكسات قاعدة وغطاء</button>
+        <button class="pill">بوكس كامل بإغلاق</button>
+        <button class="pill">بوكس تقديم</button>
+        <button class="pill">بوكسات توزيعات</button>
+        <button class="pill">قواعد بوكسات داخلية</button>
+        <button class="pill">حامل البوكسات</button>
+    </div>
+</section>
+
+<main class="container py-4">
+    <div class="shop-controls">
+        <h2 class="orange-line-title">الطباعة على البوكسات</h2>
+        <div class="sort-filter">
+            <label>ترتيب</label>
+            <div class="custom-select-wrapper">
+                <select>
+                    <option>مقترحاتنا</option>
+                    <option>الأكثر مبيعاً</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- حاوية عرض البوكسات -->
+    <div class="products-grid" id="render-boxes-page">
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof renderSection === "function") {
+                renderSection("boxes", "render-boxes-page");
+            }
+        });
+    </script>
+}
