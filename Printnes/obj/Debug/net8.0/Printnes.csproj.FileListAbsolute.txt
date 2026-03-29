@@ -137,3 +137,4 @@ D:\Dev\Printnes\Printnes\obj\Debug\net8.0\refint\Printnes.dll
 D:\Dev\Printnes\Printnes\obj\Debug\net8.0\Printnes.pdb
 D:\Dev\Printnes\Printnes\obj\Debug\net8.0\Printnes.genruntimeconfig.cache
 D:\Dev\Printnes\Printnes\obj\Debug\net8.0\ref\Printnes.dll
+D:\Dev\Printnes\Printnes\obj\Debug\net8.0\Printnes.sourcelink.json

@@ -31,8 +31,8 @@
                             @{
                                 string typeBadgeClass = "background: var(--erp-bg); color: var(--erp-text);";
                                 string typeText = "";
-                                
-                                switch(item.OptionType)
+
+                                switch (item.OptionType)
                                 {
                                     case 1: typeText = "ورق"; typeBadgeClass = "background: #e0f2fe; color: #0369a1;"; break;
                                     case 2: typeText = "مقاس"; typeBadgeClass = "background: #f3e8ff; color: #6b21a8;"; break;
@@ -44,7 +44,7 @@
                         </td>
                         <td style="color: var(--erp-text-light);">@item.NameAr</td>
                         <td>
-                            @(item.IsActive ? Html.Raw("<span class='status-badge status-success'>نشط</span>") : Html.Raw("<span class='status-badge status-danger'>غير نشط</span>"))
+                            @(item.IsActive? Html.Raw("<span class='status-badge status-success'>نشط</span>") : Html.Raw("<span class='status-badge status-danger'>غير نشط</span>"))
                         </td>
                         <td>
                             <a href="/Admin/ProductOptions/Edit/@item.Id" style="color: var(--erp-text-light); margin-left: 10px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-edit"></i></a>

@@ -54,7 +54,7 @@
     <div style="display: flex; flex-direction: column; gap: 30px;">
         <div class="erp-card">
             <h3 style="margin-top: 0; color: var(--erp-dark); border-bottom: 2px solid var(--erp-bg); padding-bottom: 15px; font-weight: 800; font-size: 18px;"><i class="fas fa-user-circle" style="color: var(--erp-orange); margin-left: 5px;"></i> معلومات العميل</h3>
-            
+
             <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between;">
                     <span style="color: var(--erp-text-light); font-size: 14px;">الاسم:</span>
@@ -75,10 +75,10 @@
 
         <div class="erp-card">
             <h3 style="margin-top: 0; color: var(--erp-dark); border-bottom: 2px solid var(--erp-bg); padding-bottom: 15px; font-weight: 800; font-size: 18px;"><i class="fas fa-sync-alt" style="color: var(--erp-orange); margin-left: 5px;"></i> تحديث الحالة</h3>
-            
+
             <form asp-action="UpdateStatus" method="post" style="margin-top: 20px;">
                 <input type="hidden" name="id" value="@Model.Id" />
-                
+
                 <div class="erp-form-group">
                     <label class="erp-form-label">الحالة الجديدة للمرحلة</label>
                     <select name="newStatus" class="erp-form-control">

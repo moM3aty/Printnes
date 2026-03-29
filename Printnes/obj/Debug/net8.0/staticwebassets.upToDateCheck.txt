@@ -1,5 +1,8 @@
+wwwroot\css\admin-style.css
 wwwroot\css\style.css
 wwwroot\favicon.ico
+wwwroot\images\img1.jpg
+wwwroot\js\admin-script.js
 wwwroot\js\api-client.js
 wwwroot\js\script.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
