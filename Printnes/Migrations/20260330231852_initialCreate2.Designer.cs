@@ -12,8 +12,8 @@ using Printnes.Data;
 namespace Printnes.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260330135627_update")]
-    partial class update
+    [Migration("20260330231852_initialCreate2")]
+    partial class initialCreate2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1130,7 +1130,7 @@ namespace Printnes.Migrations
                         .IsRequired();
 
                     b.HasOne("Printnes.Models.Product", null)
-                        .WithMany("Reviews")
+                        .WithMany("ProductReviews")
                         .HasForeignKey("ProductId1");
 
                     b.HasOne("Printnes.Models.ApplicationUser", "User")
@@ -1210,9 +1210,9 @@ namespace Printnes.Migrations
 
                     b.Navigation("ProductOptions");
 
-                    b.Navigation("QuantityTiers");
+                    b.Navigation("ProductReviews");
 
-                    b.Navigation("Reviews");
+                    b.Navigation("QuantityTiers");
 
                     b.Navigation("UserFavorites");
                 });

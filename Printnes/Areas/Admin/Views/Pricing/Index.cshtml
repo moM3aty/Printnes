@@ -38,7 +38,7 @@
                             <td style="font-weight: 800; color: var(--success);">@item.UnitPrice.ToString("0.000") ر.س</td>
                             <td>
                                 <div style="display: flex; gap: 8px;">
-                                    <a href="#" class="btn-outline btn-icon" title="تعديل"><i class="fas fa-edit"></i></a>
+                                    <a href="/Admin/Pricing/Edit/@item.Id" class="btn-outline btn-icon" title="تعديل"><i class="fas fa-edit"></i></a>
                                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه التسعيرة؟');">
                                         <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: var(--danger);">
                                             <i class="fas fa-trash"></i>

@@ -1,7 +1,16 @@
-﻿<!-- الملف: Views/Products/Details.cshtml -->
-@model Printnes.Models.Product
+﻿@model Printnes.Models.Product
 @{
     ViewData["Title"] = Model != null ? Model.NameAr : "تفاصيل المنتج";
+    Layout = "_Layout";
+
+    bool hasAnyOptions = (ViewBag.PaperOptions != null && Enumerable.Count(ViewBag.PaperOptions) > 0) ||
+                         (ViewBag.SizeOptions != null && Enumerable.Count(ViewBag.SizeOptions) > 0) ||
+                         (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0);
+
+    // حساب متوسط التقييمات وعددها
+    var approvedReviews = Model?.ProductReviews?.Where(r => r.IsApproved).OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Printnes.Models.ProductReview>();
+    int reviewsCount = approvedReviews.Count;
+    double avgRating = reviewsCount > 0 ? approvedReviews.Average(r => r.Rating) : 5.0; // افتراضي 5 إذا لم يوجد تقييم
 }
 
 <main class="container py-5">
@@ -14,84 +23,148 @@
     <div class="product-details-wrapper">
         <div class="product-image-side">
             <div class="main-img-holder">
-                <img id="main-product-img" src="@(Model != null ? Model.CoverImageUrl : "https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png")" alt="@(Model?.NameAr)">
+                <img id="main-product-img" src="@(Model != null ? Model.CoverImageUrl : "")" alt="@(Model?.NameAr)">
             </div>
         </div>
 
         <div class="product-info-side">
-            <h1 id="product-title">@(Model != null ? Model.NameAr : "اسم المنتج")</h1>
+            <h1 id="product-title" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 15px;">
+                <span>@(Model != null ? Model.NameAr : "اسم المنتج")</span>
+                @if (Model != null)
+                {
+                    <button type="button" class="fav-btn-element" data-product-id="@Model.Id" onclick="handleFavoriteToggle(@Model.Id, this, '@Model.NameAr.Replace("'", "\\'")', '@Model.CoverImageUrl')"
+                            style="background: #f8faff; border: 1px solid #e2e8f0; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: #cbd5e1; flex-shrink: 0; transition: 0.3s;"
+                            onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='#e2e8f0'">
+                        <i class="far fa-heart"></i>
+                    </button>
+                }
+            </h1>
 
-            <div class="rating-stars">
-                <i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i><i class="fas fa-star text-orange"></i>
-                <span>(1 تقييم)</span>
+            <div class="rating-stars" style="display: flex; align-items: center; gap: 5px; margin-bottom: 15px;">
+                <div style="color: #f59e0b; font-size: 14px;">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= Math.Round(avgRating))
+                        {
+                            <i class="fas fa-star"></i>
+                        }
+                        else
+                        {
+
+                            <i class="far fa-star"></i>
+                        }
+                    }
+                </div>
+                <span style="color: var(--text-muted); font-size: 13px; font-weight: 600;">(@Math.Round(avgRating, 1)) من @reviewsCount تقييم</span>
             </div>
 
             <div class="short-desc" id="product-short-desc">
-                @(Model != null && !string.IsNullOrEmpty(Model.DescriptionAr) ? Model.DescriptionAr : "وصف مختصر ومميز للمنتج يظهر في هذه المنطقة لشرح الفوائد والميزات للعميل.")
+                @(Model != null && !string.IsNullOrEmpty(Model.DescriptionAr) ? Model.DescriptionAr : "وصف مختصر للمنتج.")
             </div>
 
-            <div class="tabby-box">
-                <img src="https://img.icons8.com/color/48/tabby.png" width="30" alt="Tabby">
-                <p>قسم مشترياتك على 4 دفعات بدون فوائد بقيمة <span id="tabby-price" style="font-weight: bold; color: var(--navy);">0</span> ر.س</p>
-            </div>
+        
 
             <div class="options-container">
                 <div class="options-tabs">
-                    <button class="tab-btn active">خيارات المنتج</button>
-                    <button class="tab-btn" onclick="location.href='#reviews'">تقييمات المنتج</button>
+                    <button class="tab-btn active">خيارات الطباعة والتفاصيل</button>
                 </div>
+
                 <div class="options-body">
-                    <!-- خيارات ديناميكية (هنا نضع تصميم تخيلي وسنربطه بالـ DB لاحقاً) -->
-                    <div class="form-group">
-                        <label>اختر عدد أوجه الطباعة *</label>
-                        <select id="option-sides" onchange="calculateFinalPrice()">
-                            <option value="">اختر</option>
-                            <option value="1">وجه واحد</option>
-                            <option value="2">وجهين</option>
-                        </select>
-                    </div>
+                    @if (hasAnyOptions)
+                    {
+                        @if (ViewBag.PaperOptions != null && Enumerable.Count(ViewBag.PaperOptions) > 0)
+                        {
+                            <div class="form-group">
+                                <label>نوع الورق *</label>
+                                <select id="opt-paper" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                    <option value="">-- اختر --</option>
+                                    @foreach (var opt in ViewBag.PaperOptions)
+                                    {
+                                        <option value="@opt.Id">@opt.NameAr</option>
+                                    }
+                                </select>
+                            </div>
+                        }
 
-                    <div class="form-group">
-                        <label>خدمة التصميم *</label>
-                        <small class="label-hint">لديك نموذج تصميم خاص أم تريد خدمة تصميم</small>
-                        <select id="option-design" onchange="calculateFinalPrice()">
-                            <option value="">اختر</option>
-                            <option value="0">رفع تصميمي الخاص</option>
-                            <option value="46">لدي تصميم يحتاج تعديل (+46 ر.س)</option>
-                            <option value="250">طلب خدمة تصميم (+250 ر.س)</option>
-                        </select>
-                    </div>
+                        @if (ViewBag.SizeOptions != null && Enumerable.Count(ViewBag.SizeOptions) > 0)
+                        {
+                            <div class="form-group">
+                                <label>المقاس *</label>
+                                <select id="opt-size" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                    <option value="">-- اختر --</option>
+                                    @foreach (var opt in ViewBag.SizeOptions)
+                                    {
+                                        <option value="@opt.Id">@opt.NameAr</option>
+                                    }
+                                </select>
+                            </div>
+                        }
 
-                    <div class="form-group">
-                        <label>النوع *</label>
-                        <small class="label-hint">اختر جودة ونوع الورق المستخدم</small>
-                        <select id="option-paper-type" onchange="calculateFinalPrice()">
-                            <option value="">اختر</option>
-                            <option value="standard">ورق كوشيه 350 جرام (قياسي)</option>
-                            <option value="luxury">ورق فخم مطفي (Luxury Matte)</option>
-                            <option value="textured">ورق منقوش (Textured Paper)</option>
-                        </select>
-                    </div>
+                        @if (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0)
+                        {
+                            <div class="form-group">
+                                <label>عدد أوجه الطباعة *</label>
+                                <select id="opt-sides" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                    <option value="">-- اختر --</option>
+                                    @foreach (var opt in ViewBag.SidesOptions)
+                                    {
+                                        <option value="@opt.Id">@opt.NameAr</option>
+                                    }
+                                </select>
+                            </div>
+                        }
 
-                    <div class="form-group">
-                        <label>طبقة الحماية *</label>
-                        <select id="option-cover" onchange="calculateFinalPrice()">
-                            <option value="">اختر</option>
-                            <option value="none">بدون</option>
-                            <option value="matte">مطفي (Matte)</option>
-                            <option value="glossy">لامع (Glossy)</option>
-                        </select>
-                    </div>
+                        @if (ViewBag.FinishOptions != null && Enumerable.Count(ViewBag.FinishOptions) > 0)
+                        {
+                            <div class="form-group">
+                                <label>خيارات التشطيب والحماية</label>
+                                <select id="opt-finish" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;">
+                                    <option value="">-- اختر (اختياري) --</option>
+                                    @foreach (var opt in ViewBag.FinishOptions)
+                                    {
+                                        <option value="@opt.Id">@opt.NameAr</option>
+                                    }
+                                </select>
+                            </div>
+                        }
 
-                    <div class="form-group">
-                        <label>أطراف الكرت *</label>
-                        <small class="label-hint">شكل زوايا الكرت النهائية</small>
-                        <select id="option-corners" onchange="calculateFinalPrice()">
-                            <option value="">اختر</option>
-                            <option value="straight">زوايا مستقيمة (حادة)</option>
-                            <option value="rounded">زوايا منحنية (Rounded)</option>
-                        </select>
-                    </div>
+                        @if (Model != null && Model.ProductExtras != null && Model.ProductExtras.Any())
+                        {
+                            <div class="form-group" style="margin-top: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                                <label style="color: var(--navy); font-weight: 800; margin-bottom: 10px; display: block;"><i class="fas fa-plus-circle" style="color: var(--orange);"></i> إضافات اختيارية</label>
+                                @foreach (var extra in Model.ProductExtras)
+                                {
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px; font-size: 14px;">
+                                        <input type="checkbox" class="extra-checkbox" value="@extra.Id" onchange="calculateDynamicPrice()" style="width: 18px; height: 18px; accent-color: var(--orange);" />
+                                        @extra.NameAr <strong style="color: var(--success); margin-right: 5px;">(+@extra.Price.ToString("0.00") ر.س)</strong>
+                                    </label>
+                                }
+                            </div>
+                        }
+
+                        @if (ViewBag.QuantityTiers != null && Enumerable.Count(ViewBag.QuantityTiers) > 0)
+                        {
+                            <div style="background: #ecfdf5; padding: 12px; border-radius: 8px; border: 1px dashed #10b981; margin-top: 15px; font-size: 13px;">
+                                <strong style="color: #065f46;"><i class="fas fa-tags"></i> عروض الكميات المتاحة:</strong>
+                                <ul style="margin: 5px 20px 0; color: #047857;">
+                                    @foreach (var tier in ViewBag.QuantityTiers)
+                                    {
+                                        <li>خصم @tier.DiscountPercent% عند طلب @tier.MinQuantity إلى @tier.MaxQuantity نسخة</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="text-align: center; padding: 30px 10px;">
+                            <div style="width: 60px; height: 60px; background: #f8faff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: var(--navy);">
+                                <i class="fas fa-tools" style="font-size: 24px;"></i>
+                            </div>
+                            <h3 style="font-size: 16px; color: var(--navy); margin-bottom: 10px;">خيارات الطباعة قيد التحديث</h3>
+                            <p style="font-size: 14px; color: #888; line-height: 1.6;">يقوم فريقنا حالياً بضبط المواصفات والأسعار لهذا المنتج. يمكنك التواصل معنا مباشرة لطلبه بمواصفاتك الخاصة.</p>
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -105,19 +178,70 @@
                 </div>
                 <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" class="bg-logo-fade" alt="">
             </div>
-
-            <div class="important-notes">
-                <h4>تنبيهات هامة:</h4>
-                <ul>
-                    <li>يجب أن يكون التصميم بجودة عالية.</li>
-                    <li>يتم الطباعة بحسب ألوان CMYK.</li>
-                    <li>مدة التنفيذ المتوقعة 3-5 أيام عمل.</li>
-                </ul>
-            </div>
         </div>
     </div>
 
-    <!-- قسم المنتجات ذات الصلة -->
+    <section class="product-reviews-section mt-5">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="sec-title" style="margin: 0;"><i class="fas fa-star" style="color: var(--orange);"></i> آراء وتجارب العملاء</h2>
+        </div>
+
+        <div class="reviews-container">
+            @if (reviewsCount > 0)
+            {
+                <div class="reviews-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                    @foreach (var review in approvedReviews)
+                    {
+                        <div class="review-card" style="background: #fff; padding: 25px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                            <div class="review-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 45px; height: 45px; background: var(--primary-light); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px;">
+                                        @(string.IsNullOrEmpty(review.ReviewerName) ? "ع" : review.ReviewerName.Substring(0, 1))
+                                    </div>
+                                    <div>
+                                        <strong style="color: var(--navy); display: block; font-size: 15px;">@review.ReviewerName</strong>
+                                        <small style="color: #94a3b8; font-size: 12px;">@review.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ar-SA"))</small>
+                                    </div>
+                                </div>
+                                <div class="stars" style="color: #f59e0b; font-size: 13px;">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= review.Rating)
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+                                        else
+                                        {
+
+                                            <i class="far fa-star" style="color: #cbd5e1;"></i>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.7; margin: 0;">@review.ReviewText</p>
+
+                            @if (!string.IsNullOrEmpty(review.AdminReply))
+                            {
+                                <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 10px; border-right: 4px solid var(--info);">
+                                    <strong style="color: var(--info); font-size: 13px; display: block; margin-bottom: 5px;"><i class="fas fa-reply"></i> رد فريق العمل:</strong>
+                                    <p style="color: var(--text-main); font-size: 13.5px; margin: 0; line-height: 1.6;">@review.AdminReply</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div style="text-align: center; padding: 50px 20px; background: #f8fafc; border-radius: 16px; border: 2px dashed #e2e8f0;">
+                    <i class="far fa-comment-dots" style="font-size: 45px; color: #cbd5e1; margin-bottom: 15px;"></i>
+                    <h3 style="color: var(--navy); font-size: 18px; font-weight: 800; margin-bottom: 5px;">لا توجد تقييمات حتى الآن</h3>
+                    <p style="color: var(--text-muted); font-size: 15px;">كن أول من يشاركنا رأيه بعد تجربة هذا المنتج!</p>
+                </div>
+            }
+        </div>
+    </section>
+
     <section class="related-products mt-5">
         <h2 class="sec-title">منتجات قد تعجبك</h2>
         <div class="products-grid" id="related-render"></div>
@@ -126,81 +250,135 @@
 
 <div class="sticky-footer-bar">
     <div class="container bar-content">
-        <div class="price-side">
-            <span class="final-price" id="sticky-price">0 ر.س</span>
-            <small>السعر شامل الضريبة</small>
-        </div>
-        <div class="action-side">
-            <div class="quantity-picker">
-                <button type="button" onclick="changeQty(-1)">-</button>
-                <input type="number" id="prod-qty" value="1" readonly>
-                <button type="button" onclick="changeQty(1)">+</button>
+        @if (hasAnyOptions)
+        {
+            <div class="price-side">
+                <span class="final-price" id="sticky-price" style="font-size: 22px; color: var(--primary-color);">حدد الخيارات</span>
+                <small>السعر شامل الضريبة</small>
             </div>
-            <button class="btn-add-main" onclick="addToCartFromDetails()">إضافة للسلة</button>
-        </div>
+            <div class="action-side">
+                <div class="quantity-picker">
+                    <button type="button" onclick="changeQty(-10)">-</button>
+                    <input type="number" id="prod-qty" value="@(Model != null ? Model.MinQuantity : 100)" min="@(Model != null ? Model.MinQuantity : 1)" onchange="calculateDynamicPrice()">
+                    <button type="button" onclick="changeQty(10)">+</button>
+                </div>
+                <button class="btn-add-main" onclick="addToCartFromDetails()">إضافة للسلة <i class="fas fa-cart-plus"></i></button>
+            </div>
+        }
+        else
+        {
+            <div class="price-side">
+                <span class="final-price" style="font-size: 18px; color: var(--navy);">تواصل معنا للطلب</span>
+            </div>
+            <div class="action-side">
+                <a href="https://wa.me/966554804857?text=مرحباً، أود طلب منتج: @(Model?.NameAr)" target="_blank" class="btn-add-main" style="background: #25d366; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                    <i class="fab fa-whatsapp" style="font-size: 18px;"></i> اطلب عبر واتساب
+                </a>
+            </div>
+        }
     </div>
 </div>
 
 @section Scripts {
     <script>
+        var hasOptions = @(hasAnyOptions.ToString().ToLower());
+
         document.addEventListener("DOMContentLoaded", function() {
             if (typeof renderSection === "function") {
                 renderSection("featured", "related-render");
             }
-            calculateFinalPrice();
+            if(hasOptions) {
+                calculateDynamicPrice();
+            }
         });
 
         function changeQty(val) {
+            if(!hasOptions) return;
             const input = document.getElementById('prod-qty');
             if (!input) return;
             let current = parseInt(input.value);
-            if (current + val >= 1) {
+            let min = parseInt(input.getAttribute('min')) || 1;
+
+            if (current + val >= min) {
                 input.value = current + val;
-                calculateFinalPrice();
+            } else {
+                input.value = min;
+            }
+            calculateDynamicPrice();
+        }
+
+        async function calculateDynamicPrice() {
+            if(!hasOptions) return;
+            const productId = @(Model != null ? Model.Id : 0);
+
+            const paperEl = document.getElementById('opt-paper');
+            const sizeEl = document.getElementById('opt-size');
+            const sidesEl = document.getElementById('opt-sides');
+            const qtyEl = document.getElementById('prod-qty');
+
+            if(!paperEl || !sizeEl || !sidesEl) return;
+
+            const paperId = paperEl.value;
+            const sizeId = sizeEl.value;
+            const sidesId = sidesEl.value;
+            const qty = parseInt(qtyEl.value) || 1;
+
+            if (!paperId || !sizeId || !sidesId) {
+                document.getElementById('sticky-price').innerText = 'حدد الخيارات لعرض السعر';
+                if(document.getElementById('tabby-price')) document.getElementById('tabby-price').innerText = '0.00';
+                return;
+            }
+
+            const extraCheckboxes = document.querySelectorAll('.extra-checkbox:checked');
+            const extraIds = Array.from(extraCheckboxes).map(cb => parseInt(cb.value));
+
+            document.getElementById('sticky-price').innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:18px;"></i> حساب...';
+
+            const result = await ApiClient.calculatePrice(productId, paperId, sizeId, sidesId, qty, extraIds);
+
+            if (result && result.success) {
+                document.getElementById('sticky-price').innerText = result.total.toFixed(2) + ' ر.س';
+                if(document.getElementById('tabby-price')) document.getElementById('tabby-price').innerText = (result.total / 4).toFixed(2);
+            } else {
+                document.getElementById('sticky-price').innerText = 'غير متاح بهذه المواصفات';
+                if(document.getElementById('tabby-price')) document.getElementById('tabby-price').innerText = '0.00';
             }
         }
 
-        function calculateFinalPrice() {
-            // منطق مبسط لحساب السعر للتجربة في الواجهة
-            let base = 50;
-            let designCost = parseFloat(document.getElementById('option-design').value) || 0;
-            let qty = parseInt(document.getElementById('prod-qty').value) || 1;
-
-            let total = (base * qty) + designCost;
-
-            document.getElementById('sticky-price').innerText = total.toFixed(2) + ' ر.س';
-            document.getElementById('tabby-price').innerText = (total / 4).toFixed(2);
-        }
-
         function addToCartFromDetails() {
+            if(!hasOptions) return;
             const titleEl = document.getElementById('product-title');
             const imgEl = document.getElementById('main-product-img');
             const priceEl = document.getElementById('sticky-price');
             const qtyEl = document.getElementById('prod-qty');
 
-            if (!titleEl || !priceEl) return;
+            if (priceEl.innerText.includes('حدد الخيارات') || priceEl.innerText.includes('غير متاح') || priceEl.innerText.includes('حساب')) {
+                alert('الرجاء تحديد كافة الخيارات المطلوبة أولاً.');
+                return;
+            }
 
-            const design = document.getElementById('option-design')?.options[document.getElementById('option-design').selectedIndex].text || "";
-            const paperType = document.getElementById('option-paper-type')?.options[document.getElementById('option-paper-type').selectedIndex].text || "";
-            const sides = document.getElementById('option-sides')?.options[document.getElementById('option-sides').selectedIndex].text || "";
-            const cover = document.getElementById('option-cover')?.options[document.getElementById('option-cover').selectedIndex].text || "";
+            const paperText = document.getElementById('opt-paper') ? document.getElementById('opt-paper').options[document.getElementById('opt-paper').selectedIndex].text : '';
+            const sizeText = document.getElementById('opt-size') ? document.getElementById('opt-size').options[document.getElementById('opt-size').selectedIndex].text : '';
+            const sidesText = document.getElementById('opt-sides') ? document.getElementById('opt-sides').options[document.getElementById('opt-sides').selectedIndex].text : '';
+
+            const finishEl = document.getElementById('opt-finish');
+            const finishText = finishEl && finishEl.value ? finishEl.options[finishEl.selectedIndex].text : '';
 
             const item = {
                 id: @(Model != null ? Model.Id : 0),
-                name: titleEl.innerText,
+                name: titleEl.innerText.trim(),
                 price: parseFloat(priceEl.innerText.replace(' ر.س', '')),
                 img: imgEl ? imgEl.src : '',
                 quantity: parseInt(qtyEl.value) || 1,
-                details: { design: design, paperType: paperType, sides: sides, cover: cover }
+                details: { paperType: paperText, sides: sidesText, design: sizeText, cover: finishText }
             };
 
             let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
             cart.push(item);
             localStorage.setItem('printnesCart', JSON.stringify(cart));
 
-            // تحديث عداد السلة في الهيدر إذا كانت الدالة موجودة
-            if (typeof updateCartBadge === "function") updateCartBadge();
-            if (typeof showCartToast === "function") showCartToast(item);
+            if (typeof updateBadges === "function") updateBadges();
+            if (typeof showToastMessage === "function") showToastMessage('تمت الإضافة إلى سلة التسوق', item.name, item.img, true);
         }
     </script>
 }

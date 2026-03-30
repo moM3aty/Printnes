@@ -1,0 +1,108 @@
+﻿<!-- الملف: Areas/Admin/Views/Pricing/Edit.cshtml -->
+@model Printnes.Models.PricingMatrix
+@{
+    ViewData["Title"] = "تعديل التسعيرة";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
+    <h1 class="page-title" style="font-size: 24px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 12px;">
+        <div style="width: 45px; height: 45px; background: #fff4ed; color: var(--orange); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fas fa-calculator"></i>
+        </div>
+        تعديل تسعيرة التقاطع
+    </h1>
+    <a href="/Admin/Pricing" class="btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fas fa-arrow-right"></i> العودة للمصفوفة
+    </a>
+</div>
+
+<div class="premium-card" style="max-width: 900px; margin: 0 auto; padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); background: #fff;">
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors" style="color: var(--danger); background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px;"></div>
+
+        <!-- الحقل المخفي للمعرف -->
+        <input type="hidden" asp-for="Id" />
+
+        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border-right: 4px solid var(--info); margin-bottom: 25px;">
+            <h3 style="font-size: 15px; color: var(--navy); margin-top: 0; margin-bottom: 15px; font-weight: 800;">
+                <i class="fas fa-box-open" style="color: var(--info); margin-left: 5px;"></i> ارتباط التسعيرة بالمنتج
+            </h3>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label asp-for="ProductId" class="form-label">المنتج المستهدف *</label>
+                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId" style="background-color: #fff;" required>
+                    <option value="">-- حدد المنتج --</option>
+                </select>
+                <span asp-validation-for="ProductId" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <h3 style="font-size: 16px; margin: 20px 0; color: var(--primary-color); font-weight: 800;"><i class="fas fa-sliders-h"></i> تقاطع الخيارات (المواصفات)</h3>
+
+        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="form-group">
+                <label asp-for="PaperOptionId" class="form-label">نوع الورق *</label>
+                <select asp-for="PaperOptionId" asp-items="ViewBag.PaperOptionId" class="form-control" required>
+                    <option value="">-- اختر --</option>
+                </select>
+                <span asp-validation-for="PaperOptionId" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SizeOptionId" class="form-label">المقاس *</label>
+                <select asp-for="SizeOptionId" asp-items="ViewBag.SizeOptionId" class="form-control" required>
+                    <option value="">-- اختر --</option>
+                </select>
+                <span asp-validation-for="SizeOptionId" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SidesOptionId" class="form-label">عدد الأوجه *</label>
+                <select asp-for="SidesOptionId" asp-items="ViewBag.SidesOptionId" class="form-control" required>
+                    <option value="">-- اختر --</option>
+                </select>
+                <span asp-validation-for="SidesOptionId" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <h3 style="font-size: 16px; margin: 20px 0; color: var(--primary-color); font-weight: 800;"><i class="fas fa-money-bill-wave"></i> تفاصيل التكلفة والتسعير</h3>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="BasePrice" class="form-label">تكلفة التجهيز الثابتة (Base Price) *</label>
+                <div style="position: relative;">
+                    <input asp-for="BasePrice" type="number" step="0.01" class="form-control" placeholder="0.00" style="padding-left: 50px;" required />
+                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--success); font-weight: 800; font-size: 14px;">ر.س</span>
+                </div>
+                <small class="form-hint">تُضاف مرة واحدة على الطلب (تجهيز مكائن، زنكات..)</small>
+                <span asp-validation-for="BasePrice" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="UnitPrice" class="form-label">سعر الحبة الواحدة (Unit Price) *</label>
+                <div style="position: relative;">
+                    <input asp-for="UnitPrice" type="number" step="0.0001" class="form-control" placeholder="0.00" style="padding-left: 50px;" required />
+                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--success); font-weight: 800; font-size: 14px;">ر.س</span>
+                </div>
+                <small class="form-hint">سعر النسخة الواحدة من هذا التقاطع (يُضرب في الكمية)</small>
+                <span asp-validation-for="UnitPrice" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 30px 0;">
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button type="submit" class="btn-premium" style="background: var(--orange); color: #fff; border: none; padding: 14px 40px; border-radius: 10px; font-weight: 800; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;"
+                    onmouseover="this.style.background='#d8561d'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.background='var(--orange)'; this.style.transform='none'">
+                <i class="fas fa-save"></i> حفظ التعديلات
+            </button>
+            <a href="/Admin/Pricing" class="btn-outline" style="color: var(--text-secondary); padding: 14px 30px; border-radius: 10px; font-weight: 700; text-decoration: none; border: 1px solid var(--border-color); transition: 0.3s;"
+               onmouseover="this.style.background='var(--border-light)'" onmouseout="this.style.background='transparent'">
+                إلغاء والتراجع
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

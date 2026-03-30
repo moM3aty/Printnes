@@ -1,6 +1,5 @@
 ﻿/*
  * الملف: Areas/Admin/Controllers/UsersController.cs
- * تم التأكد من وجود دوال الـ Edit لتعمل واجهة تعديل المستخدمين بشكل سليم
  */
 
 using Microsoft.AspNetCore.Authorization;
@@ -9,171 +8,197 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Printnes.Models;
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Printnes.Areas.Admin.Controllers
 {
+    // موديل مساعد لنقل بيانات الصلاحيات
+    public class ManageUserRolesViewModel
+    {
+        public string RoleId { get; set; }
+        public string RoleName { get; set; }
+        public bool IsSelected { get; set; }
+    }
+
     [Area("Admin")]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UsersController(
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+        public UsersController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
         }
 
-        public async Task<IActionResult> Index(string searchQuery = "", string roleFilter = "", byte? statusFilter = null, string sortBy = "newest")
+        // GET: Admin/Users
+        public async Task<IActionResult> Index(string searchQuery, string roleFilter, string statusFilter)
         {
             var query = _userManager.Users.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(searchQuery))
+            // الفلاتر
+            if (!string.IsNullOrEmpty(searchQuery))
             {
-                query = query.Where(u =>
-                    u.FullName.Contains(searchQuery) ||
-                    u.Email.Contains(searchQuery) ||
-                    (u.PhoneNumber != null && u.PhoneNumber.Contains(searchQuery)));
+                query = query.Where(u => u.FullName.Contains(searchQuery) || u.Email.Contains(searchQuery) || u.PhoneNumber.Contains(searchQuery));
             }
-
-            if (!string.IsNullOrWhiteSpace(roleFilter))
+            if (!string.IsNullOrEmpty(statusFilter))
             {
-                var usersInRole = await _userManager.GetUsersInRoleAsync(roleFilter);
-                var userIdsInRole = usersInRole.Select(u => u.Id).ToList();
-                query = query.Where(u => userIdsInRole.Contains(u.Id));
+                bool isActive = statusFilter == "1";
+                query = query.Where(u => u.IsActive == isActive);
             }
-
-            if (statusFilter.HasValue)
-            {
-                if (statusFilter.Value == 1)
-                    query = query.Where(u => u.IsActive);
-                else
-                    query = query.Where(u => !u.IsActive);
-            }
-
-            query = sortBy switch
-            {
-                "name_desc" => query.OrderByDescending(u => u.FullName),
-                "name_asc" => query.OrderBy(u => u.FullName),
-                "email" => query.OrderBy(u => u.Email),
-                _ => query.OrderByDescending(u => u.Id)
-            };
 
             var users = await query.ToListAsync();
+            var userRoles = new Dictionary<string, IList<string>>();
 
-            var userRolesDict = new Dictionary<string, IList<string>>();
+            int adminCount = 0;
+            var finalUsers = new List<ApplicationUser>();
+
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                userRolesDict[user.Id] = roles.ToList();
+
+                // فلتر الصلاحيات
+                if (!string.IsNullOrEmpty(roleFilter) && !roles.Contains(roleFilter))
+                {
+                    continue;
+                }
+
+                userRoles.Add(user.Id, roles);
+                finalUsers.Add(user);
+
+                if (roles.Contains("SuperAdmin") || roles.Contains("Admin")) adminCount++;
             }
 
-            ViewBag.UserRoles = userRolesDict;
+            ViewBag.UserRoles = userRoles;
             ViewBag.SearchQuery = searchQuery;
             ViewBag.RoleFilter = roleFilter;
             ViewBag.StatusFilter = statusFilter;
-            ViewBag.SortBy = sortBy;
-            ViewBag.Roles = new SelectList(await _roleManager.Roles.OrderBy(r => r.Name).ToListAsync(), "Name", "Name");
+            ViewBag.Roles = await _roleManager.Roles.Select(r => new SelectListItem { Value = r.Name, Text = r.Name }).ToListAsync();
 
-            ViewBag.TotalUsers = users.Count;
-            ViewBag.ActiveUsers = users.Count(u => u.IsActive);
-            ViewBag.InactiveUsers = users.Count(u => !u.IsActive);
-            ViewBag.AdminCount = users.Count(u => userRolesDict.ContainsKey(u.Id) && (userRolesDict[u.Id].Contains("SuperAdmin") || userRolesDict[u.Id].Contains("Admin")));
+            // الإحصائيات
+            ViewBag.TotalUsers = await _userManager.Users.CountAsync();
+            ViewBag.ActiveUsers = await _userManager.Users.CountAsync(u => u.IsActive);
+            ViewBag.InactiveUsers = await _userManager.Users.CountAsync(u => !u.IsActive);
+            ViewBag.AdminCount = adminCount;
 
-            return View(users);
+            return View(finalUsers);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleStatus(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("SuperAdmin"))
-                {
-                    TempData["ErrorMessage"] = "لا يمكن تعطيل حساب المدير العام.";
-                    return RedirectToAction(nameof(Index));
-                }
+        // =====================================
+        // دوال إدارة صلاحيات المستخدم الجديدة
+        // =====================================
 
-                user.IsActive = !user.IsActive;
-                await _userManager.UpdateAsync(user);
-                TempData["SuccessMessage"] = user.IsActive ? "تم تفعيل المستخدم." : "تم تعطيل المستخدم.";
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ====== دالة عرض واجهة التعديل ======
-        public async Task<IActionResult> Edit(string id)
+        [HttpGet]
+        public async Task<IActionResult> ManageRoles(string id)
         {
             if (string.IsNullOrEmpty(id)) return NotFound();
 
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
-            return View(user);
-        }
+            ViewBag.UserId = id;
+            ViewBag.UserName = user.FullName ?? user.UserName;
 
-        // ====== دالة حفظ التعديلات ======
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, ApplicationUser model)
-        {
-            if (id != model.Id) return NotFound();
+            var model = new List<ManageUserRolesViewModel>();
+            var allRoles = await _roleManager.Roles.ToListAsync();
 
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-
-            user.FullName = model.FullName;
-            user.PhoneNumber = model.PhoneNumber;
-
-            var roles = await _userManager.GetRolesAsync(user);
-            if (!roles.Contains("SuperAdmin"))
+            foreach (var role in allRoles)
             {
-                user.IsActive = model.IsActive;
+                var userRoleViewModel = new ManageUserRolesViewModel
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                    IsSelected = await _userManager.IsInRoleAsync(user, role.Name)
+                };
+                model.Add(userRoleViewModel);
             }
-
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
-            {
-                TempData["SuccessMessage"] = "تم تعديل بيانات المستخدم بنجاح.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
 
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> ManageRoles(List<ManageUserRolesViewModel> model, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            // حماية إضافية: منع الـ Admin العادي من سحب صلاحية SuperAdmin
+            var currentUser = await _userManager.GetUserAsync(User);
+            bool isCurrentUserSuperAdmin = await _userManager.IsInRoleAsync(currentUser, "SuperAdmin");
+            bool isTargetUserSuperAdmin = await _userManager.IsInRoleAsync(user, "SuperAdmin");
+
+            if (isTargetUserSuperAdmin && !isCurrentUserSuperAdmin)
+            {
+                TempData["ErrorMessage"] = "ليس لديك الصلاحية لتعديل أدوار مدير نظام أعلى منك.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var result = await _userManager.RemoveFromRolesAsync(user, roles);
+
+            if (!result.Succeeded)
+            {
+                TempData["ErrorMessage"] = "حدث خطأ أثناء إزالة الصلاحيات القديمة.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var selectedRoles = model.Where(x => x.IsSelected).Select(y => y.RoleName);
+            result = await _userManager.AddToRolesAsync(user, selectedRoles);
+
+            if (!result.Succeeded)
+            {
+                TempData["ErrorMessage"] = "حدث خطأ أثناء إضافة الصلاحيات الجديدة.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["SuccessMessage"] = $"تم تحديث صلاحيات المستخدم ({user.FullName}) بنجاح.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // =====================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
-            var roles = await _userManager.GetRolesAsync(user);
-            if (roles.Contains("SuperAdmin"))
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (user.Id == currentUser.Id)
             {
-                TempData["ErrorMessage"] = "لا يمكن حذف حساب المدير العام.";
+                TempData["ErrorMessage"] = "لا يمكنك إيقاف حسابك الشخصي.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var result = await _userManager.DeleteAsync(user);
-            if (result.Succeeded)
-                TempData["SuccessMessage"] = $"تم حذف المستخدم '{user.FullName}' بنجاح.";
-            else
-                TempData["ErrorMessage"] = "حدث خطأ أثناء حذف المستخدم.";
+            user.IsActive = !user.IsActive;
+            await _userManager.UpdateAsync(user);
 
+            TempData["SuccessMessage"] = user.IsActive ? "تم تفعيل الحساب." : "تم إيقاف الحساب.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (user.Id == currentUser.Id)
+                {
+                    TempData["ErrorMessage"] = "لا يمكنك حذف حسابك الشخصي!";
+                    return RedirectToAction(nameof(Index));
+                }
+                await _userManager.DeleteAsync(user);
+                TempData["SuccessMessage"] = "تم الحذف بنجاح.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }

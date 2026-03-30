@@ -4,12 +4,13 @@
 @inject ApplicationDbContext DbContext
 
 @{
-    // جلب كافة الأقسام النشطة من الداتابيز مرة واحدة وترتيبها
-    // لجعل الـ Layout ديناميكي وسريع جداً
     var allCategories = await DbContext.Categories
         .Where(c => c.IsActive)
         .OrderBy(c => c.SortOrder)
         .ToListAsync();
+
+    // التحقق من حالة تسجيل الدخول
+    bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
 }
 
 <!DOCTYPE html>
@@ -22,7 +23,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="~/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         .menu-promo-item {
@@ -62,6 +63,10 @@
 </head>
 
 <body>
+    <!-- حفظ حالة تسجيل الدخول في الجافاسكريبت للتحقق المباشر -->
+    <script>
+        window.isAuthenticated = @(isAuthenticated.ToString().ToLower());
+    </script>
 
     <header class="main-header">
         <div class="container header-content">
@@ -84,10 +89,29 @@
             </div>
 
             <div class="user-nav">
-                <div class="nav-item" onclick="location.href='/Account/Login'">
-                    <i class="far fa-user"></i>
-                    <span>حسابي</span>
+                <!-- أيقونة المفضلات (تتطلب تسجيل دخول) -->
+                <div class="nav-item" onclick="if(window.isAuthenticated){ location.href='/Favorites'; } else { location.href='/Account/Login'; }" style="position: relative;">
+                    <i class="far fa-heart"></i>
+                    <span>المفضلة</span>
+                    <span id="fav-count" style="position: absolute; top: -4px; right: -4px; background: #f26a2e; color: #fff; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">0</span>
                 </div>
+
+                <!-- التبديل بين حسابي (Profile) وتسجيل الدخول -->
+                @if (isAuthenticated)
+                {
+                    <div class="nav-item" onclick="location.href='/Account/Profile'">
+                        <i class="far fa-user-circle" style="color: var(--orange);"></i>
+                        <span>حسابي</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="nav-item" onclick="location.href='/Account/Login'">
+                        <i class="far fa-user"></i>
+                        <span>دخول / تسجيل</span>
+                    </div>
+                }
+
                 <div class="nav-item cart" onclick="location.href='/Cart'">
                     <i class="fas fa-shopping-bag"></i>
                     <span id="cart-count">0</span>
@@ -96,26 +120,27 @@
         </div>
     </header>
 
-    <!-- إشعار السلة -->
+    <!-- إشعار السلة والمفضلات -->
     <div id="cart-toast" class="cart-toast-container hidden">
         <div class="toast-progress"></div>
         <div class="toast-header">
-            <span class="status-icon"><i class="fas fa-check-circle"></i> تمت الإضافة إلى سلة التسوق</span>
+            <span class="status-icon" id="toast-status-icon"><i class="fas fa-check-circle"></i> تمت الإضافة بنجاح</span>
             <span class="close-toast" onclick="hideToast()">&times;</span>
         </div>
         <div class="toast-body">
             <img id="toast-product-img" src="" alt="">
             <div class="toast-info">
                 <h4 id="toast-product-name">اسم المنتج</h4>
-                <span class="toast-price"><span id="toast-product-price">0</span> ر.س</span>
+                <span class="toast-price" id="toast-price-container"><span id="toast-product-price">0</span> ر.س</span>
             </div>
         </div>
-        <div class="toast-footer">
+        <div class="toast-footer" id="toast-footer">
             <button class="btn-white-toast" onclick="location.href='/Cart'"><i class="fas fa-shopping-bag"></i> عرض السلة</button>
             <button class="btn-orange-toast" onclick="checkoutFullCart()"><i class="fas fa-check"></i> اتمام الطلب</button>
         </div>
     </div>
 
+    @Html.AntiForgeryToken()
     <div id="menu-overlay" class="menu-overlay hidden" onclick="closeSideMenu()"></div>
 
     <!-- القائمة الجانبية الديناميكية -->
@@ -135,19 +160,15 @@
                 <li><a href="/Packages">عروض البكجات</a></li>
 
                 @{
-                    // الأقسام الرئيسية هي الأقسام التي لا تمتلك قسم أب (ParentMenu فارغ)
                     var mainCategories = allCategories.Where(c => string.IsNullOrEmpty(c.ParentMenu)).ToList();
                 }
 
-                <!-- رسم الأقسام ديناميكياً من قاعدة البيانات -->
                 @foreach (var mainCat in mainCategories)
                 {
-                    // نبحث عن الأقسام الفرعية التي يعتبر هذا القسم هو الأب لها
                     var subCategories = allCategories.Where(c => c.ParentMenu == mainCat.Slug).ToList();
 
                     if (subCategories.Any())
                     {
-                        <!-- قسم يمتلك أقسام فرعية (قائمة منسدلة) -->
                         <li class="has-submenu">
                             <div class="menu-item-flex" onclick="toggleSubMenu(this)">
                                 <a href="/Category/@mainCat.Slug" style="padding:0; flex:1; background:none; color:inherit;">@mainCat.NameAr</a>
@@ -164,7 +185,6 @@
                     }
                     else
                     {
-                        <!-- قسم مستقل لا يمتلك أقسام فرعية -->
                         <li><a href="/Category/@mainCat.Slug">@mainCat.NameAr</a></li>
                     }
                 }
@@ -222,6 +242,7 @@
                 </div>
                 <div class="tax-info">الرقم الضريبي : <span>310595349100003</span></div>
                 <div class="copyright">الحقوق محفوظة @DateTime.Now.Year | <a href="/">Printnes</a></div>
+                <div class="copyright">تصميم وتطوير <a href="https://gmtweb.online/">GMTWEB</a></div>
             </div>
         </div>
     </footer>
@@ -233,11 +254,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-    <!-- تم إضافة هذا السطر لحل مشكلة ApiClient -->
-    <script src="~/js/api-client.js"></script>
-
-    <script src="~/js/script.js"></script>
+    <script src="~/js/api-client.js" asp-append-version="true"></script>
+    <script src="~/js/script.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

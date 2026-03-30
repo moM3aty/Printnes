@@ -1,7 +1,7 @@
-﻿/* ============================================
+﻿/*
  * الملف: Areas/Admin/Controllers/PricingController.cs
- * كنترولر إدارة مصفوفة الأسعار مع الفلترة
- * ============================================ */
+ * يحتوي على جميع دوال مصفوفة التسعير بما فيها دوال الـ Edit المطلوبة.
+ */
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Printnes.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "SuperAdmin,Admin,Accountant")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class PricingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,97 +25,133 @@ namespace Printnes.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(
-            int? productIdFilter = null,
-            int? paperFilter = null,
-            string sortBy = "product")
+        // GET: Admin/Pricing
+        public async Task<IActionResult> Index()
         {
-            var query = _context.PricingMatrices
+            var pricingMatrices = await _context.PricingMatrices
                 .Include(p => p.Product)
                 .Include(p => p.PaperOption)
                 .Include(p => p.SizeOption)
                 .Include(p => p.SidesOption)
-                .AsQueryable();
+                .ToListAsync();
 
-            if (productIdFilter.HasValue && productIdFilter.Value > 0)
-                query = query.Where(p => p.ProductId == productIdFilter.Value);
-
-            if (paperFilter.HasValue && paperFilter.Value > 0)
-                query = query.Where(p => p.PaperOptionId == paperFilter.Value);
-
-            query = sortBy switch
-            {
-                "price_high" => query.OrderByDescending(p => p.UnitPrice),
-                "price_low" => query.OrderBy(p => p.UnitPrice),
-                "base_high" => query.OrderByDescending(p => p.BasePrice),
-                _ => query.OrderBy(p => p.Product.NameAr)
-            };
-
-            var pricingList = await query.ToListAsync();
-
-            ViewBag.ProductIdFilter = productIdFilter;
-            ViewBag.PaperFilter = paperFilter;
-            ViewBag.SortBy = sortBy;
-            ViewBag.Products = new SelectList(
-                await _context.Products.Where(p => p.IsActive).OrderBy(p => p.NameAr).ToListAsync(),
-                "Id", "NameAr");
-            ViewBag.PaperOptions = new SelectList(
-                await _context.ProductOptions.Where(o => o.OptionType == 1 && o.IsActive).OrderBy(o => o.NameAr).ToListAsync(),
-                "Id", "NameAr");
-
-            return View(pricingList);
+            return View(pricingMatrices);
         }
 
+        // GET: Admin/Pricing/Create
         public IActionResult Create()
         {
-            ViewData["ProductId"] = new SelectList(
-                _context.Products.Where(p => p.IsActive).OrderBy(p => p.NameAr), "Id", "NameAr");
-            ViewData["PaperOptionId"] = new SelectList(
-                _context.ProductOptions.Where(o => o.OptionType == 1 && o.IsActive), "Id", "NameAr");
-            ViewData["SizeOptionId"] = new SelectList(
-                _context.ProductOptions.Where(o => o.OptionType == 2 && o.IsActive), "Id", "NameAr");
-            ViewData["SidesOptionId"] = new SelectList(
-                _context.ProductOptions.Where(o => o.OptionType == 3 && o.IsActive), "Id", "NameAr");
+            ViewBag.ProductId = new SelectList(_context.Products, "Id", "NameAr");
+            ViewBag.PaperOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 1), "Id", "NameAr");
+            ViewBag.SizeOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 2), "Id", "NameAr");
+            ViewBag.SidesOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 3), "Id", "NameAr");
+
             return View();
         }
 
+        // POST: Admin/Pricing/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PricingMatrix matrix)
         {
             if (ModelState.IsValid)
             {
-                // التحقق من عدم وجود التسعيرة مكررة لنفس التقاطع
-                bool exists = await _context.PricingMatrices.AnyAsync(p =>
-                    p.ProductId == matrix.ProductId &&
-                    p.PaperOptionId == matrix.PaperOptionId &&
-                    p.SizeOptionId == matrix.SizeOptionId &&
-                    p.SidesOptionId == matrix.SidesOptionId);
+                // التحقق من عدم وجود نفس التقاطع مسبقاً لنفس المنتج
+                bool exists = await _context.PricingMatrices.AnyAsync(m =>
+                    m.ProductId == matrix.ProductId &&
+                    m.PaperOptionId == matrix.PaperOptionId &&
+                    m.SizeOptionId == matrix.SizeOptionId &&
+                    m.SidesOptionId == matrix.SidesOptionId);
 
                 if (exists)
                 {
-                    ModelState.AddModelError("", "توجد تسعيرة لنفس التقاطع بالفعل. قم بتعديلها بدلاً من إضافة جديدة.");
+                    ModelState.AddModelError("", "هذا التقاطع (نفس الخيارات) مسجل مسبقاً لهذا المنتج.");
                 }
                 else
                 {
-                    _context.Add(matrix);
+                    _context.PricingMatrices.Add(matrix);
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "تم إضافة التسعيرة بنجاح!";
+                    TempData["SuccessMessage"] = "تمت إضافة التسعيرة بنجاح.";
                     return RedirectToAction(nameof(Index));
                 }
             }
 
-            ViewData["ProductId"] = new SelectList(
-                _context.Products.Where(p => p.IsActive), "Id", "NameAr", matrix.ProductId);
-            ViewData["PaperOptionId"] = new SelectList(
-                _context.ProductOptions.Where(o => o.OptionType == 1 && o.IsActive), "Id", "NameAr", matrix.PaperOptionId);
-            ViewData["SizeOptionId"] = new SelectList(
-                _context.ProductOptions.Where(o => o.OptionType == 2 && o.IsActive), "Id", "NameAr", matrix.SizeOptionId);
-            ViewData["SidesOptionId"] = new SelectList(
-                _context.ProductOptions.Where(o => o.OptionType == 3 && o.IsActive), "Id", "NameAr", matrix.SidesOptionId);
+            ViewBag.ProductId = new SelectList(_context.Products, "Id", "NameAr", matrix.ProductId);
+            ViewBag.PaperOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 1), "Id", "NameAr", matrix.PaperOptionId);
+            ViewBag.SizeOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 2), "Id", "NameAr", matrix.SizeOptionId);
+            ViewBag.SidesOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 3), "Id", "NameAr", matrix.SidesOptionId);
+
             return View(matrix);
         }
 
+        // ==========================================
+        // دوال التعديل (Edit) التي طلبتها
+        // ==========================================
+
+        // GET: Admin/Pricing/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var matrix = await _context.PricingMatrices.FindAsync(id);
+            if (matrix == null) return NotFound();
+
+            // تمرير القوائم المنسدلة للواجهة مع تحديد القيم الحالية
+            ViewBag.ProductId = new SelectList(_context.Products, "Id", "NameAr", matrix.ProductId);
+            ViewBag.PaperOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 1), "Id", "NameAr", matrix.PaperOptionId);
+            ViewBag.SizeOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 2), "Id", "NameAr", matrix.SizeOptionId);
+            ViewBag.SidesOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 3), "Id", "NameAr", matrix.SidesOptionId);
+
+            return View(matrix);
+        }
+
+        // POST: Admin/Pricing/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, PricingMatrix matrix)
+        {
+            if (id != matrix.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // التحقق من عدم وجود تقاطع مطابق آخر (غير الحالي)
+                    bool exists = await _context.PricingMatrices.AnyAsync(m =>
+                        m.Id != matrix.Id &&
+                        m.ProductId == matrix.ProductId &&
+                        m.PaperOptionId == matrix.PaperOptionId &&
+                        m.SizeOptionId == matrix.SizeOptionId &&
+                        m.SidesOptionId == matrix.SidesOptionId);
+
+                    if (exists)
+                    {
+                        ModelState.AddModelError("", "يوجد تسعيرة أخرى بنفس هذه المواصفات تماماً.");
+                    }
+                    else
+                    {
+                        _context.Update(matrix);
+                        await _context.SaveChangesAsync();
+                        TempData["SuccessMessage"] = "تم تعديل التسعيرة بنجاح.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PricingMatrixExists(matrix.Id)) return NotFound();
+                    else throw;
+                }
+            }
+
+            ViewBag.ProductId = new SelectList(_context.Products, "Id", "NameAr", matrix.ProductId);
+            ViewBag.PaperOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 1), "Id", "NameAr", matrix.PaperOptionId);
+            ViewBag.SizeOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 2), "Id", "NameAr", matrix.SizeOptionId);
+            ViewBag.SidesOptionId = new SelectList(_context.ProductOptions.Where(o => o.OptionType == 3), "Id", "NameAr", matrix.SidesOptionId);
+
+            return View(matrix);
+        }
+
+        // POST: Admin/Pricing/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -125,9 +161,14 @@ namespace Printnes.Areas.Admin.Controllers
             {
                 _context.PricingMatrices.Remove(matrix);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "تم حذف التسعيرة.";
+                TempData["SuccessMessage"] = "تم حذف التسعيرة بنجاح.";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        private bool PricingMatrixExists(int id)
+        {
+            return _context.PricingMatrices.Any(e => e.Id == id);
         }
     }
 }

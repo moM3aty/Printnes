@@ -782,9 +782,6 @@ namespace Printnes.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId1")
-                        .HasColumnType("int");
-
                     b.Property<byte>("Rating")
                         .HasColumnType("tinyint");
 
@@ -815,8 +812,6 @@ namespace Printnes.Migrations
                     b.HasIndex("IsApproved");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.HasIndex("Rating");
 
@@ -1121,14 +1116,10 @@ namespace Printnes.Migrations
             modelBuilder.Entity("Printnes.Models.ProductReview", b =>
                 {
                     b.HasOne("Printnes.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductReviews")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Printnes.Models.Product", null)
-                        .WithMany("Reviews")
-                        .HasForeignKey("ProductId1");
 
                     b.HasOne("Printnes.Models.ApplicationUser", "User")
                         .WithMany()
@@ -1207,9 +1198,9 @@ namespace Printnes.Migrations
 
                     b.Navigation("ProductOptions");
 
-                    b.Navigation("QuantityTiers");
+                    b.Navigation("ProductReviews");
 
-                    b.Navigation("Reviews");
+                    b.Navigation("QuantityTiers");
 
                     b.Navigation("UserFavorites");
                 });

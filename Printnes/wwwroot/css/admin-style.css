@@ -350,7 +350,7 @@ button {
     gap: 12px;
     padding: 6px 12px 6px 6px;
     background: var(--border-light);
-    border-radius: var(--radius-xl);
+    border-radius:25px;
     transition: var(--transition-fast);
 }
 

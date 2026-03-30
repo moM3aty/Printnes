@@ -31,7 +31,10 @@ namespace Printnes.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ProfileImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    LastLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -40,7 +43,6 @@ namespace Printnes.Migrations
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -53,11 +55,30 @@ namespace Printnes.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Banners",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    LinkUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    SortOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Banners", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ParentMenu = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     NameAr = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     NameEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(220)", maxLength: 220, nullable: false),
@@ -70,58 +91,6 @@ namespace Printnes.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    CustomerName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    CustomerPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CustomerEmail = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
-                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    District = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    SubTotal = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    TaxAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    ShippingCost = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    PaymentMethod = table.Column<byte>(type: "tinyint", nullable: false),
-                    PaymentStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    OrderStatus = table.Column<byte>(type: "tinyint", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InternalNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TrackingNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UploadedFiles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FileName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    OriginalName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    FilePath = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    FileSizeBytes = table.Column<long>(type: "bigint", nullable: false),
-                    MimeType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    SessionId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    IsLinked = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UploadedFiles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -231,6 +200,46 @@ namespace Printnes.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CustomerName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CustomerPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CustomerEmail = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    District = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    ShippingCost = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    DiscountAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    PaymentMethod = table.Column<byte>(type: "tinyint", nullable: false),
+                    PaymentStatus = table.Column<byte>(type: "tinyint", nullable: false),
+                    OrderStatus = table.Column<byte>(type: "tinyint", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    InternalNotes = table.Column<string>(type: "nvarchar(max)", maxLength: 5000, nullable: true),
+                    TrackingNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    IpAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -258,7 +267,7 @@ namespace Printnes.Migrations
                         column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -271,7 +280,7 @@ namespace Printnes.Migrations
                     OldStatus = table.Column<byte>(type: "tinyint", nullable: true),
                     NewStatus = table.Column<byte>(type: "tinyint", nullable: false),
                     ChangedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -311,46 +320,6 @@ namespace Printnes.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderItems",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: true),
-                    ProductName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    SelectedOptionsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SelectedExtrasJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    CalculatedUnitPrice = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    ExtrasTotal = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    ItemTotal = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    DesignFileId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_UploadedFiles_DesignFileId",
-                        column: x => x.DesignFileId,
-                        principalTable: "UploadedFiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductExtras",
                 columns: table => new
                 {
@@ -360,8 +329,10 @@ namespace Printnes.Migrations
                     NameAr = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     NameEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    SortOrder = table.Column<int>(type: "int", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ExtraType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    SortOrder = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -384,7 +355,7 @@ namespace Printnes.Migrations
                     OptionType = table.Column<byte>(type: "tinyint", nullable: false),
                     NameAr = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     NameEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    ExtraData = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ExtraData = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -400,6 +371,48 @@ namespace Printnes.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductReviews",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReviewerName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ReviewerPhone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Rating = table.Column<byte>(type: "tinyint", nullable: false),
+                    ReviewText = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    ReviewerImageUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
+                    IsFeatured = table.Column<bool>(type: "bit", nullable: false),
+                    AdminReply = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    AdminReplyDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProductId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductReviews", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductReviews_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductReviews_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductReviews_Products_ProductId1",
+                        column: x => x.ProductId1,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "QuantityTiers",
                 columns: table => new
                 {
@@ -408,7 +421,8 @@ namespace Printnes.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     MinQuantity = table.Column<int>(type: "int", nullable: false),
                     MaxQuantity = table.Column<int>(type: "int", nullable: false),
-                    DiscountPercent = table.Column<decimal>(type: "decimal(5,2)", nullable: false)
+                    DiscountPercent = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    SortOrder = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -419,6 +433,39 @@ namespace Printnes.Migrations
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFavorites",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProductId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFavorites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserFavorites_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFavorites_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFavorites_Products_ProductId1",
+                        column: x => x.ProductId1,
+                        principalTable: "Products",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -461,6 +508,73 @@ namespace Printnes.Migrations
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: true),
+                    ProductName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    SelectedOptionsJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SelectedExtrasJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CalculatedUnitPrice = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    ExtrasTotal = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    ItemTotal = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    DesignFileId = table.Column<int>(type: "int", nullable: true),
+                    AdminNotes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    ProductId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Products_ProductId1",
+                        column: x => x.ProductId1,
+                        principalTable: "Products",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UploadedFiles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OriginalName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    FilePath = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    FileSizeBytes = table.Column<long>(type: "bigint", nullable: false),
+                    MimeType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    SessionId = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsLinked = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DesignFileId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UploadedFiles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UploadedFiles_OrderItems_DesignFileId",
+                        column: x => x.DesignFileId,
+                        principalTable: "OrderItems",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -524,6 +638,16 @@ namespace Printnes.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderItems_ProductId1",
+                table: "OrderItems",
+                column: "ProductId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_UserId",
+                table: "Orders",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderStatusHistories_OrderId",
                 table: "OrderStatusHistories",
                 column: "OrderId");
@@ -564,6 +688,31 @@ namespace Printnes.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductReviews_IsApproved",
+                table: "ProductReviews",
+                column: "IsApproved");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductReviews_ProductId",
+                table: "ProductReviews",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductReviews_ProductId1",
+                table: "ProductReviews",
+                column: "ProductId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductReviews_Rating",
+                table: "ProductReviews",
+                column: "Rating");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductReviews_UserId",
+                table: "ProductReviews",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",
                 table: "Products",
                 column: "CategoryId");
@@ -578,11 +727,60 @@ namespace Printnes.Migrations
                 name: "IX_QuantityTiers_ProductId",
                 table: "QuantityTiers",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UploadedFiles_DesignFileId",
+                table: "UploadedFiles",
+                column: "DesignFileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavorites_ProductId",
+                table: "UserFavorites",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavorites_ProductId1",
+                table: "UserFavorites",
+                column: "ProductId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavorites_UserId_ProductId",
+                table: "UserFavorites",
+                columns: new[] { "UserId", "ProductId" },
+                unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_OrderItems_UploadedFiles_DesignFileId",
+                table: "OrderItems",
+                column: "DesignFileId",
+                principalTable: "UploadedFiles",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Orders_AspNetUsers_UserId",
+                table: "Orders");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_OrderItems_Orders_OrderId",
+                table: "OrderItems");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_OrderItems_Products_ProductId",
+                table: "OrderItems");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_OrderItems_Products_ProductId1",
+                table: "OrderItems");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_OrderItems_UploadedFiles_DesignFileId",
+                table: "OrderItems");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -599,7 +797,7 @@ namespace Printnes.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "OrderItems");
+                name: "Banners");
 
             migrationBuilder.DropTable(
                 name: "OrderStatusHistories");
@@ -614,28 +812,37 @@ namespace Printnes.Migrations
                 name: "ProductExtras");
 
             migrationBuilder.DropTable(
+                name: "ProductReviews");
+
+            migrationBuilder.DropTable(
                 name: "QuantityTiers");
+
+            migrationBuilder.DropTable(
+                name: "UserFavorites");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "ProductOptions");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "UploadedFiles");
-
-            migrationBuilder.DropTable(
                 name: "Orders");
-
-            migrationBuilder.DropTable(
-                name: "ProductOptions");
 
             migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "UploadedFiles");
+
+            migrationBuilder.DropTable(
+                name: "OrderItems");
         }
     }
 }

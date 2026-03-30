@@ -78,7 +78,7 @@ namespace Printnes.Models
 
         // تقييمات العملاء
         [InverseProperty("Product")]
-        public virtual ICollection<ProductReview> Reviews { get; set; } = new List<ProductReview>();
+        public virtual ICollection<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
 
         // المفضلات
         [InverseProperty("Product")]

@@ -7,13 +7,11 @@
 @{
     ViewData["Title"] = "الصفحة الرئيسية";
 
-    // جلب البانرات النشطة مرتبة حسب حقل الترتيب
     var activeBanners = await DbContext.Banners
         .Where(b => b.IsActive)
         .OrderBy(b => b.SortOrder)
         .ToListAsync();
 
-    // جلب الأقسام الرئيسية (التي لا تمتلك قسم أب) لظهورها في شريط الأقسام
     var mainCategories = await DbContext.Categories
         .Where(c => c.IsActive && string.IsNullOrEmpty(c.ParentMenu))
         .OrderBy(c => c.SortOrder)
@@ -21,7 +19,6 @@
 }
 
 <main class="container">
-    <!-- Hero Slider (الديناميكي من قاعدة البيانات) -->
     <section class="hero-slider-wrapper">
         <div class="swiper hero-swiper">
             <div class="swiper-wrapper">
@@ -38,7 +35,6 @@
                 }
                 else
                 {
-                    <!-- بانر افتراضي في حال لم يتم إضافة بانرات من لوحة التحكم بعد -->
                     <div class="swiper-slide">
                         <a href="#">
                             <img src="https://cdn.salla.sa/form-builder/wzsdRwVsUbNJVFVyQS6oTkganoSdKqnn1KADKYWk.png" alt="بانر افتراضي" class="full-banner-img">
@@ -52,14 +48,12 @@
         </div>
     </section>
 
-    <!-- الأقسام الرئيسية (الديناميكية من قاعدة البيانات) -->
     <section class="main-categories">
         <div class="section-title-box">
             <h2>الأقسام الرئيسية</h2>
             <p>حرك القائمة لليسار لعرض جميع الأقسام</p>
         </div>
         <div class="categories-scroll">
-            <!-- كارت ثابت للعروض (اختياري) -->
             <div class="cat-card" onclick="location.href='/Packages'">
                 <div class="circle-img">
                     <img src="https://cdn.salla.sa/form-builder/PD53rr1LUNb19Hj3je9ULKSfhYUGg0o3TOBdz1T7.png" alt="العروض والبكجات">
@@ -67,12 +61,9 @@
                 <h4>العروض والبكجات</h4>
             </div>
 
-            <!-- عرض الأقسام من الداتابيز -->
             @foreach (var cat in mainCategories)
             {
-                // إذا لم تكن هناك صورة للقسم، نضع صورة افتراضية
                 string catImage = !string.IsNullOrEmpty(cat.ImageUrl) ? cat.ImageUrl : "https://cdn.salla.sa/form-builder/lnB9NCS8slVsu7xfA6j6Ka37ZIEGCnEu9de9JiR3.png";
-
                 <div class="cat-card" onclick="location.href='/Category/@cat.Slug'">
                     <div class="circle-img">
                         <img src="@catImage" alt="@cat.NameAr">
@@ -83,7 +74,7 @@
         </div>
     </section>
 
-    <!-- الأكثر مبيعاً (Slider) - يعتمد على الـ Model القادم من الـ Controller -->
+    <!-- المنتجات المميزة (التي ترسم من السيرفر) تم ربطها بالمفضلة -->
     <section class="products-slider-section container">
         <div class="section-header">
             <div class="right-side">
@@ -106,17 +97,17 @@
                         <div class="swiper-slide">
                             <div class="product-card">
                                 <div class="p-badge">منتج مميز</div>
-                                <div class="wish-icon"><i class="far fa-heart"></i></div>
+                                <!-- تم ربط الزر هنا وتمرير الـ ID -->
+                                <div class="wish-icon fav-btn-element" data-product-id="@product.Id" onclick="handleFavoriteToggle(@product.Id, this, '@product.NameAr.Replace("'", "\\'")', '@product.CoverImageUrl')" style="cursor: pointer; z-index: 5;">
+                                    <i class="far fa-heart"></i>
+                                </div>
                                 <img src="@product.CoverImageUrl" alt="@product.NameAr" onclick="location.href='/Products/Details/@product.Id'" style="cursor:pointer;">
                                 <div class="p-info">
                                     <h3 onclick="location.href='/Products/Details/@product.Id'" style="cursor:pointer;">@product.NameAr</h3>
                                     <p class="p-desc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@(string.IsNullOrEmpty(product.DescriptionAr) ? "منتج عالي الجودة" : product.DescriptionAr)</p>
-
-                                    <!-- السعر سيتم برمجته لاحقاً ليقرأ من PricingMatrix، حالياً نضع قيمة افتراضية -->
-                                    <span class="p-price">ابتداءً من الطلب</span>
-
+                                    <span class="p-price">السعر حسب الاختيارات</span>
                                     <button class="add-to-cart-orange" onclick="location.href='/Products/Details/@product.Id'">
-                                        عرض التفاصيل
+                                        عرض التفاصيل <i class="fas fa-arrow-left"></i>
                                     </button>
                                 </div>
                             </div>
@@ -127,7 +118,7 @@
         </div>
     </section>
 
-    <!-- مجموعات المنتجات (تعتمد على الـ JS حالياً وتقرأ من الـ API) -->
+    <!-- الأقسام الديناميكية السفلية -->
     <section class="product-group">
         <div class="group-header">
             <h2>بوكسات</h2> <a href="/Category/boxes">عرض الكل</a>
@@ -137,19 +128,18 @@
 
     <section class="product-group">
         <div class="group-header">
-            <h2>طباعة على الأكياس</h2> <a href="/Category/bags">عرض الكل</a>
+            <h2>مطبوعات ورقية</h2> <a href="/Category/paperprints">عرض الكل</a>
         </div>
-        <div class="products-grid" id="render-bags"></div>
+        <div class="products-grid" id="render-paperprints"></div>
     </section>
 
     <section class="product-group">
         <div class="group-header">
-            <h2>التغليف والتعبئة</h2> <a href="/Category/packaging">عرض الكل</a>
+            <h2>استيكرات</h2> <a href="/Category/stickers">عرض الكل</a>
         </div>
-        <div class="products-grid" id="render-packaging"></div>
+        <div class="products-grid" id="render-stickers"></div>
     </section>
 
-    <!-- إحصائيات ثابتة (Static HTML) -->
     <section class="premium-stats">
         <div class="container">
             <div class="section-header-right">
@@ -188,7 +178,6 @@
         </div>
     </section>
 
-    <!-- الأسئلة الشائعة ثابتة (Static HTML) -->
     <section class="faq-section">
         <div class="container">
             <div class="section-title-wrapper">
@@ -241,8 +230,8 @@
         document.addEventListener("DOMContentLoaded", function() {
             if (typeof renderSection === "function") {
                 renderSection("boxes", "render-boxes");
-                renderSection("bags", "render-bags");
-                renderSection("packaging", "render-packaging");
+                renderSection("paperprints", "render-paperprints");
+                renderSection("stickers", "render-stickers");
             }
 
             if (typeof Swiper !== 'undefined') {

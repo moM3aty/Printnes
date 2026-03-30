@@ -5,71 +5,109 @@
     Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-edit"></i> تعديل خيار: @Model.NameAr</h1>
-    <a href="/Admin/ProductOptions" class="btn-erp btn-erp-outline"><i class="fas fa-arrow-right"></i> عودة للخيارات</a>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
+    <h1 class="page-title" style="font-size: 24px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 12px;">
+        <div style="width: 45px; height: 45px; background: var(--primary-light); color: var(--primary-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fas fa-sliders-h"></i>
+        </div>
+        تعديل خيار الطباعة
+    </h1>
+    <a href="/Admin/ProductOptions" class="btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fas fa-arrow-right"></i> العودة لقائمة الخيارات
+    </a>
 </div>
 
-<div class="erp-card" style="max-width: 800px;">
+<div class="premium-card" style="max-width: 900px; margin: 0 auto; padding: 35px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);">
     <form asp-action="Edit" method="post">
-        <div asp-validation-summary="ModelOnly" class="status-danger" style="margin-bottom: 20px; display: block; border-radius: 8px; padding: 15px;"></div>
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors" style="color: var(--danger); background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px;"></div>
 
+        <!-- الحقل المخفي للمعرف -->
         <input type="hidden" asp-for="Id" />
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="erp-form-group">
-                <label class="erp-form-label">المنتج المرتبط *</label>
-                <select asp-for="ProductId" asp-items="ViewBag.ProductId" class="erp-form-control" required></select>
-                <span asp-validation-for="ProductId" style="color: red; font-size: 12px;"></span>
-            </div>
-
-            <div class="erp-form-group">
-                <label class="erp-form-label">نوع الخيار *</label>
-                <select asp-for="OptionType" class="erp-form-control" required>
-                    <option value="1">ورق (Paper)</option>
-                    <option value="2">مقاس (Size)</option>
-                    <option value="3">أوجه (Sides)</option>
-                    <option value="4">تشطيب/حماية (Finish)</option>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border-right: 4px solid var(--info); margin-bottom: 25px;">
+            <h3 style="font-size: 15px; color: var(--navy); margin-top: 0; margin-bottom: 15px; font-weight: 800;">
+                <i class="fas fa-box-open" style="color: var(--info); margin-left: 5px;"></i> الارتباط بالمنتج
+            </h3>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label asp-for="ProductId" class="form-label">المنتج المرتبط بهذا الخيار *</label>
+                <select asp-for="ProductId" class="form-control" asp-items="ViewBag.ProductId" style="background-color: #fff;" required>
+                    <option value="">-- حدد المنتج --</option>
                 </select>
-                <span asp-validation-for="OptionType" style="color: red; font-size: 12px;"></span>
+                <span asp-validation-for="ProductId" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="erp-form-group">
-                <label class="erp-form-label">الاسم بالعربية *</label>
-                <input asp-for="NameAr" class="erp-form-control" required />
-                <span asp-validation-for="NameAr" style="color: red; font-size: 12px;"></span>
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="OptionType" class="form-label">نوع الخيار *</label>
+                <select asp-for="OptionType" class="form-control" required>
+                    <option value="">-- حدد النوع --</option>
+                    <option value="1">خامة / نوع الورق (1)</option>
+                    <option value="2">المقاس والأبعاد (2)</option>
+                    <option value="3">أوجه الطباعة (3)</option>
+                    <option value="4">التشطيب والحماية (4)</option>
+                </select>
+                <span class="form-hint">يحدد هذا الرقم مكان ظهور الخيار في صفحة المنتج للعميل.</span>
+                <span asp-validation-for="OptionType" class="field-validation-error"></span>
             </div>
 
-            <div class="erp-form-group">
-                <label class="erp-form-label">الاسم بالإنجليزية *</label>
-                <input asp-for="NameEn" class="erp-form-control" required />
-                <span asp-validation-for="NameEn" style="color: red; font-size: 12px;"></span>
-            </div>
-        </div>
-
-        <div class="erp-form-group">
-            <label class="erp-form-label">بيانات إضافية (Extra Data JSON)</label>
-            <input asp-for="ExtraData" class="erp-form-control" placeholder='{"width": 9, "height": 5.5}' />
-            <small style="color: var(--erp-text-light);">مفيدة في حالة أردت تخزين أبعاد حقيقية لبرمجيات الحساب.</small>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="erp-form-group">
-                <label class="erp-form-label">الترتيب في القائمة</label>
-                <input asp-for="SortOrder" type="number" class="erp-form-control" />
+            <div class="form-group">
+                <label asp-for="SortOrder" class="form-label">ترتيب الظهور (Sort Order)</label>
+                <input asp-for="SortOrder" type="number" class="form-control" placeholder="مثال: 1" />
+                <span class="form-hint">الأرقام الأقل تظهر أولاً للعميل (1 ثم 2 ثم 3...).</span>
+                <span asp-validation-for="SortOrder" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div class="erp-form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
-            <input type="checkbox" asp-for="IsActive" style="width: 18px; height: 18px; accent-color: var(--erp-orange);" />
-            <label asp-for="IsActive" class="erp-form-label" style="margin: 0; cursor: pointer;">تفعيل الخيار للعملاء</label>
+        <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 25px 0;">
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="NameAr" class="form-label">اسم الخيار (بالعربية) *</label>
+                <input asp-for="NameAr" class="form-control" placeholder="مثال: ورق كوشيه 300 جرام" required />
+                <span asp-validation-for="NameAr" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="NameEn" class="form-label">اسم الخيار (باللغة الإنجليزية)</label>
+                <input asp-for="NameEn" class="form-control" dir="ltr" style="text-align: left;" placeholder="e.g. Coated Paper 300g" />
+                <span asp-validation-for="NameEn" class="field-validation-error"></span>
+            </div>
         </div>
 
-        <hr style="border: none; border-top: 1px solid var(--erp-border); margin: 30px 0;">
+        <div class="form-group" style="margin-top: 10px;">
+            <label asp-for="ExtraData" class="form-label">بيانات إضافية (اختياري)</label>
+            <input asp-for="ExtraData" class="form-control" dir="ltr" style="text-align: left; font-family: monospace;" placeholder='{"w":9, "h":5.5}' />
+            <span class="form-hint">يُستخدم برمجياً لإرفاق خصائص إضافية بصيغة JSON (مثل أبعاد الطول والعرض إذا كان الخيار "مقاس"). اتركه فارغاً إذا لم تكن بحاجة إليه.</span>
+            <span asp-validation-for="ExtraData" class="field-validation-error"></span>
+        </div>
 
-        <button type="submit" class="btn-erp"><i class="fas fa-save"></i> حفظ التعديلات</button>
+        <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 25px 0;">
+
+        <div class="form-group">
+            <div style="background: #f8fafc; padding: 15px 20px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-light);">
+                <div>
+                    <strong style="color: var(--text-main); display: block; margin-bottom: 5px;">حالة الخيار</strong>
+                    <span style="color: var(--text-muted); font-size: 13px;">هل ترغب في إتاحة هذا الخيار للعملاء لاختياره أثناء الطلب؟</span>
+                </div>
+                <label class="form-check" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                    <span style="font-weight: bold; color: var(--success);">نشط ومتاح</span>
+                    <input type="checkbox" asp-for="IsActive" style="width: 22px; height: 22px; accent-color: var(--success); cursor: pointer;" />
+                </label>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; align-items: center; margin-top: 35px;">
+            <button type="submit" class="btn-premium" style="background: var(--primary-color); color: #fff; border: none; padding: 14px 40px; border-radius: 10px; font-weight: 800; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s;"
+                    onmouseover="this.style.background='var(--primary-hover)'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.background='var(--primary-color)'; this.style.transform='none'">
+                <i class="fas fa-save"></i> حفظ التعديلات
+            </button>
+            <a href="/Admin/ProductOptions" class="btn-outline" style="color: var(--text-secondary); padding: 14px 30px; border-radius: 10px; font-weight: 700; text-decoration: none; border: 1px solid var(--border-color); transition: 0.3s;"
+               onmouseover="this.style.background='var(--border-light)'" onmouseout="this.style.background='transparent'">
+                إلغاء والتراجع
+            </a>
+        </div>
     </form>
 </div>
 

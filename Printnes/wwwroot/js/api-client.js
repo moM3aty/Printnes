@@ -1,6 +1,6 @@
 ﻿/*
  * الملف: wwwroot/js/api-client.js
- * تم تحديث دالة CalculatePrice لتتعامل مع الإضافات وإرسالها للـ API
+ * يحتوي على جميع استدعاءات الـ API بما فيها المفضلات (Favorites)
  */
 
 const ApiClient = {
@@ -26,7 +26,6 @@ const ApiClient = {
         }
     },
 
-    // دالة حساب السعر المتصلة بـ Backend
     calculatePrice: async function (productId, paperId, sizeId, sidesId, quantity, extraIds = []) {
         try {
             let url = `/api/StoreApi/CalculatePrice?productId=${productId}&paperId=${paperId}&sizeId=${sizeId}&sidesId=${sidesId}&quantity=${quantity}`;
@@ -54,6 +53,50 @@ const ApiClient = {
         } catch (error) {
             console.error('Error uploading file:', error);
             return null;
+        }
+    },
+
+    // ==========================================
+    // دوال المفضلات (Favorites) التي تسببت في الخطأ
+    // ==========================================
+
+    toggleFavorite: async function (productId) {
+        try {
+            const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenElement ? tokenElement.value : '';
+
+            const response = await fetch('/Favorites/Toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `productId=${productId}`
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            return { success: false, error: true };
+        }
+    },
+
+    getFavoritesCount: async function () {
+        try {
+            const response = await fetch('/Favorites/Count');
+            if (!response.ok) return { count: 0 };
+            return await response.json();
+        } catch (error) {
+            return { count: 0 };
+        }
+    },
+
+    getUserFavoritesIds: async function () {
+        try {
+            const response = await fetch('/Favorites/GetUserFavorites');
+            if (!response.ok) return { productIds: [] };
+            return await response.json();
+        } catch (error) {
+            return { productIds: [] };
         }
     }
 };

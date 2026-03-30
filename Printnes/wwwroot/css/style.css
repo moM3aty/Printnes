@@ -276,6 +276,7 @@ header {
         width: 100%;
         border-radius: 10px;
         margin-bottom: 15px;
+
     }
 
 /* Stats & FAQ */
@@ -873,7 +874,6 @@ footer {
     .main-nav-list a,
     .menu-item-flex {
         display: flex;
-        justify-content: space-between;
         align-items: center;
         padding: 15px 25px;
         color: #444;
@@ -882,6 +882,7 @@ footer {
         font-weight: 600;
         cursor: pointer;
         transition: 0.3s;
+        gap:15px;
     }
 
         .main-nav-list a:hover,
@@ -1507,6 +1508,7 @@ footer {
     margin-bottom: 12px;
     min-height: 180px;
     object-fit: contain;
+    height:180px;
 }
 
 .product-card h3 {

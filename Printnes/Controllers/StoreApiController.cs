@@ -1,6 +1,6 @@
 ﻿/*
  * الملف: Controllers/Api/StoreApiController.cs
- * يحتوي على API حساب الأسعار بناءً على مصفوفة الأسعار، الخيارات، الخصومات والإضافات من الـ DB
+ * تم التعديل لحل مشكلة الأقسام الفارغة: الآن يجلب المنتجات من القسم المحدد ومن كافة الأقسام الفرعية التابعة له.
  */
 
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +29,15 @@ namespace Printnes.Controllers.Api
             if (string.IsNullOrEmpty(slug))
                 return BadRequest("يجب توفير رابط القسم (Slug)");
 
+            var slugLower = slug.ToLower();
+
+            // تعديل جوهري: نجلب المنتجات التي يطابق قسمها الـ slug الممرر 
+            // أو التي يكون قسمها الأب يطابق الـ slug الممرر (لحل مشكلة الأقسام الرئيسية الفارغة)
             var products = await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.Category.Slug.ToLower() == slug.ToLower() && p.IsActive)
+                .Where(p => p.IsActive &&
+                            (p.Category.Slug.ToLower() == slugLower ||
+                            (p.Category.ParentMenu != null && p.Category.ParentMenu.ToLower() == slugLower)))
                 .Select(p => new
                 {
                     id = p.Id,
@@ -65,30 +71,23 @@ namespace Printnes.Controllers.Api
             return Ok(products);
         }
 
-        // ==========================================
-        // API حساب السعر الديناميكي من مصفوفة الأسعار
-        // ==========================================
         [HttpGet("CalculatePrice")]
         public async Task<IActionResult> CalculatePrice(int productId, int paperId, int sizeId, int sidesId, int quantity, [FromQuery] int[] extraIds)
         {
-            // 1. البحث عن التقاطع في مصفوفة الأسعار
             var matrix = await _context.PricingMatrices
                 .FirstOrDefaultAsync(m => m.ProductId == productId && m.PaperOptionId == paperId && m.SizeOptionId == sizeId && m.SidesOptionId == sidesId);
 
             if (matrix == null)
                 return Ok(new { success = false, message = "غير متاح بهذه المواصفات" });
 
-            // 2. حساب السعر الأساسي (تكلفة التجهيز الثابتة + (سعر الحبة * الكمية))
             decimal total = matrix.BasePrice + (matrix.UnitPrice * quantity);
 
-            // 3. إضافة أسعار الإضافات الاختيارية (ثابتة للطلب)
             if (extraIds != null && extraIds.Length > 0)
             {
                 var extras = await _context.ProductExtras.Where(e => extraIds.Contains(e.Id)).ToListAsync();
                 total += extras.Sum(e => e.Price);
             }
 
-            // 4. تطبيق شريحة خصم الكمية (إن وجدت)
             var tier = await _context.QuantityTiers
                 .Where(q => q.ProductId == productId && quantity >= q.MinQuantity && quantity <= q.MaxQuantity)
                 .OrderByDescending(q => q.DiscountPercent)

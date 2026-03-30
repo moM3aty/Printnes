@@ -112,7 +112,7 @@
                             <td>
                                 <div style="display: flex; align-items: center; gap: 12px;">
                                     <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;">
-                                        @user.FullName.Substring(0, 1)
+                                        @(string.IsNullOrEmpty(user.FullName) ? "U" : user.FullName.Substring(0, 1))
                                     </div>
                                     <strong style="color: var(--text-main);">@user.FullName</strong>
                                 </div>
@@ -164,12 +164,12 @@
                                         }
                                     </form>
 
-                                    <!-- زر تعديل الصلاحيات يوجه لكنترولر Roles -->
-                                    <a href="/Admin/Roles/Edit/@user.Id" class="btn-outline btn-icon" title="تعديل الصلاحيات" style="color: var(--purple);">
+                                    <!-- تم إصلاح الرابط هنا ليوجه لكنترولر المستخدمين بدلاً من الأدوار -->
+                                    <a href="/Admin/Users/ManageRoles/@user.Id" class="btn-outline btn-icon" title="تعديل الصلاحيات" style="color: var(--purple);">
                                         <i class="fas fa-user-shield"></i>
                                     </a>
 
-                                    <form asp-action="DeleteUser" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟');">
+                                    <form asp-action="Delete" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا المستخدم نهائياً؟');">
                                         <input type="hidden" name="id" value="@user.Id" />
                                         <button type="submit" class="btn-outline btn-icon" title="حذف" style="color: var(--danger);">
                                             <i class="fas fa-trash"></i>

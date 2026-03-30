@@ -30,7 +30,6 @@ namespace Printnes.Data
         public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
         public DbSet<Banner> Banners { get; set; }
 
-        // --- الجداول الجديدة ---
         public DbSet<ProductReview> ProductReviews { get; set; }
         public DbSet<UserFavorite> UserFavorites { get; set; }
 
@@ -139,6 +138,26 @@ namespace Printnes.Data
                 .WithMany(o => o.PaymentTransactions)
                 .HasForeignKey(t => t.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+            // 1. إصلاح علاقة التقييمات
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(r => r.Product)
+                .WithMany(p => p.ProductReviews)
+                .HasForeignKey(r => r.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 2. إصلاح علاقة المفضلات
+            modelBuilder.Entity<UserFavorite>()
+                .HasOne(f => f.Product)
+                .WithMany()
+                .HasForeignKey(f => f.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 3. إصلاح علاقة عناصر الطلب
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(o => o.Product)
+                .WithMany()
+                .HasForeignKey(o => o.ProductId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
