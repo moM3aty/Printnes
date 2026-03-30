@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Printnes")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+56bbc8dff19430017c31d9905f878985f7ecc7d6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c52c3c7a85d785b92dcb5f16d40340603202d857")]
 [assembly: System.Reflection.AssemblyProductAttribute("Printnes")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Printnes")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
