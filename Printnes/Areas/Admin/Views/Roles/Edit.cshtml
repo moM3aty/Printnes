@@ -1,0 +1,116 @@
+﻿@model Printnes.ViewModels.UserRolesViewModel
+@{
+    ViewData["Title"] = "تعديل مستخدمي الصلاحية";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;">
+    <h1 class="page-title" style="font-size: 24px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 12px;">
+        <i class="fas fa-users-cog" style="color: var(--primary-color);"></i>
+        مستخدمي صلاحية: <span style="color: var(--primary-color); background: var(--primary-light); padding: 4px 12px; border-radius: 8px; margin-right: 8px;">@Model.FullName</span>
+    </h1>
+    <a href="/Admin/Roles" class="btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fas fa-arrow-right"></i> العودة للصلاحيات
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss" style="background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; font-weight: 700;">
+        <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="premium-card" style="background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; padding: 30px; overflow: hidden;">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="FullName" />
+
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 10px; border-right: 4px solid var(--info);">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 14px; font-weight: 600;">
+                <i class="fas fa-info-circle" style="color: var(--info); margin-left: 5px;"></i>
+                لإضافة مستخدم لهذه الصلاحية، قم بتحديد المربع المجاور لاسمه، ولإزالته قم بإلغاء التحديد، ثم اضغط على حفظ.
+            </p>
+        </div>
+
+        <div class="table-responsive" style="border-radius: 12px; border: 1px solid var(--border-light); overflow: hidden;">
+            <table class="premium-table" style="width: 100%; border-collapse: collapse; text-align: right;">
+                <thead style="background: #f8fafc;">
+                    <tr>
+                        <th style="width: 60px; text-align: center; padding: 15px; border-bottom: 2px solid var(--border-light); color: var(--text-muted);">تحديد</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--border-light); color: var(--text-muted);">معلومات المستخدم</th>
+                        <th style="padding: 15px; border-bottom: 2px solid var(--border-light); color: var(--text-muted);">الحالة الحالية</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Roles != null && Model.Roles.Any())
+                    {
+                        for (int i = 0; i < Model.Roles.Count; i++)
+                        {
+                            <tr style="@(Model.Roles[i].IsSelected ? "background-color: #fff9f5;" : "background-color: #fff;") border-bottom: 1px solid var(--border-light); transition: 0.3s;">
+                                <td style="text-align: center; padding: 15px; vertical-align: middle;">
+                                    <input type="hidden" asp-for="@Model.Roles[i].UserId" />
+                                    <input type="hidden" asp-for="@Model.Roles[i].RoleName" />
+                                    <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                                        <input type="checkbox" asp-for="@Model.Roles[i].IsSelected" style="width: 22px; height: 22px; accent-color: var(--primary-color); cursor: pointer;" />
+                                    </div>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--border-light); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div>
+                                            <label style="cursor: pointer; display: block; font-weight: 700; color: var(--text-main); margin-bottom: 4px; font-family: monospace;">
+                                                @Model.Roles[i].UserId
+                                            </label>
+                                            <span style="font-size: 12px; color: var(--text-muted);">معرف النظام (System ID)</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 15px; vertical-align: middle;">
+                                    @if (Model.Roles[i].IsSelected)
+                                    {
+                                        <span class="badge badge-success" style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                            <i class="fas fa-check-circle"></i> يمتلك الصلاحية
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-neutral" style="background: #f1f5f9; color: #64748b; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                            <i class="fas fa-times-circle"></i> لا يمتلك الصلاحية
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 50px 20px; color: var(--text-muted);">
+                                <i class="fas fa-users-slash" style="font-size: 40px; margin-bottom: 15px; opacity: 0.3;"></i>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600;">لا يوجد مستخدمين مسجلين في النظام بعد.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-light); margin: 30px 0;">
+
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button type="submit" class="btn-premium" style="background: var(--primary-color); color: #fff; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s;"
+                    onmouseover="this.style.background='var(--primary-hover)'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.background='var(--primary-color)'; this.style.transform='none'">
+                <i class="fas fa-save"></i> حفظ التعديلات
+            </button>
+            <a href="/Admin/Roles" class="btn-outline" style="color: var(--text-secondary); padding: 12px 30px; border-radius: 10px; font-weight: 700; text-decoration: none; border: 1px solid var(--border-color); transition: 0.3s;"
+               onmouseover="this.style.background='var(--border-light)'" onmouseout="this.style.background='transparent'">
+                إلغاء
+            </a>
+        </div>
+    </form>
+</div>

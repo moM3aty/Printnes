@@ -1,0 +1,267 @@
+﻿<!-- الملف: Areas/Admin/Views/Reviews/Index.cshtml -->
+@model IEnumerable<Printnes.Models.ProductReview>
+@{
+    ViewData["Title"] = "إدارة التقييمات";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-star"></i> إدارة تقييمات العملاء</h1>
+    <div style="display: flex; gap: 10px;">
+        <form asp-action="ApproveAllPending" method="post" style="display: inline;">
+            <button type="submit" class="btn-outline btn-sm" style="color: var(--success); border-color: var(--success);"
+                    onclick="return confirm('هل تريد الموافقة على جميع التقييمات المعلقة؟');">
+                <i class="fas fa-check-double"></i> موافقة على الكل (@ViewBag.PendingApproval)
+            </button>
+        </form>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- كروت إحصائية -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+    <div class="stat-card orange">
+        <div class="stat-info">
+            <div class="stat-info-title">إجمالي التقييمات</div>
+            <div class="stat-info-value">@ViewBag.TotalReviews</div>
+        </div>
+        <div class="stat-icon-box orange"><i class="fas fa-comments"></i></div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-info">
+            <div class="stat-info-title">متوسط التقييم</div>
+            <div class="stat-info-value" style="display: flex; align-items: center; gap: 6px;">
+                @((ViewBag.AverageRating ?? 0).ToString("F1"))
+                <i class="fas fa-star" style="font-size: 18px; color: #f59e0b;"></i>
+            </div>
+        </div>
+        <div class="stat-icon-box green"><i class="fas fa-star"></i></div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-info">
+            <div class="stat-info-title">تقييمات معتمدة</div>
+            <div class="stat-info-value">@ViewBag.TotalApproved</div>
+        </div>
+        <div class="stat-icon-box blue"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-info">
+            <div class="stat-info-title">بانتظار الموافقة</div>
+            <div class="stat-info-value" style="color: var(--warning);">@ViewBag.PendingApproval</div>
+        </div>
+        <div class="stat-icon-box purple"><i class="fas fa-clock"></i></div>
+    </div>
+</div>
+
+<div class="premium-card" style="padding: 18px 24px;">
+    <form asp-action="Index" method="get">
+        <div class="filter-bar">
+            <div style="position: relative; flex: 1; min-width: 200px;">
+                <i class="fas fa-search" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                <input type="text" name="searchQuery" value="@ViewBag.SearchQuery"
+                       class="filter-input" style="padding-right: 40px;"
+                       placeholder="ابحث في التقييمات..." />
+            </div>
+
+            <select name="productIdFilter" class="filter-select" style="min-width: 180px;">
+                <option value="">كل المنتجات</option>
+                @if (ViewBag.Products != null)
+                {
+                    foreach (var p in ViewBag.Products)
+                    {
+                        <option value="@p.Value" selected="@(ViewBag.ProductIdFilter?.ToString() == p.Value)">@p.Text</option>
+                    }
+                }
+            </select>
+
+            <select name="ratingFilter" class="filter-select" style="min-width: 140px;">
+                <option value="">كل التقييمات</option>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <option value="@i" selected="@(ViewBag.RatingFilter?.ToString() == i.ToString())">
+                        @string.Join("", Enumerable.Range(0, i).Select(_ => "⭐")) (@i)
+                    </option>
+                }
+            </select>
+
+            <select name="approvalFilter" class="filter-select" style="min-width: 140px;">
+                <option value="">كل الحالات</option>
+                <option value="1" selected="@(ViewBag.ApprovalFilter?.ToString() == "1")">معتمد</option>
+                <option value="0" selected="@(ViewBag.ApprovalFilter?.ToString() == "0")">معلق</option>
+            </select>
+
+            <button type="submit" class="btn-premium btn-sm"><i class="fas fa-filter"></i> تصفية</button>
+            <a href="/Admin/Reviews" class="btn-outline btn-sm"><i class="fas fa-redo"></i> إعادة</a>
+        </div>
+    </form>
+</div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">التقييم</th>
+                    <th>المراجع</th>
+                    <th>المنتج</th>
+                    <th>نص المراجعة</th>
+                    <th>الحالة</th>
+                    <th>التاريخ</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        string starsHtml = string.Join("", Enumerable.Range(0, item.Rating).Select(_ => "<i class='fas fa-star' style='color: #f59e0b; font-size: 12px;'></i>"))
+                        + string.Join("", Enumerable.Range(0, 5 - item.Rating).Select(_ => "<i class='far fa-star' style='color: #e2e8f0; font-size: 12px;'></i>"));
+
+                        <tr style="@(item.IsApproved ? "" : "background: #fffbf0;")">
+                            <td style="text-align: center;">
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                                    <span style="font-weight: 900; color: var(--primary-color); font-size: 18px;">@item.Rating</span>
+                                    <div>@Html.Raw(starsHtml)</div>
+                                </div>
+                            </td>
+                            <td>
+                                <strong style="color: var(--text-main); font-size: 14px;">@item.ReviewerName</strong><br>
+                                <small style="color: var(--text-muted);" dir="ltr">@item.ReviewerPhone</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-info" style="font-size: 11px;">
+                                    @(item.Product?.NameAr ?? "منتج محذوف")
+                                </span>
+                            </td>
+                            <td>
+                                <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 13px; color: var(--text-secondary);" title="@item.ReviewText">
+                                    @item.ReviewText
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.AdminReply))
+                                {
+                                    <div style="margin-top: 8px; padding: 8px 12px; background: #f0f5ff; border-radius: 6px; border-right: 3px solid var(--info); font-size: 12px; color: var(--info-text);">
+                                        <strong style="font-size: 11px; color: var(--info);">رد الإدارة:</strong><br>
+                                        @item.AdminReply
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    @if (item.IsApproved)
+                                    {
+                                        <span class="badge badge-success" style="font-size: 11px;"><i class="fas fa-check"></i> معتمد</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-warning" style="font-size: 11px;"><i class="fas fa-clock"></i> معلق</span>
+                                    }
+                                    @if (item.IsFeatured)
+                                    {
+                                        <span class="badge badge-purple" style="font-size: 10px;"><i class="fas fa-crown"></i> مميز</span>
+                                    }
+                                </div>
+                            </td>
+                            <td style="font-size: 12px; color: var(--text-muted);">
+                                @item.CreatedAt.ToString("yyyy-MM-dd")
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    @if (!item.IsApproved)
+                                    {
+                                        <form asp-action="Approve" asp-route-id="@item.Id" method="post" style="display: inline;">
+                                            <button type="submit" class="btn-outline btn-icon" title="موافقة" style="color: var(--success); width: 32px; height: 32px;">
+                                                <i class="fas fa-check" style="font-size: 12px;"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display: inline;">
+                                            <button type="submit" class="btn-outline btn-icon" title="إخفاء" style="color: var(--warning); width: 32px; height: 32px;">
+                                                <i class="fas fa-eye-slash" style="font-size: 12px;"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    <form asp-action="ToggleFeatured" asp-route-id="@item.Id" method="post" style="display: inline;">
+                                        <button type="submit" class="btn-outline btn-icon" title="@(item.IsFeatured ? "إزالة التمييز" : "تعيين كمميز")" style="color: var(--purple); width: 32px; height: 32px;">
+                                            <i class="fas fa-crown" style="font-size: 12px; @(item.IsFeatured ? "opacity: 1;" : "opacity: 0.4;")"></i>
+                                        </button>
+                                    </form>
+                                    <button type="button" onclick="openReplyModal(@item.Id)" class="btn-outline btn-icon" title="رد" style="color: var(--info); width: 32px; height: 32px;">
+                                        <i class="fas fa-reply" style="font-size: 12px;"></i>
+                                    </button>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا التقييم نهائياً؟');">
+                                        <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: var(--danger); width: 32px; height: 32px;">
+                                            <i class="fas fa-trash" style="font-size: 12px;"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-star"></i>
+                                <h3>لا توجد تقييمات</h3>
+                                <p>لم يتم العثور على تقييمات تطابق معايير البحث</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- نافذة الرد -->
+<div id="replyModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: #fff; border-radius: 20px; width: 90%; max-width: 500px; padding: 30px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2);">
+        <button onclick="closeReplyModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer;">&times;</button>
+        <h3 style="font-size: 18px; color: var(--text-main); margin-bottom: 20px;">
+            <i class="fas fa-reply" style="color: var(--info); margin-left: 8px;"></i>
+            رد الإدارة
+        </h3>
+        <form asp-action="Reply" method="post">
+            <input type="hidden" name="id" id="replyReviewId" />
+            <div class="form-group" style="margin: 0 0 20px 0;">
+                <label class="form-label">اكتب ردك على المراجعة</label>
+                <textarea name="adminReply" rows="4" class="form-control" placeholder="اكتب ردك هنا..." id="replyText" required></textarea>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; justify-content: center;">
+                <i class="fas fa-paper-plane"></i> إرسال الرد
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openReplyModal(reviewId) {
+            document.getElementById('replyReviewId').value = reviewId;
+            document.getElementById('replyText').value = '';
+            document.getElementById('replyModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReplyModal() {
+            document.getElementById('replyModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('replyModal').addEventListener('click', function(e) {
+            if (e.target === this) closeReplyModal();
+        });
+    </script>
+}

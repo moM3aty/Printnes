@@ -1,0 +1,76 @@
+﻿<!-- الملف: Areas/Admin/Views/Roles/Index.cshtml -->
+@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+@{
+    ViewData["Title"] = "إدارة الصلاحيات";
+    Layout = "_AdminLayout";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-user-shield"></i> الصلاحيات (Roles)</h1>
+    <a href="/Admin/Roles/Create" class="btn-premium"><i class="fas fa-plus"></i> إضافة صلاحية جديدة</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="premium-card" style="padding: 0; overflow: hidden;">
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>المعرف (ID)</th>
+                <th>اسم الصلاحية</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var role in Model)
+                {
+                    <tr>
+                        <td style="color: var(--text-muted); font-size: 12px; font-family: monospace;">@role.Id</td>
+                        <td><strong style="color: var(--primary-color);">@role.Name</strong></td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                @if (role.Name != "SuperAdmin" && role.Name != "Admin" && role.Name != "Customer")
+                                {
+                                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الصلاحية؟');">
+                                        <button type="submit" class="btn-outline btn-icon" title="حذف" style="color: var(--danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-neutral" style="font-size: 11px;"><i class="fas fa-lock"></i> محمية من النظام</span>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-shield-alt" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p>لا توجد صلاحيات مسجلة.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

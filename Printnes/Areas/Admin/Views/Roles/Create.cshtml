@@ -1,23 +1,32 @@
-﻿@{
+﻿<!-- الملف: Areas/Admin/Views/Roles/Create.cshtml -->
+@{
     ViewData["Title"] = "إضافة صلاحية جديدة";
+    Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-user-shield"></i> إضافة صلاحية جديدة</h1>
-    <a href="/Admin/Roles" style="color: var(--erp-primary); text-decoration: none; font-weight:bold;"><i class="fas fa-arrow-right"></i> عودة للصلاحيات</a>
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-user-shield"></i> إضافة صلاحية جديدة</h1>
+    <a href="/Admin/Roles" class="btn-outline"><i class="fas fa-arrow-right"></i> العودة للصلاحيات</a>
 </div>
 
-<div class="erp-card" style="max-width: 600px;">
+<div class="premium-card" style="max-width: 600px;">
     <form asp-action="Create" method="post">
 
-        <div asp-validation-summary="All" style="color: #ef4444; margin-bottom: 15px;"></div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="validation-summary-errors">
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            </div>
+        }
 
-        <div style="margin-bottom: 25px;">
-            <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--erp-text);">اسم الصلاحية (باللغة الإنجليزية) *</label>
-            <input type="text" name="roleName" style="width: 100%; padding: 12px; border: 1px solid var(--erp-border); border-radius: 8px; background: var(--erp-bg); font-family: inherit;" placeholder="مثال: Accountant أو Designer" required />
-            <small style="color: var(--erp-text-light); margin-top: 5px; display: block;">يُفضل كتابة اسم الصلاحية باللغة الإنجليزية لسهولة استخدامها في الكود (Roles="Accountant").</small>
+        <div class="form-group">
+            <label class="form-label">اسم الصلاحية (باللغة الإنجليزية) *</label>
+            <input type="text" name="roleName" class="form-control" placeholder="مثال: Accountant أو Designer" required />
+            <span class="form-hint" style="margin-top: 8px;">يُفضل كتابة اسم الصلاحية باللغة الإنجليزية لسهولة استخدامها في الكود (مثال: Roles="Accountant").</span>
         </div>
 
-        <button type="submit" class="btn-erp" style="padding: 12px 35px; font-size: 16px;"><i class="fas fa-plus-circle"></i> إنشاء الصلاحية</button>
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+        <button type="submit" class="btn-premium"><i class="fas fa-plus-circle"></i> إنشاء الصلاحية</button>
     </form>
 </div>

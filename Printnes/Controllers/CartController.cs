@@ -1,28 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/* ============================================
+ * الملف: Controllers/CartController.cs
+ * كنترولب سلة المشتريات - تعتمد على LocalStorage
+ * إتمام الطلب عبر الواتساب
+ * ============================================ */
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Printnes.Controllers
 {
     public class CartController : Controller
     {
         // GET: /Cart
-        // واجهة عرض سلة المشتريات
+        // واجهة عرض سلة المشتريات (البيانات من LocalStorage)
         public IActionResult Index()
         {
-            // ملاحظة: في المستقبل سنقوم بربط هذه الصفحة لجلب البيانات من الـ Database أو Session
-            // ولكن حالياً ستعتمد على واجهة الـ JavaScript (LocalStorage) التي تعمل بشكل ممتاز لغرض التصميم
+            // لا نحتاج Model لأننا نعتمد على LocalStorage عبر JavaScript
             return View();
         }
 
-        // POST: /Cart/Checkout
-        // وظيفة إرسال الطلب وحفظه في الداتا بيز (سيتم برمجتها بشكل كامل لاحقاً)
-        [HttpPost]
-        public IActionResult Checkout()
+        // GET: /Cart/GetCartCount
+        // API للحصول على عدد عناصر السلة (للتحديث بدون إعادة تحميل الصفحة)
+        public IActionResult GetCartCount()
         {
-            // هنا سيتم استقبال الـ JSON الخاص بالسلة من الـ Frontend
-            // ثم نقوم بإنشاء Order و OrderItems في قاعدة البيانات
-
-            // حالياً نقوم بإرجاع رسالة نجاح بسيطة أو إعادة توجيه للصفحة الرئيسية
-            return RedirectToAction("Index", "Home");
+            // يتم استدعاء هذا من الـ JS عبر AJAX لو احتجنا لذلك
+            return Ok(new { count = 0 });
         }
     }
 }

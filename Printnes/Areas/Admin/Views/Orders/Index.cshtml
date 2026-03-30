@@ -1,81 +1,234 @@
-﻿@model IEnumerable<Printnes.Models.Order>
+﻿<!-- الملف: Areas/Admin/Views/Orders/Index.cshtml -->
+@model IEnumerable<Printnes.Models.Order>
 @{
     ViewData["Title"] = "إدارة الطلبات";
-    Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-file-invoice-dollar"></i> إدارة الطلبات</h1>
-    <button class="btn-erp btn-erp-outline"><i class="fas fa-file-export"></i> تصدير إكسيل</button>
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-file-invoice-dollar"></i> إدارة الطلبات</h1>
+    <div style="display: flex; gap: 10px;">
+        <a href="/Admin/Orders/Index?statusFilter=1" class="btn-outline btn-sm" style="color: var(--info); border-color: var(--info);">
+            <i class="fas fa-clock"></i> الجديدة (@ViewBag.PendingOrders)
+        </a>
+        <a href="/Admin/Orders/Index?statusFilter=3" class="btn-outline btn-sm" style="color: var(--warning); border-color: var(--warning);">
+            <i class="fas fa-print"></i> قيد الطباعة (@ViewBag.PrintingOrders)
+        </a>
+    </div>
 </div>
 
-<div class="erp-card" style="padding: 0; overflow: hidden;">
-    <div style="padding: 20px 30px; border-bottom: 1px solid var(--erp-border); background: #fafbfc; display: flex; gap: 15px;">
-        <input type="text" placeholder="ابحث برقم الطلب أو جوال العميل..." class="erp-form-control" style="max-width: 300px; padding: 10px 15px;" />
-        <select class="erp-form-control" style="max-width: 200px; padding: 10px 15px;">
-            <option value="">كل الحالات</option>
-            <option value="1">جديد</option>
-            <option value="3">جاري الطباعة</option>
-            <option value="5">مكتمل</option>
-        </select>
-        <button class="btn-erp" style="padding: 10px 20px;"><i class="fas fa-filter"></i> تصفية</button>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- كروت إحصائية سريعة -->
+<div class="stats-grid" style="margin-bottom: 24px;">
+    <div class="stat-card orange">
+        <div class="stat-info">
+            <div class="stat-info-title">إجمالي الطلبات</div>
+            <div class="stat-info-value">@(ViewBag.TotalOrders ?? 0)</div>
+        </div>
+        <div class="stat-icon-box orange"><i class="fas fa-shopping-bag"></i></div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-info">
+            <div class="stat-info-title">إجمالي المبيعات</div>
+            <div class="stat-info-value">@((ViewBag.TotalRevenue ?? 0).ToString("N0")) <small>ر.س</small></div>
+        </div>
+        <div class="stat-icon-box green"><i class="fas fa-wallet"></i></div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-info">
+            <div class="stat-info-title">بانتظار المراجعة</div>
+            <div class="stat-info-value">@(ViewBag.PendingOrders ?? 0)</div>
+        </div>
+        <div class="stat-icon-box blue"><i class="fas fa-hourglass-half"></i></div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-info">
+            <div class="stat-info-title">قيد الطباعة</div>
+            <div class="stat-info-value">@(ViewBag.PrintingOrders ?? 0)</div>
+        </div>
+        <div class="stat-icon-box purple"><i class="fas fa-print"></i></div>
+    </div>
+</div>
+
+<!-- شريط الفلترة المتقدم -->
+<div class="premium-card" style="padding: 18px 24px;">
+    <form asp-action="Index" method="get">
+        <div class="filter-bar">
+            <div style="position: relative; flex: 1; min-width: 240px;">
+                <i class="fas fa-search" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                <input type="text" name="searchQuery" value="@ViewBag.SearchQuery"
+                       class="filter-input" style="padding-right: 40px;"
+                       placeholder="ابحث برقم الطلب أو اسم العميل أو الجوال..." />
+            </div>
+
+            <select name="statusFilter" class="filter-select" style="min-width: 170px;">
+                <option value="">كل الحالات</option>
+                <option value="1" selected="@(ViewBag.StatusFilter?.ToString() == "1")">جديد</option>
+                <option value="2" selected="@(ViewBag.StatusFilter?.ToString() == "2")">قيد المراجعة</option>
+                <option value="3" selected="@(ViewBag.StatusFilter?.ToString() == "3")">جاري الطباعة</option>
+                <option value="4" selected="@(ViewBag.StatusFilter?.ToString() == "4")">تم الشحن</option>
+                <option value="5" selected="@(ViewBag.StatusFilter?.ToString() == "5")">مكتمل</option>
+            </select>
+
+            <select name="paymentStatusFilter" class="filter-select" style="min-width: 150px;">
+                <option value="">كل حالات الدفع</option>
+                <option value="0" selected="@(ViewBag.PaymentStatusFilter?.ToString() == "0")">معلق</option>
+                <option value="1" selected="@(ViewBag.PaymentStatusFilter?.ToString() == "1")">مدفوع</option>
+                <option value="2" selected="@(ViewBag.PaymentStatusFilter?.ToString() == "2")">فشل</option>
+            </select>
+
+            <input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="filter-input" style="min-width: 150px;" placeholder="من تاريخ" />
+            <input type="date" name="dateTo" value="@ViewBag.DateTo" class="filter-input" style="min-width: 150px;" placeholder="إلى تاريخ" />
+
+            <select name="sortBy" class="filter-select" style="min-width: 160px;">
+                <option value="newest" selected="@(ViewBag.SortBy == "newest")">الأحدث أولاً</option>
+                <option value="oldest" selected="@(ViewBag.SortBy == "oldest")">الأقدم أولاً</option>
+                <option value="total_high" selected="@(ViewBag.SortBy == "total_high")">المبلغ (الأعلى)</option>
+                <option value="total_low" selected="@(ViewBag.SortBy == "total_low")">المبلغ (الأقل)</option>
+            </select>
+
+            <button type="submit" class="btn-premium btn-sm"><i class="fas fa-filter"></i> تصفية</button>
+            <a href="/Admin/Orders" class="btn-outline btn-sm"><i class="fas fa-redo"></i> إعادة</a>
+        </div>
+    </form>
+</div>
+
+<!-- جدول الطلبات -->
+<div class="table-container">
+    <div class="table-header">
+        <h3>
+            <i class="fas fa-list" style="color: var(--primary-color);"></i>
+            نتائج البحث
+            <span class="badge badge-neutral" style="font-size: 11px;">@(Model?.Count() ?? 0) طلب</span>
+        </h3>
     </div>
 
-    <table class="erp-table">
-        <thead>
-            <tr>
-                <th>رقم الطلب</th>
-                <th>العميل</th>
-                <th>تاريخ الطلب</th>
-                <th>المبلغ الإجمالي</th>
-                <th>حالة الدفع</th>
-                <th>المرحلة</th>
-                <th>إجراء</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
+    <div class="table-responsive">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>العميل</th>
+                    <th>تاريخ الطلب</th>
+                    <th>المبلغ الإجمالي</th>
+                    <th>حالة الدفع</th>
+                    <th>المرحلة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        string statusClass = item.OrderStatus switch
+                        {
+                            1 => "badge-info",
+                            2 => "badge-warning",
+                            3 => "badge-purple",
+                            4 => "badge-success",
+                            5 => "badge-success",
+                            _ => "badge-neutral"
+                        };
+
+                        string statusText = item.OrderStatus switch
+                        {
+                            1 => "جديد",
+                            2 => "قيد المراجعة",
+                            3 => "جاري الطباعة",
+                            4 => "تم الشحن",
+                            5 => "مكتمل",
+                            _ => "غير معروف"
+                        };
+
+                        string statusIcon = item.OrderStatus switch
+                        {
+                            1 => "fa-clock",
+                            2 => "fa-search",
+                            3 => "fa-print",
+                            4 => "fa-truck",
+                            5 => "fa-check-double",
+                            _ => "fa-question"
+                        };
+
+                        <tr>
+                            <td>
+                                <strong style="color: var(--primary-color); font-size: 14px;">@item.OrderNumber</strong>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;">
+                                        @item.CustomerName.Substring(0, 1)
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">@item.CustomerName</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);" dir="ltr">@item.CustomerPhone</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="color: var(--text-secondary); font-size: 13px;">
+                                <div>@item.CreatedAt.ToString("yyyy-MM-dd")</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">@item.CreatedAt.ToString("HH:mm")</div>
+                            </td>
+                            <td style="font-weight: 800; color: var(--primary-color); font-size: 15px;">
+                                @item.TotalAmount.ToString("N2") <small style="font-weight: 600;">ر.س</small>
+                            </td>
+                            <td>
+                                @if (item.PaymentStatus == 1)
+                                {
+                                    <span class="badge badge-success"><i class="fas fa-check-circle"></i> مدفوع</span>
+                                }
+                                else if (item.PaymentStatus == 2)
+                                {
+                                    <span class="badge badge-danger"><i class="fas fa-times-circle"></i> فشل</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning"><i class="fas fa-clock"></i> معلق</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @statusClass">
+                                    <i class="fas @statusIcon"></i> @statusText
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="/Admin/Orders/Details/@item.Id" class="btn-outline btn-icon" title="عرض التفاصيل">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="https://wa.me/@(item.CustomerPhone?.Replace(" ", "").Replace("+", ""))" target="_blank" class="btn-outline btn-icon" title="تواصل عبر واتساب" style="color: #25d366;">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟');">
+                                        <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: var(--danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td style="font-weight: 900; color: var(--erp-dark);">@item.OrderNumber</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--erp-bg); display: flex; align-items: center; justify-content: center; color: var(--erp-text-light);"><i class="fas fa-user"></i></div>
-                                <div>
-                                    <div style="font-weight: 700; color: var(--erp-dark);">@item.CustomerName</div>
-                                    <div style="font-size: 11px; color: var(--erp-text-light);">@item.CustomerPhone</div>
-                                </div>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-receipt"></i>
+                                <h3>لا توجد طلبات</h3>
+                                <p>لم يتم العثور على طلبات تطابق معايير البحث</p>
                             </div>
-                        </td>
-                        <td style="color: var(--erp-text-light); font-size: 13px;">@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
-                        <td style="font-weight: 800; color: var(--erp-orange);">@item.TotalAmount.ToString("0.00") ر.س</td>
-                        <td>
-                            @(item.PaymentStatus == 1 ? Html.Raw("<span class='status-badge status-success'>مدفوع</span>") : Html.Raw("<span class='status-badge status-warning'>معلق</span>"))
-                        </td>
-                        <td>
-                            @{
-                                string statusClass = item.OrderStatus == 1 ? "status-info" : (item.OrderStatus == 5 ? "status-success" : "status-warning");
-                                string statusText = item.OrderStatus == 1 ? "جديد" : (item.OrderStatus == 5 ? "مكتمل" : "قيد المعالجة");
-                            }
-                            <span class="status-badge @statusClass">@statusText</span>
-                        </td>
-                        <td>
-                            <a href="/Admin/Orders/Details/@item.Id" class="btn-erp btn-erp-outline" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-eye"></i> عرض</a>
                         </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="7" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
-                        <i class="fas fa-receipt" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <p>لا توجد طلبات مسجلة حالياً.</p>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>

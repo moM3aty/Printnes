@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* ============================================
+ * الملف: Models/PaymentTransaction.cs
+ * موديل المعاملات المالية - يسجل كل عملية دفع فعلية
+ * يحفظ: البوابة المستخدم، الـ ID الراجع، المبلغ، الحالة
+ * يُستخدم لاحقاً مع بوابات الدفع (Moyasar, MyFatoorah, Tap)
+ * ============================================ */
+
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,22 +19,31 @@ namespace Printnes.Models
         [Required]
         public int OrderId { get; set; }
 
+        // اسم بوابة الدفع
         [Required]
         [StringLength(50)]
-        public string ProviderName { get; set; } // بوابة الدفع (مثال: Moyasar, MyFatoorah, Tap)
+        public string ProviderName { get; set; }
+        // مثال: Moyasar, MyFatoorah, Tap, BankTransfer
 
+        // الـ ID الراجع من البوابة (للتتبع في حال المشاكل)
         [StringLength(200)]
-        public string ProviderTransactionId { get; set; } // الـ ID الراجع من بوابة الدفع للرجوع إليه وقت المشاكل
+        public string? ProviderTransactionId { get; set; }
 
+        // المبلغ المدفوع
         [Required]
         [Column(TypeName = "decimal(18,4)")]
         public decimal Amount { get; set; }
 
+        // حالة المعاملة
         [Required]
-        public byte Status { get; set; } // 0=Initiated, 1=Success, 2=Failed
+        public byte Status { get; set; }
+        // 0=Initiated, 1=Success, 2=Failed, 3=Refunded
 
-        public string RawResponseJson { get; set; } // الرد الخام من البوابة (Response) للحفظ والمراجعة
+        // الرد الخام الكامل من البوابة (JSON) - مهم للمراجعة لاحقاً
+        [Column(TypeName = "nvarchar(max)")]
+        public string? RawResponseJson { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Property

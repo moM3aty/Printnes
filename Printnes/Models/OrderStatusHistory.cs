@@ -1,4 +1,11 @@
-﻿using System;
+﻿/* ============================================
+ * الملف: Models/OrderStatusHistory.cs
+ * موديل سجل تحديثات حالة الطلب
+ * يسجل كل تغيير في حالة الطلب (مع الحالة القديمة والجديدة والملاحظة)
+ * يُستخدم لعرض تاريخ التحديثات في صفحة تفاصيل الطلب
+ * ============================================ */
+
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,17 +19,23 @@ namespace Printnes.Models
         [Required]
         public int OrderId { get; set; }
 
-        public byte? OldStatus { get; set; } // الحالة القديمة (Null إذا كانت هذه أول حركة للطلب)
+        // الحالة القديمة (Null إذا كانت أول تحديث)
+        public byte? OldStatus { get; set; }
 
+        // الحالة الجديدة
         [Required]
-        public byte NewStatus { get; set; } // الحالة الجديدة التي تم التغيير إليها
+        public byte NewStatus { get; set; }
 
+        // من قام بالتحديث (اسم المستخدم أو "System")
         [Required]
         [StringLength(200)]
-        public string ChangedBy { get; set; } // من قام بالتغيير (مثال: System أو Admin: Ahmed)
+        public string ChangedBy { get; set; }
 
-        public string Note { get; set; } // ملاحظات إضافية عن سبب التغيير
+        // ملاحظة إضافية
+        [StringLength(2000)]
+        public string Note { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Property

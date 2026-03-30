@@ -1,0 +1,119 @@
+﻿<!-- الملف: Views/Favorites/Index.cshtml -->
+@model IEnumerable<Printnes.Models.UserFavorite>
+@{
+    ViewData["Title"] = "المفضلات";
+    Layout = "_Layout";
+}
+
+<main class="container" style="padding: 40px 15px 80px;">
+
+    <nav class="breadcrumb-simple" style="margin-bottom: 30px;">
+        <a href="/">الرئيسية</a> <span>&gt;</span>
+        <strong>المفضلات</strong>
+    </nav>
+
+    <div class="shop-controls" style="margin-bottom: 30px;">
+        <h2 class="orange-line-title">
+            <i class="fas fa-heart" style="color: #f26a2e; margin-left: 10px;"></i>
+            منتجاتي المفضلة
+            <span style="font-size: 16px; color: #888; font-weight: 600;">(@(Model?.Count() ?? 0) منتج)</span>
+        </h2>
+    </div>
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div style="background: #eff6ff; color: #1e40af; padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 600; border: 1px solid #bfdbfe; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-info-circle" style="font-size: 18px;"></i>
+            @TempData["InfoMessage"]
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="products-grid">
+            @foreach (var fav in Model)
+            {
+                if (fav.Product != null && fav.Product.IsActive)
+                {
+                    <div class="product-card" id="fav-card-@fav.ProductId">
+                        <div class="wish-icon" style="background: #fef2f2; color: #ef4444; border-color: #fecaca;">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <img src="@fav.Product.CoverImageUrl" alt="@fav.Product.NameAr"
+                             onclick="location.href='/Products/Details/@fav.Product.Id'" style="cursor:pointer;">
+                        <h3 onclick="location.href='/Products/Details/@fav.Product.Id'" style="cursor:pointer;">@fav.Product.NameAr</h3>
+                        <p style="font-size: 12px; color: #888; margin-bottom: 8px;">@(fav.Product.Category?.NameAr ?? "")</p>
+                        <p class="p-price">ابتداءً من الطلب</p>
+
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button class="add-to-cart-orange" onclick="location.href='/Products/Details/@fav.Product.Id'" style="flex: 1; font-size: 12px; padding: 8px;">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            <button onclick="removeFromFavorites(@fav.ProductId)"
+                                    style="width: 40px; height: 40px; background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; font-size: 14px;"
+                                    onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 80px 20px; background: #fff; border-radius: 20px; border: 1px solid #f0f0f0;">
+            <div style="width: 120px; height: 120px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+                <i class="far fa-heart" style="font-size: 48px; color: #fca5a5;"></i>
+            </div>
+            <h2 style="font-size: 22px; color: #1f3a78; margin-bottom: 10px;">لا توجد منتجات مفضلة</h2>
+            <p style="font-size: 15px; color: #888; margin-bottom: 30px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                ابدأ بالتصفح وأضف المنتجات التي تعجبك إلى المفضلة لتسهيل الوصول إليها لاحقاً
+            </p>
+            <a href="/Products" class="btn-main" style="display: inline-flex; align-items: center; gap: 10px; font-size: 15px; padding: 14px 40px; text-decoration: none;">
+                <i class="fas fa-shopping-bag"></i> تصفح المنتجات
+            </a>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    <script>
+        // إزالة من المفضلات بدون إعادة تحميل الصفحة
+        async function removeFromFavorites(productId) {
+            if (!confirm('هل تريد إزالة هذا المنتج من المفضلات؟')) return;
+
+            try {
+                const response = await fetch('/Favorites/Remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `productId=${productId}`
+                });
+
+                if (response.ok) {
+                    const card = document.getElementById(`fav-card-${productId}`);
+                    if (card) {
+                        card.style.transition = 'all 0.3s';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            card.remove();
+                            // تحديث العداد
+                            const countEl = document.querySelector('.orange-line-title span');
+                            if (countEl) {
+                                const current = parseInt(countEl.textContent.replace(/[^0-9]/g, '')) || 0;
+                                countEl.textContent = `(${Math.max(0, current - 1)} منتج)`;
+                            }
+                        }, 300);
+                    }
+                }
+            } catch (e) {
+                console.error('Error:', e);
+                location.reload();
+            }
+        }
+    </script>
+}

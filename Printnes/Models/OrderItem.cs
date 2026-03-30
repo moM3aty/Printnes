@@ -1,4 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿/* ============================================
+ * الملف: Models/OrderItem.cs
+ * موديل عناصر الطلب - يمثل منتج واحد داخل طلب
+ * يحفظ: اسم المنتج، الكمية، السعر، الخيارات المختارة، ملف التصميم
+ * السعر يحفظ كـ Snapshot (لقيمة وقت الطلب وليس الحالي)
+ * يمكن أن يكون ProductId = null (إذا حُذف المنتج لاحقاً)
+ * ============================================ */
+
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Printnes.Models
@@ -11,42 +19,54 @@ namespace Printnes.Models
         [Required]
         public int OrderId { get; set; }
 
-        public int? ProductId { get; set; } // يمكن أن يكون Null إذا تم حذف المنتج من النظام لاحقاً
+        // يمكن أن يكون Null إذا حُذف المنتج من النظام لاحقاً
+        public int? ProductId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "اسم المنتج مطلوب")]
         [StringLength(250)]
-        public string ProductName { get; set; } // Snapshot لاسم المنتج وقت الطلب (لحفظ التاريخ)
+        public string ProductName { get; set; }
 
+        // الخيارات المختارة كـ JSON (لتسهيل القراءة والعرض)
+        // مثال: {"design":"رفع تصميمي","paperType":"كوشيه 350","sides":"وجهين"}
         [Required]
-        public string SelectedOptionsJson { get; set; } // JSON يحتوي على الخيارات (ورق، مقاس، إلخ)
+        public string SelectedOptionsJson { get; set; }
 
-        public string SelectedExtrasJson { get; set; } // JSON يحتوي على الإضافات المختارة
+        // الإضافات المختارة كـ JSON
+        // مثال: [{"id":1,"name":"تصميم خاص","price":250}]
+        public string? SelectedExtrasJson { get; set; }
 
         [Required]
         public int Quantity { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,4)")]
-        public decimal CalculatedUnitPrice { get; set; } // سعر الوحدة وقت الطلب (Snapshot)
+        public decimal CalculatedUnitPrice { get; set; }
 
+        // سعر الإضافات الثابت لهذا العنصر
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal ExtrasTotal { get; set; } = 0m;
+
+        // السعر الإجمالي = (سعر الوحدة × الكمية) + سعر الإضافات
         [Required]
         [Column(TypeName = "decimal(18,4)")]
-        public decimal ExtrasTotal { get; set; } = 0m; // إجمالي سعر الإضافات لهذا العنصر
+        public decimal ItemTotal { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(18,4)")]
-        public decimal ItemTotal { get; set; } // (الوحدة * الكمية) + الإضافات
+        // ملف التصميم المرفوع من العميل (اختياري)
+        public int? DesignFileId { get; set; }
 
-        public int? DesignFileId { get; set; } // ملف التصميم المرفوع من العميل
+        // ملاحظات إضافية من الأدمن (مخفية عن العميل)
+        [StringLength(1000)]
+        public string? AdminNotes { get; set; }
 
-        // Navigation Properties
+        // === Navigation Properties ===
+
         [ForeignKey("OrderId")]
         public virtual Order Order { get; set; }
 
         [ForeignKey("ProductId")]
-        public virtual Product Product { get; set; }
+        public virtual Product? Product { get; set; }
 
         [ForeignKey("DesignFileId")]
-        public virtual UploadedFile DesignFile { get; set; }
+        public virtual UploadedFile? DesignFile { get; set; }
     }
 }

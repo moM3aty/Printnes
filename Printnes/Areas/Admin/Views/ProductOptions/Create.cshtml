@@ -1,64 +1,168 @@
-﻿@model Printnes.Models.ProductOption
+﻿<!-- الملف: Areas/Admin/Views/Products/Create.cshtml -->
+@model Printnes.Models.Product
 @{
-    ViewData["Title"] = "إضافة خيار منتج";
-    Layout = "_AdminLayout";
+    ViewData["Title"] = "إضافة منتج جديد";
 }
 
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1 class="page-title">إضافة خيار جديد</h1>
-    <a href="/Admin/ProductOptions" style="color: var(--admin-primary); text-decoration: none;"><i class="fas fa-arrow-right"></i> عودة للخيارات</a>
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-box-open"></i> إضافة منتج جديد</h1>
+    <a href="/Admin/Products" class="btn-outline"><i class="fas fa-arrow-right"></i> العودة للمنتجات</a>
 </div>
 
-<div class="erp-card" style="max-width: 800px;">
-    <form asp-action="Create" method="post">
-        <div asp-validation-summary="ModelOnly" style="color: red; margin-bottom: 15px;"></div>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">المنتج المرتبط *</label>
-                <select asp-for="ProductId" asp-items="ViewBag.ProductId" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                    <option value="">-- اختر المنتج --</option>
+<div class="premium-card" style="max-width: 900px;">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+        <!-- رفع صورة المنتج -->
+        <div class="form-group">
+            <label class="form-label">صورة المنتج الرئيسية <span class="required">*</span></label>
+            <div class="file-upload-wrapper" id="imageUploadWrapper">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>اضغط هنا أو اسحب الصورة لرفعها</span>
+                <span class="file-name" id="fileName"></span>
+                <input type="file" name="coverImageFile" accept="image/*" id="coverImageFile"
+                       onchange="handleFileUpload(this)" required />
+            </div>
+            <div class="img-preview-container">
+                <img id="imagePreview" class="img-preview" src="#" alt="معاينة الصورة" />
+                <button type="button" id="removePreviewBtn" class="btn-remove-preview" onclick="removePreview()">
+                    <i class="fas fa-trash"></i> حذف
+                </button>
+            </div>
+            <span class="form-hint">الصيغ المقبولة: JPG, PNG, WebP - الحد الأقصى: 5MB</span>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="NameAr" class="form-label">الاسم بالعربية <span class="required">*</span></label>
+                <input asp-for="NameAr" class="form-control" placeholder="مثال: كروت شخصية فاخرة" required />
+                <span asp-validation-for="NameAr" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NameEn" class="form-label">الاسم بالإنجليزية <span class="required">*</span></label>
+                <input asp-for="NameEn" class="form-control" placeholder="e.g: Premium Business Cards" required />
+                <span asp-validation-for="NameEn" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Slug" class="form-label">الرابط (Slug) <span class="required">*</span></label>
+                <input asp-for="Slug" class="form-control" placeholder="business-cards" id="slugInput" required />
+                <span asp-validation-for="Slug" class="field-validation-error"></span>
+                <span class="form-hint">يستخدم في رابط المنتج، استخدم أحرف إنجليزية صغيرة وشرطات</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="form-label">القسم الرئيسي <span class="required">*</span></label>
+                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control" required>
+                    <option value="">-- اختر القسم المناسب --</option>
                 </select>
-                <span asp-validation-for="ProductId" style="color: red; font-size: 12px;"></span>
-            </div>
-            <div>
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">نوع الخيار *</label>
-                <select asp-for="OptionType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-                    <option value="">-- اختر --</option>
-                    <option value="1">ورق (Paper)</option>
-                    <option value="2">مقاس (Size)</option>
-                    <option value="3">أوجه (Sides)</option>
-                    <option value="4">تشطيب/حماية (Finish)</option>
-                </select>
-                <span asp-validation-for="OptionType" style="color: red; font-size: 12px;"></span>
+                <span asp-validation-for="CategoryId" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">الاسم بالعربية *</label>
-                <input asp-for="NameAr" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="مثال: ورق كوشيه 300 جرام" />
-                <span asp-validation-for="NameAr" style="color: red; font-size: 12px;"></span>
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="MinQuantity" class="form-label">الحد الأدنى للكمية</label>
+                <input asp-for="MinQuantity" type="number" class="form-control" value="100" min="1" />
             </div>
-            <div>
-                <label style="display:block; margin-bottom:5px; font-weight:bold;">الاسم بالإنجليزية *</label>
-                <input asp-for="NameEn" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder="e.g: Coated Paper 300g" />
-                <span asp-validation-for="NameEn" style="color: red; font-size: 12px;"></span>
+            <div class="form-group">
+                <label asp-for="MaxQuantity" class="form-label">الحد الأقصى للكمية</label>
+                <input asp-for="MaxQuantity" type="number" class="form-control" value="100000" min="1" />
             </div>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">بيانات إضافية (Extra Data JSON)</label>
-            <input asp-for="ExtraData" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" placeholder='{"width": 9, "height": 5.5}' />
-            <small style="color: #888;">استخدم هذا الحقل لتخزين مقاسات فعلية أو متغيرات إضافية بصيغة JSON.</small>
+        <div class="form-group">
+            <label asp-for="DescriptionAr" class="form-label">وصف المنتج (عربي)</label>
+            <textarea asp-for="DescriptionAr" rows="4" class="form-control"
+                      placeholder="اكتب وصفاً جذاباً للمنتج يظهر للعميل..."></textarea>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight:bold;">
-                <input type="checkbox" asp-for="IsActive" checked /> الخيار نشط
+        <div style="display: flex; gap: 30px; margin-bottom: 28px; padding: 18px;
+                    background: var(--border-light); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <label class="form-check">
+                <input type="checkbox" asp-for="IsActive" checked />
+                <label asp-for="IsActive">المنتج نشط ويظهر في المتجر</label>
+            </label>
+            <label class="form-check">
+                <input type="checkbox" asp-for="AllowCustomSize" />
+                <label asp-for="AllowCustomSize">السماح للعميل بإدخال مقاس مخصص</label>
             </label>
         </div>
 
-        <button type="submit" style="background: var(--admin-primary); color: #fff; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer;">حفظ الخيار</button>
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;">
+
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn-premium">
+                <i class="fas fa-save"></i> حفظ المنتج
+            </button>
+            <a href="/Admin/Products" class="btn-outline">إلغاء</a>
+        </div>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // توليد Slug تلقائياً من الاسم العربي
+        document.getElementById('NameAr').addEventListener('input', function() {
+            const nameEn = document.getElementById('NameEn').value;
+            if (nameEn) {
+                document.getElementById('slugInput').value = nameEn
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '');
+            }
+        });
+
+        // معالجة رفع الصورة
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                // التحقق من الحجم (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('حجم الملف يتجاوز 5MB، يرجى اختيار ملف أصغر.');
+                    input.value = '';
+                    return;
+                }
+
+                // عرض اسم الملف
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('imageUploadWrapper').classList.add('has-file');
+
+                // عرض المعاينة
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = e.target.result;
+                    preview.classList.add('visible');
+                    document.getElementById('removePreviewBtn').classList.add('visible');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // حذف المعاينة
+        function removePreview() {
+            const input = document.getElementById('coverImageFile');
+            const preview = document.getElementById('imagePreview');
+            const wrapper = document.getElementById('imageUploadWrapper');
+
+            input.value = '';
+            preview.src = '#';
+            preview.classList.remove('visible');
+            document.getElementById('removePreviewBtn').classList.remove('visible');
+            document.getElementById('fileName').textContent = '';
+            wrapper.classList.remove('has-file');
+        }
+    </script>
+}

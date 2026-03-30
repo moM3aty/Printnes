@@ -1,0 +1,59 @@
+﻿<!-- الملف: Views/Packages/Index.cshtml -->
+@model IEnumerable<Printnes.Models.Product>
+@{
+    ViewData["Title"] = "عروض البكجات";
+    Layout = "_Layout";
+}
+
+<div class="category-header-bar" style="background: linear-gradient(90deg, var(--orange) 0%, #d8561d 100%); padding: 30px 0; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50px; left: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    <div class="container" style="position: relative; z-index: 2;">
+        <h1 style="color: #fff; font-size: 32px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">عروض البكجات التوفيرية</h1>
+        <nav class="breadcrumb-white" style="font-size: 14px; opacity: 0.9;">
+            <a href="/" style="color: #fff; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--navy)'" onmouseout="this.style.color='#fff'"><i class="fas fa-home"></i> الرئيسية</a>
+            <span style="margin: 0 8px;">/</span>
+            <strong style="color: var(--navy);">البكجات</strong>
+        </nav>
+    </div>
+</div>
+
+<main class="container py-5">
+    <div class="shop-controls" style="background: #fff; padding: 20px 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <h2 class="page-title-main" style="font-size: 18px; color: var(--navy); margin: 0; font-weight: 800;">
+            <i class="fas fa-gift" style="color: var(--orange); margin-left: 8px;"></i> أحدث البكجات والعروض
+        </h2>
+    </div>
+
+    <!-- حاوية عرض البكجات -->
+    <div class="products-grid">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var package in Model)
+            {
+                <div class="product-card">
+                    <div class="p-badge" style="background: var(--navy);">عرض خاص</div>
+                    <div class="wish-icon"><i class="far fa-heart"></i></div>
+                    <img src="@package.CoverImageUrl" alt="@package.NameAr" onclick="location.href='/Packages/Details/@package.Id'" style="cursor:pointer;">
+                    <div class="p-info">
+                        <h3 onclick="location.href='/Packages/Details/@package.Id'" style="cursor:pointer;">@package.NameAr</h3>
+                        <p class="p-desc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@(string.IsNullOrEmpty(package.DescriptionAr) ? "بكج توفيري مميز" : package.DescriptionAr)</p>
+
+                        <span class="p-price" style="color: var(--navy);">اكتشف السعر</span>
+
+                        <button class="add-to-cart-orange" onclick="location.href='/Packages/Details/@package.Id'">
+                            عرض تفاصيل البكج
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="width: 100%; text-align: center; padding: 60px 20px; grid-column: 1 / -1; background: #fff; border-radius: 15px; border: 1px dashed #eee;">
+                <i class="fas fa-box-open fa-3x" style="color: #ccc; margin-bottom: 20px;"></i>
+                <h3 style="color: var(--navy); font-weight: 800;">لا توجد عروض حالياً</h3>
+                <p style="color: #888;">ترقبوا أقوى العروض والبكجات قريباً...</p>
+            </div>
+        }
+    </div>
+</main>

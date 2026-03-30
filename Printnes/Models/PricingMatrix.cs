@@ -1,4 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿/* ============================================
+ * الملف: Models/PricingMatrix.cs
+ * موديل مصفوفة الأسعار (التقاطعات)
+ * يحدد سعر لكل تقاطع: (منتج + ورق + مقاس + أوجه)
+ * BasePrice = تكلفة التشغيل الثابتة (مرة واحدة لكل طلب)
+ * UnitPrice = سعر النسخة الواحدة (يُضرب في الكمية)
+ * ============================================ */
+
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Printnes.Models
@@ -20,15 +28,16 @@ namespace Printnes.Models
         [Required]
         public int SidesOptionId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "تكلفة التشغيل مطلوبة")]
         [Column(TypeName = "decimal(18,4)")]
-        public decimal BasePrice { get; set; } = 0m; // تكلفة التشغيل (ثابتة بغض النظر عن الكمية)
+        public decimal BasePrice { get; set; } = 0m;
 
-        [Required]
+        [Required(ErrorMessage = "سعر الوحدة مطلوب")]
         [Column(TypeName = "decimal(18,4)")]
-        public decimal UnitPrice { get; set; } = 0m; // سعر النسخة الواحدة
+        public decimal UnitPrice { get; set; } = 0m;
 
-        // Navigation Properties
+        // === Navigation Properties (OnDelete.Restrict لمنعع الحذف المتتالي) ===
+
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
 

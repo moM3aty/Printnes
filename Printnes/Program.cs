@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿/*
+ * الملف: Program.cs
+ * نقطة الدخول الرئيسية للمشروع (Entry Point)
+ */
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Printnes.Data;
 using Printnes.Models;
@@ -8,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. إعداد قاعدة البيانات (SQL Server)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -25,15 +31,32 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
 // 3. إعداد مسارات الدخول وملفات تعريف الارتباط (Cookies)
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Admin/Account/Login"; // توجيه الموظفين لصفحة الدخول
-    options.AccessDeniedPath = "/Admin/Account/AccessDenied";
+    // عند محاولة الدخول لصفحة تحتاج تسجيل دخول يتم توجيه المستخدم لصفحة Login
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
 });
 
-// 4. إضافة المتحكمات والواجهات
+// 4. إضافة المتحكمات والواجهات (MVC)
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        // استدعاء الدالة التي كتبناها في DbInitializer
+        await DbInitializer.SeedAsync(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "حدث خطأ أثناء تهيئة وزراعة قاعدة البيانات.");
+    }
+}
 
 // 5. إعداد الـ Middleware
 if (!app.Environment.IsDevelopment())
@@ -43,7 +66,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(); // للسماح بقراءة الملفات من مجلد wwwroot
 
 app.UseRouting();
 
@@ -52,12 +75,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // 6. إعداد الـ Routing (توجيه الروابط)
-// مسار لوحة التحكم (ERP)
+
+// مسار لوحة التحكم (ERP Admin Panel)
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-// المسار الافتراضي (واجهة العميل)
+// المسار الافتراضي (واجهة العميل - Storefront)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

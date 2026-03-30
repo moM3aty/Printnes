@@ -3279,13 +3279,14 @@ footer {
 .hero-swiper {
     width: 100%;
     border-radius: 15px;
+    height:500px;
 }
 
 .full-banner-img {
     width: 100%;
     height: auto;
     display: block;
-    object-fit: cover;
+
 }
 
 .swiper-button-next, .swiper-button-prev {

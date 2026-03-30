@@ -1,17 +1,23 @@
-﻿/**
- * script.js - النسخة الديناميكية المتصلة بقاعدة البيانات
- * تحافظ على نفس الـ Style والـ Logic الخاص بك ولكن مع داتا حقيقية
+﻿/*
+ * الملف: wwwroot/js/script.js
+ * النسخة المحدثة لحل مشكلة عداد السلة وتحديثه في الهيدر والتزامن مع LocalStorage
  */
 
-let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
-let activeProduct = { name: "", price: 0, total: 0 };
-
+// 1. تحديث عداد السلة من الـ LocalStorage مباشرة لضمان الدقة
 function updateCartBadge() {
+    let currentCart = JSON.parse(localStorage.getItem('printnesCart')) || [];
     const badge = document.getElementById('cart-count');
-    if (badge) badge.innerText = cart.length;
+    if (badge) {
+        badge.innerText = currentCart.length;
+    }
 }
 
-// دالة العرض الديناميكية (تستدعي البيانات من الـ API بدلاً من storeData)
+// 2. استدعاء التحديث فور تحميل أي صفحة
+document.addEventListener("DOMContentLoaded", function () {
+    updateCartBadge();
+});
+
+// 3. دالة جلب وعرض المنتجات من الـ API
 async function renderSection(categoryKey, targetId) {
     const grid = document.getElementById(targetId);
     if (!grid) return;
@@ -23,7 +29,6 @@ async function renderSection(categoryKey, targetId) {
     if (categoryKey === "featured") {
         items = await ApiClient.getFeaturedProducts();
     } else {
-        // نعتبر الـ categoryKey هو الـ Slug الخاص بالقسم في قاعدة البيانات
         items = await ApiClient.getProductsByCategory(categoryKey);
     }
 
@@ -47,8 +52,11 @@ async function renderSection(categoryKey, targetId) {
     `).join('');
 }
 
-// تعديل الدالة لتستقبل بيانات المنتج مباشرة وتضيفه للسلة
+// 4. إضافة المنتج للسلة من الصفحة الرئيسية أو الأقسام
 function addToCartDirectly(id, name, price, img) {
+    // جلب السلة الحالية
+    let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
+
     const itemToAdd = {
         id: id,
         name: name,
@@ -57,12 +65,16 @@ function addToCartDirectly(id, name, price, img) {
         quantity: 1
     };
 
+    // إضافة المنتج وحفظه
     cart.push(itemToAdd);
     localStorage.setItem('printnesCart', JSON.stringify(cart));
+
+    // تحديث العداد في الهيدر وإظهار الإشعار
     updateCartBadge();
     showCartToast(itemToAdd);
 }
 
+// 5. إظهار وإخفاء إشعار السلة الجانبي
 function showCartToast(p) {
     const toast = document.getElementById('cart-toast');
     if (!toast) return;
@@ -82,7 +94,9 @@ function hideToast() {
     if (toast) toast.classList.add('hidden');
 }
 
+// 6. عرض محتويات صفحة السلة (Cart Page)
 function renderCartPage() {
+    let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
     const emptyView = document.getElementById('empty-cart-view');
     const fullView = document.getElementById('full-cart-view');
     const tableBody = document.getElementById('cart-table-body');
@@ -99,36 +113,60 @@ function renderCartPage() {
 
         tableBody.innerHTML = cart.map((item, index) => `
             <tr>
-                <td><strong>${item.name}</strong><br><small style="color:#888;">الكمية: ${item.quantity || 1}</small></td>
+                <td>
+                    <strong>${item.name}</strong><br>
+                    <small style="color:#888;">الكمية: ${item.quantity || 1}</small>
+                </td>
                 <td><img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;"></td>
                 <td style="color:var(--orange); font-weight:bold;">${(parseFloat(item.price) * (item.quantity || 1)).toFixed(2)} ر.س</td>
-                <td><button class="btn-remove" onclick="removeItem(${index})"><i class="fas fa-trash-alt"></i></button></td>
+                <td>
+                    <button class="btn-remove" type="button" onclick="removeItem(${index})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
             </tr>
         `).join('');
 
         let total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * (item.quantity || 1)), 0);
         if (totalDisplay) totalDisplay.innerText = total.toFixed(2);
     }
+
+    // لضمان تزامن العداد دائماً
+    updateCartBadge();
 }
 
+// 7. حذف عنصر من السلة
 function removeItem(index) {
+    let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
     cart.splice(index, 1);
     localStorage.setItem('printnesCart', JSON.stringify(cart));
+
+    // إعادة رسم الصفحة وتحديث العداد
     renderCartPage();
     updateCartBadge();
 }
 
+// 8. التوجيه لصفحة إتمام الطلب
 function checkoutFullCart() {
-    // توجيه العميل لصفحة إتمام الطلب الرسمية في الـ C#
     window.location.href = "/Order/Checkout";
 }
+
+// 9. التوجيه لصفحة التفاصيل
+function goToDetails(id) {
+    window.location.href = `/Products/Details/${id}`;
+}
+
+// ==========================================
+// وظائف واجهة المستخدم (UI Functions)
+// ==========================================
 
 function openSideMenu() {
     const menu = document.getElementById('side-menu');
     const overlay = document.getElementById('menu-overlay');
     if (menu && overlay) {
         menu.classList.add('active');
-        overlay.classList.add('active');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.add('active'), 10);
         document.body.style.overflow = 'hidden';
     }
 }
@@ -137,7 +175,10 @@ function closeSideMenu() {
     const menu = document.getElementById('side-menu');
     const overlay = document.getElementById('menu-overlay');
     if (menu) menu.classList.remove('active');
-    if (overlay) overlay.classList.remove('active');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
     document.body.style.overflow = 'auto';
 }
 
@@ -149,55 +190,6 @@ function toggleSubMenu(element) {
     parentLi.classList.toggle('open');
 }
 
-function openLoginModal() {
-    const modal = document.getElementById('login-modal');
-    if (modal) modal.classList.remove('hidden');
-}
-
-function closeLoginModal() {
-    const modal = document.getElementById('login-modal');
-    if (modal) modal.classList.add('hidden');
-}
-
 function toggleFaq(element) {
     element.classList.toggle('active');
-}
-
-function goToDetails(id) {
-    window.location.href = `/Products/Details/${id}`;
-}
-
-function changeQty(val) {
-    const input = document.getElementById('prod-qty');
-    if (!input) return;
-    let current = parseInt(input.value);
-    if (current + val >= 1) input.value = current + val;
-    if (typeof calculateFinalPrice === "function") calculateFinalPrice();
-}
-
-function addToCartFromDetails() {
-    const titleEl = document.getElementById('product-title');
-    const imgEl = document.getElementById('main-product-img');
-    const priceEl = document.getElementById('sticky-price');
-    const qtyEl = document.getElementById('prod-qty');
-
-    if (!titleEl || !priceEl) return;
-
-    // جمع بيانات الخيارات المختارة
-    const design = document.getElementById('option-design')?.value || "";
-    const paperType = document.getElementById('option-paper-type')?.value || "";
-    const sides = document.getElementById('option-sides')?.value || "";
-
-    const item = {
-        name: titleEl.innerText,
-        price: parseFloat(priceEl.innerText.replace(' ر.س', '')),
-        img: imgEl ? imgEl.src : '',
-        quantity: parseInt(qtyEl.value) || 1,
-        details: { design, paperType, sides }
-    };
-
-    cart.push(item);
-    localStorage.setItem('printnesCart', JSON.stringify(cart));
-    updateCartBadge();
-    showCartToast(item);
 }

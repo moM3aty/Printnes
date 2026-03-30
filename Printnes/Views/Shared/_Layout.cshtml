@@ -1,25 +1,106 @@
-﻿<!DOCTYPE html>
+﻿<!-- الملف: Views/Shared/_Layout.cshtml -->
+@using Printnes.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+
+@{
+    // جلب كافة الأقسام النشطة من الداتابيز مرة واحدة وترتيبها
+    // لجعل الـ Layout ديناميكي وسريع جداً
+    var allCategories = await DbContext.Categories
+        .Where(c => c.IsActive)
+        .OrderBy(c => c.SortOrder)
+        .ToListAsync();
+}
+
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] | برنتس</title>
-    <!-- استدعاء ملف الـ CSS الأساسي -->
+    <title>@ViewData["Title"] | برنتس للطباعة والمطبوعات</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="~/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- مكتبة Swiper للـ Sliders -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <style>
+        .menu-promo-item {
+            padding: 15px;
+            text-align: center;
+            background: #f8faff;
+            margin: 10px 20px;
+            border-radius: 12px;
+            border: 1px dashed var(--orange);
+        }
+
+            .menu-promo-item img {
+                width: 80%;
+                max-height: 80px;
+                object-fit: contain;
+                margin-bottom: 5px;
+            }
+
+            .menu-promo-item p {
+                font-size: 11px;
+                color: var(--navy);
+                font-weight: bold;
+                margin: 0;
+            }
+
+        .has-submenu.open > .menu-item-flex .arrow {
+            transform: rotate(-90deg);
+            color: var(--orange);
+        }
+
+        .submenu-list {
+            transition: all 0.3s ease;
+        }
+    </style>
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body class="bg-light">
+<body>
 
-    <!-- رسالة الإضافة للسلة (Toast) -->
+    <header class="main-header">
+        <div class="container header-content">
+            <div class="brand-area">
+                <div class="logo-and-text" onclick="location.href='/'" style="cursor: pointer;">
+                    <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes" class="logo-img">
+                    <div class="brand-text">
+                        <h1>Printnes</h1>
+                        <span>للطباعة والمطبوعات</span>
+                    </div>
+                </div>
+                <button class="menu-toggle-btn" onclick="openSideMenu()"><i class="fas fa-bars"></i></button>
+            </div>
+
+            <div class="search-wrapper">
+                <form action="/Products/Search" method="get" style="display: flex; width: 100%;">
+                    <input type="text" name="q" placeholder="ادخل كلمة البحث">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <div class="user-nav">
+                <div class="nav-item" onclick="location.href='/Account/Login'">
+                    <i class="far fa-user"></i>
+                    <span>حسابي</span>
+                </div>
+                <div class="nav-item cart" onclick="location.href='/Cart'">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- إشعار السلة -->
     <div id="cart-toast" class="cart-toast-container hidden">
         <div class="toast-progress"></div>
         <div class="toast-header">
-            <span class="status-icon"><i class="fas fa-check-circle"></i> تمت الإضافة بنجاح</span>
+            <span class="status-icon"><i class="fas fa-check-circle"></i> تمت الإضافة إلى سلة التسوق</span>
             <span class="close-toast" onclick="hideToast()">&times;</span>
         </div>
         <div class="toast-body">
@@ -29,47 +110,15 @@
                 <span class="toast-price"><span id="toast-product-price">0</span> ر.س</span>
             </div>
         </div>
-        <div class="toast-footer" id="toast-footer" style="display:none;">
+        <div class="toast-footer">
             <button class="btn-white-toast" onclick="location.href='/Cart'"><i class="fas fa-shopping-bag"></i> عرض السلة</button>
             <button class="btn-orange-toast" onclick="checkoutFullCart()"><i class="fas fa-check"></i> اتمام الطلب</button>
         </div>
     </div>
 
-    <!-- الهيدر الرئيسي -->
-    <header class="main-header">
-        <div class="container header-content">
-            <div class="brand-area">
-                <div class="logo-and-text" onclick="location.href='/'" style="cursor:pointer">
-                    <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes" class="logo-img">
-                    <div class="brand-text">
-                        <h1>Printnes</h1>
-                        <span>للطباعة والمطبوعات</span>
-                    </div>
-                </div>
-                <button class="menu-toggle-btn" onclick="openSideMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-
-            <div class="search-wrapper">
-                <form action="/Products/Search" method="get" style="display: flex; width: 100%;">
-                    <input type="text" name="q" placeholder="ابحث عن منتج...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
-
-            <div class="user-nav">
-                <div class="nav-item" onclick="openLoginModal()"><i class="far fa-user"></i></div>
-                <div class="nav-item cart" onclick="location.href='/Cart'">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span id="cart-count">0</span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- القائمة الجانبية للجوال -->
     <div id="menu-overlay" class="menu-overlay hidden" onclick="closeSideMenu()"></div>
+
+    <!-- القائمة الجانبية الديناميكية -->
     <aside id="side-menu" class="side-menu shadow-lg">
         <div class="menu-header">
             <div class="brand-small">
@@ -79,39 +128,55 @@
             <button class="close-menu-btn" onclick="closeSideMenu()">&times;</button>
         </div>
 
-        <!-- الأقسام (يمكن جعلها Dynamic لاحقاً من الـ Database) -->
         <div class="menu-body">
             <ul class="main-nav-list">
                 <li><a href="/"><i class="fas fa-home"></i> الرئيسية</a></li>
                 <li><a href="/Products">كل المنتجات</a></li>
                 <li><a href="/Packages">عروض البكجات</a></li>
 
-                <li class="has-submenu">
-                    <div class="menu-item-flex" onclick="toggleSubMenu(this)">
-                        <a href="/Category/stickers" style="padding:0; flex:1; background:none; color:inherit;">طباعة الملصقات والاستيكرات</a>
-                        <i class="fas fa-chevron-left arrow"></i>
-                    </div>
-                    <ul class="submenu-list">
-                        <li><a href="/Category/stickers">عرض الكل</a></li>
-                        <li><a href="/Category/stickers-rect">استيكرات مستطيلة</a></li>
-                        <li class="menu-promo-item">
-                            <img src="https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png" alt="Promo">
-                            <p>طباعة ديجيتال عالية الدقة</p>
+                @{
+                    // الأقسام الرئيسية هي الأقسام التي لا تمتلك قسم أب (ParentMenu فارغ)
+                    var mainCategories = allCategories.Where(c => string.IsNullOrEmpty(c.ParentMenu)).ToList();
+                }
+
+                <!-- رسم الأقسام ديناميكياً من قاعدة البيانات -->
+                @foreach (var mainCat in mainCategories)
+                {
+                    // نبحث عن الأقسام الفرعية التي يعتبر هذا القسم هو الأب لها
+                    var subCategories = allCategories.Where(c => c.ParentMenu == mainCat.Slug).ToList();
+
+                    if (subCategories.Any())
+                    {
+                        <!-- قسم يمتلك أقسام فرعية (قائمة منسدلة) -->
+                        <li class="has-submenu">
+                            <div class="menu-item-flex" onclick="toggleSubMenu(this)">
+                                <a href="/Category/@mainCat.Slug" style="padding:0; flex:1; background:none; color:inherit;">@mainCat.NameAr</a>
+                                <i class="fas fa-chevron-left arrow"></i>
+                            </div>
+                            <ul class="submenu-list">
+                                <li><a href="/Category/@mainCat.Slug">عرض الكل</a></li>
+                                @foreach (var subCat in subCategories)
+                                {
+                                    <li><a href="/Category/@subCat.Slug">@subCat.NameAr</a></li>
+                                }
+                            </ul>
                         </li>
-                    </ul>
-                </li>
-                <li><a href="/Category/paper-prints">مطبوعات ورقية</a></li>
-                <li><a href="/Category/boxes">الطباعة على البوكسات</a></li>
-                <li><a href="/Category/packaging">التغليف والتعبئة</a></li>
+                    }
+                    else
+                    {
+                        <!-- قسم مستقل لا يمتلك أقسام فرعية -->
+                        <li><a href="/Category/@mainCat.Slug">@mainCat.NameAr</a></li>
+                    }
+                }
+
                 <li><a href="/Blog"><i class="fas fa-book"></i> المدونة</a></li>
             </ul>
         </div>
     </aside>
 
-    <!-- محتوى الصفحات الديناميكي يظهر هنا -->
     @RenderBody()
 
-    <!-- الفوتر الرئيسي -->
+    <!-- الفوتر -->
     <footer class="main-footer">
         <div class="container footer-inner">
             <div class="footer-col brand-col">
@@ -128,11 +193,10 @@
             <div class="footer-col links-col">
                 <h3>روابط مهمة</h3>
                 <ul class="footer-links">
-                    <li><a href="#">سياسة الخصوصية</a></li>
-                    <li><a href="#">الأسئلة الشائعة</a></li>
-                    <li><a href="#">للشكاوي والاقتراحات</a></li>
-                    <li><a href="#">سياسة الاستبدال والاسترجاع</a></li>
-                    <li><a href="#">سياسة الطباعة والتصميم</a></li>
+                    <li><a href="/Privacy">سياسة الخصوصية</a></li>
+                    <li><a href="/FAQ">الأسئلة الشائعة</a></li>
+                    <li><a href="/RefundPolicy">سياسة الاستبدال والاسترجاع</a></li>
+                    <li><a href="/Terms">سياسة الطباعة والتصميم</a></li>
                 </ul>
             </div>
 
@@ -140,7 +204,7 @@
                 <h3>تواصل معنا</h3>
                 <div class="contact-item">
                     <i class="fab fa-whatsapp"></i>
-                    <a href="tel:+966554804857">+966554804857</a>
+                    <a href="tel:+966554804857" dir="ltr">+966554804857</a>
                 </div>
                 <div class="contact-item">
                     <i class="far fa-envelope"></i>
@@ -148,7 +212,6 @@
                 </div>
             </div>
         </div>
-
         <div class="footer-bottom">
             <div class="container bottom-wrap">
                 <div class="payment-icons">
@@ -157,49 +220,24 @@
                     <img src="https://img.icons8.com/color/48/apple-pay.png" alt="apple-pay">
                     <span class="tabby-tamara">Tabby | Tamara</span>
                 </div>
-                <div class="tax-info">
-                    الرقم الضريبي : <span>310595349100003</span>
-                </div>
-                <div class="copyright">
-                    الحقوق محفوظة @DateTime.Now.Year | <a href="#">Printnes</a>
-                </div>
+                <div class="tax-info">الرقم الضريبي : <span>310595349100003</span></div>
+                <div class="copyright">الحقوق محفوظة @DateTime.Now.Year | <a href="/">Printnes</a></div>
             </div>
         </div>
     </footer>
 
-    <!-- زر الواتساب العائم -->
+    <!-- واتساب العائم -->
     <div class="whatsapp-fixed">
-        <a href="https://wa.me/966554804857" target="_blank" class="wa-icon">
-            <i class="fab fa-whatsapp"></i>
-        </a>
+        <a href="https://wa.me/966554804857" target="_blank" class="wa-icon"><i class="fab fa-whatsapp"></i></a>
         <div class="wa-tooltip">راسلنا على الواتساب</div>
     </div>
 
-    <!-- نافذة تسجيل الدخول (Modal) -->
-    <div id="login-modal" class="modal-overlay hidden">
-        <div class="login-box">
-            <span class="close-login" onclick="closeLoginModal()">&times;</span>
-            <div class="user-avatar-circle"><i class="far fa-user"></i></div>
-            <h2>تسجيل الدخول</h2>
-            <div class="login-form">
-                <div class="input-group-login">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" id="email-input" placeholder="your@email.com">
-                </div>
-                <button class="btn-login-main" onclick="handleLogin()">دخول</button>
-                <div class="login-divider"><span>أو سجل دخولك من خلال</span></div>
-                <div class="social-login-grid">
-                    <a href="#" class="social-btn"><i class="fab fa-apple"></i></a>
-                    <a href="#" class="social-btn"><i class="fab fa-google"></i></a>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <!-- استدعاء ملف الـ JS الأساسي -->
-    <script src="~/js/script.js"></script>
 
+    <!-- تم إضافة هذا السطر لحل مشكلة ApiClient -->
+    <script src="~/js/api-client.js"></script>
+
+    <script src="~/js/script.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

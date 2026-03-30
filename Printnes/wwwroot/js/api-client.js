@@ -1,6 +1,9 @@
-﻿
+﻿/*
+ * الملف: wwwroot/js/api-client.js
+ * تم تحديث دالة CalculatePrice لتتعامل مع الإضافات وإرسالها للـ API
+ */
+
 const ApiClient = {
-    // جلب المنتجات حسب القسم
     getProductsByCategory: async function (categorySlug) {
         try {
             const response = await fetch(`/api/StoreApi/GetProductsByCategory?slug=${categorySlug}`);
@@ -12,7 +15,6 @@ const ApiClient = {
         }
     },
 
-    // جلب المنتجات المميزة للصفحة الرئيسية
     getFeaturedProducts: async function () {
         try {
             const response = await fetch('/api/StoreApi/GetFeaturedProducts');
@@ -24,53 +26,34 @@ const ApiClient = {
         }
     },
 
-    // --- الدوال الجديدة لاستكمال دورة النظام ---
-
-    // حساب السعر الديناميكي بناءً على مصفوفة الأسعار والخيارات
-    calculatePrice: async function (productId, paperId, sizeId, sidesId, quantity) {
+    // دالة حساب السعر المتصلة بـ Backend
+    calculatePrice: async function (productId, paperId, sizeId, sidesId, quantity, extraIds = []) {
         try {
-            const response = await fetch(`/api/StoreApi/CalculatePrice?productId=${productId}&paperId=${paperId}&sizeId=${sizeId}&sidesId=${sidesId}&quantity=${quantity}`);
+            let url = `/api/StoreApi/CalculatePrice?productId=${productId}&paperId=${paperId}&sizeId=${sizeId}&sidesId=${sidesId}&quantity=${quantity}`;
+
+            if (extraIds && extraIds.length > 0) {
+                extraIds.forEach(id => url += `&extraIds=${id}`);
+            }
+
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Network response error');
             return await response.json();
         } catch (error) {
             console.error('Error calculating price:', error);
-            return null;
+            return { success: false };
         }
     },
 
-    // رفع ملفات التصميم الخاصة بالعميل
     uploadDesignFile: async function (file) {
         const formData = new FormData();
         formData.append('file', file);
-
         try {
-            const response = await fetch('/api/StoreApi/UploadDesign', {
-                method: 'POST',
-                body: formData
-            });
-            if (!response.ok) throw new Error('Network response error');
-            return await response.json(); // يعود بـ FileId لربطه بالطلب
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            return null;
-        }
-    },
-
-    // إرسال الطلب النهائي (Checkout)
-    submitOrder: async function (orderData) {
-        try {
-            const response = await fetch('/api/StoreApi/SubmitOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(orderData)
-            });
+            const response = await fetch('/api/StoreApi/UploadDesign', { method: 'POST', body: formData });
             if (!response.ok) throw new Error('Network response error');
             return await response.json();
         } catch (error) {
-            console.error('Error submitting order:', error);
-            return { success: false, message: 'حدث خطأ أثناء إرسال الطلب' };
+            console.error('Error uploading file:', error);
+            return null;
         }
     }
 };

@@ -3,7 +3,6 @@ wwwroot\css\style.css
 wwwroot\favicon.ico
 wwwroot\images\img1.jpg
 wwwroot\js\admin-script.js
-wwwroot\js\api-client.js
 wwwroot\js\script.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -62,3 +61,4 @@ wwwroot\lib\jquery\dist\jquery.js
 wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\js\api-client.js

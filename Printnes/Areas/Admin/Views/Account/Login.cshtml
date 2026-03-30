@@ -9,73 +9,121 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] | Printnes ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <style>
-        body {
+        :root {
+            --orange-primary: #f26a2e;
+            --orange-glow: rgba(242, 106, 46, 0.4);
+            --dark-bg: #020617;
+            --dark-card: rgba(15, 23, 42, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             font-family: 'Cairo', sans-serif;
-            background: #0f172a; /* لون داكن فخم جداً */
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            color: #fff;
-        }
-
-        .login-wrapper {
-            display: flex;
-            width: 900px;
-            height: 500px;
-            background: #1e293b;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            border: 1px solid #334155;
-        }
-
-        .login-form-side {
-            flex: 1;
-            padding: 50px 40px;
-            display: flex;
-            flex-direction: column;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .login-image-side {
-            flex: 1;
-            background: url('https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png') center/cover;
+        /* Ambient Background Effects */
+        .ambient-glow-1 {
+            position: absolute;
+            top: -10%;
+            right: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--orange-glow) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+            animation: pulse 8s infinite alternate;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            filter: blur(100px);
+            z-index: 0;
+            animation: pulse 10s infinite alternate-reverse;
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(1.2);
+            opacity: 0.8;
+        }
+
+        }
+
+        /* Premium Glassmorphism Card */
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--dark-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            z-index: 10;
             position: relative;
         }
 
-            .login-image-side::after {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(to right, #1e293b, transparent, rgba(242, 106, 46, 0.3));
-            }
-
-        .logo-img {
-            max-width: 150px;
-            margin-bottom: 20px;
-            filter: brightness(0) invert(1);
-        }
-
-        .form-title {
-            font-size: 28px;
-            font-weight: 900;
-            margin-bottom: 5px;
-        }
-
-        .form-subtitle {
-            color: #94a3b8;
-            font-size: 14px;
+        .brand-logo {
+            text-align: center;
             margin-bottom: 30px;
         }
 
+            .brand-logo img {
+                width: 140px;
+                filter: brightness(0) invert(1);
+                margin-bottom: 15px;
+            }
+
+            .brand-logo h1 {
+                font-size: 24px;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                margin-bottom: 5px;
+            }
+
+            .brand-logo p {
+                color: var(--text-muted);
+                font-size: 14px;
+            }
+
+        /* Form Styles */
         .form-group {
-            margin-bottom: 20px;
-            text-align: right;
+            margin-bottom: 22px;
+            position: relative;
         }
 
             .form-group label {
@@ -83,90 +131,189 @@
                 margin-bottom: 8px;
                 font-size: 13px;
                 font-weight: 700;
-                color: #cbd5e1;
+                color: var(--text-muted);
             }
 
-            .form-group input {
-                width: 100%;
-                padding: 12px 15px;
-                border-radius: 8px;
-                border: 1px solid #475569;
-                background: #0f172a;
-                color: #fff;
-                font-family: inherit;
-                font-size: 14px;
-                outline: none;
+        .input-wrapper {
+            position: relative;
+        }
+
+            .input-wrapper i {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-muted);
+                font-size: 16px;
                 transition: 0.3s;
             }
 
-                .form-group input:focus {
-                    border-color: #f26a2e;
-                    box-shadow: 0 0 0 3px rgba(242, 106, 46, 0.2);
+        .form-control {
+            width: 100%;
+            padding: 14px 45px 14px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+            .form-control:focus {
+                background: rgba(0, 0, 0, 0.4);
+                border-color: var(--orange-primary);
+                box-shadow: 0 0 0 4px rgba(242, 106, 46, 0.1);
+            }
+
+                .form-control:focus + i {
+                    color: var(--orange-primary);
                 }
 
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            user-select: none;
+        }
+
+            .custom-checkbox input {
+                accent-color: var(--orange-primary);
+                width: 16px;
+                height: 16px;
+            }
+
+        .forgot-pass {
+            color: var(--orange-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+            .forgot-pass:hover {
+                color: #fff;
+            }
+
         .btn-login {
-            background: #f26a2e;
+            width: 100%;
+            padding: 16px;
+            background: var(--orange-primary);
             color: #fff;
             border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.3s;
+            border-radius: 12px;
             font-family: inherit;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -10px var(--orange-primary);
         }
 
             .btn-login:hover {
-                background: #d8561d;
+                background: var(--orange-glow);
                 transform: translateY(-2px);
+                box-shadow: 0 15px 25px -10px var(--orange-primary);
             }
+
+        .admin-hint {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            color: #93c5fd;
+        }
 
         .text-danger {
             color: #ef4444;
             font-size: 13px;
-            margin-bottom: 15px;
-            display: block;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
+
+            .text-danger ul {
+                margin-right: 20px;
+            }
     </style>
 </head>
 <body>
 
-    <div class="login-wrapper">
-        <div class="login-form-side">
-            <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes Logo" class="logo-img">
-            <h1 class="form-title">مرحباً بك مجدداً!</h1>
-            <p class="form-subtitle">يرجى إدخال بيانات الاعتماد للوصول إلى نظام إدارة المطبعة (ERP).</p>
+    <!-- تأثيرات الإضاءة في الخلفية -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
 
-            <form asp-action="Login" method="post">
-                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
-
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div class="text-danger">@Html.ValidationSummary(false, "", new { @class = "text-danger" })</div>
-                }
-
-                <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" name="email" placeholder="admin@printnes.co" required />
-                </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" name="password" placeholder="••••••••" required />
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 13px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #cbd5e1;">
-                        <input type="checkbox" name="rememberMe" value="true" /> تذكرني
-                    </label>
-                    <a href="#" style="color: #f26a2e; text-decoration: none;">نسيت كلمة المرور؟</a>
-                </div>
-
-                <button type="submit" class="btn-login">تسجيل الدخول <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i></button>
-            </form>
+    <div class="login-card">
+        <div class="brand-logo">
+            <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes Logo">
+            <h1>مرحباً بك مجدداً</h1>
+            <p>سجل دخولك للوصول إلى لوحة تحكم برنتس</p>
         </div>
-        <div class="login-image-side"></div>
+
+        <form asp-action="Login" method="post">
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger">
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                </div>
+            }
+
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <div class="input-wrapper">
+                    <!-- القيمة الافتراضية للتجربة -->
+                    <input type="email" name="email" class="form-control" placeholder="admin@printnes.co" value="admin@printnes.co" required />
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <div class="input-wrapper">
+                    <!-- القيمة الافتراضية للتجربة -->
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" value="123456" required />
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+
+            <div class="options-row">
+                <label class="custom-checkbox">
+                    <input type="checkbox" name="rememberMe" value="true" checked />
+                    <span>تذكر بياناتي</span>
+                </label>
+                <a href="#" class="forgot-pass">نسيت كلمة المرور؟</a>
+            </div>
+
+            <button type="submit" class="btn-login">
+                تسجيل الدخول <i class="fas fa-sign-in-alt"></i>
+            </button>
+
+            <!-- ملاحظة للمطور/المختبر -->
+            <div class="admin-hint">
+                <i class="fas fa-info-circle"></i> بيانات الدخول معبأة مسبقاً لتسهيل التجربة، فقط اضغط على "تسجيل الدخول".
+            </div>
+        </form>
     </div>
 
 </body>

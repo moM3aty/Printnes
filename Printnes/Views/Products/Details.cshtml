@@ -1,11 +1,10 @@
-﻿@model Printnes.Models.Product
+﻿<!-- الملف: Views/Products/Details.cshtml -->
+@model Printnes.Models.Product
 @{
-    // إذا كان الموديل موجود نضع اسم المنتج كعنوان للصفحة، وإلا نضع نص افتراضي
     ViewData["Title"] = Model != null ? Model.NameAr : "تفاصيل المنتج";
 }
 
 <main class="container py-5">
-    <!-- مسار التنقل Breadcrumb -->
     <nav class="breadcrumb">
         <a href="/">الرئيسية</a> &gt;
         <span id="breadcrumb-cat">@(Model != null ? Model.Category?.NameAr : "القسم")</span> &gt;
@@ -13,14 +12,12 @@
     </nav>
 
     <div class="product-details-wrapper">
-        <!-- قسم الصورة -->
         <div class="product-image-side">
             <div class="main-img-holder">
                 <img id="main-product-img" src="@(Model != null ? Model.CoverImageUrl : "https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png")" alt="@(Model?.NameAr)">
             </div>
         </div>
 
-        <!-- قسم التفاصيل والخيارات -->
         <div class="product-info-side">
             <h1 id="product-title">@(Model != null ? Model.NameAr : "اسم المنتج")</h1>
 
@@ -30,27 +27,24 @@
             </div>
 
             <div class="short-desc" id="product-short-desc">
-                @(Model != null ? Model.DescriptionAr : "وصف مختصر ومميز للمنتج يظهر في هذه المنطقة لشرح الفوائد والميزات للعميل.")
+                @(Model != null && !string.IsNullOrEmpty(Model.DescriptionAr) ? Model.DescriptionAr : "وصف مختصر ومميز للمنتج يظهر في هذه المنطقة لشرح الفوائد والميزات للعميل.")
             </div>
 
-            <!-- خدمة الدفع بالأقساط -->
             <div class="tabby-box">
                 <img src="https://img.icons8.com/color/48/tabby.png" width="30" alt="Tabby">
-                <p>قسم مشترياتك على 4 دفعات بدون فوائد بقيمة <span id="tabby-price">0</span> ر.س</p>
+                <p>قسم مشترياتك على 4 دفعات بدون فوائد بقيمة <span id="tabby-price" style="font-weight: bold; color: var(--navy);">0</span> ر.س</p>
             </div>
 
-            <!-- خيارات المنتج -->
             <div class="options-container">
                 <div class="options-tabs">
                     <button class="tab-btn active">خيارات المنتج</button>
-                    <button class="tab-btn">تقييمات المنتج</button>
+                    <button class="tab-btn" onclick="location.href='#reviews'">تقييمات المنتج</button>
                 </div>
                 <div class="options-body">
-                    <!-- سيتم توليد هذه الخيارات ديناميكياً من قاعدة البيانات (ProductOptions) لاحقاً بناءً على الـ PricingMatrix -->
-
+                    <!-- خيارات ديناميكية (هنا نضع تصميم تخيلي وسنربطه بالـ DB لاحقاً) -->
                     <div class="form-group">
                         <label>اختر عدد أوجه الطباعة *</label>
-                        <select id="option-sides">
+                        <select id="option-sides" onchange="calculateFinalPrice()">
                             <option value="">اختر</option>
                             <option value="1">وجه واحد</option>
                             <option value="2">وجهين</option>
@@ -69,28 +63,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label>طبقة الحماية *</label>
-                        <select id="option-cover">
-                            <option value="">اختر</option>
-                            <option value="none">بدون</option>
-                            <option value="matte">مطفي (Matte)</option>
-                            <option value="glossy">لامع (Glossy)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>مدة التنفيذ للمنتج *</label>
-                        <select id="option-duration">
-                            <option value="">اختر</option>
-                            <option value="normal">عادي (3-5 أيام)</option>
-                            <option value="urgent">مستعجل (24-48 ساعة)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
                         <label>النوع *</label>
                         <small class="label-hint">اختر جودة ونوع الورق المستخدم</small>
-                        <select id="option-paper-type">
+                        <select id="option-paper-type" onchange="calculateFinalPrice()">
                             <option value="">اختر</option>
                             <option value="standard">ورق كوشيه 350 جرام (قياسي)</option>
                             <option value="luxury">ورق فخم مطفي (Luxury Matte)</option>
@@ -99,9 +74,19 @@
                     </div>
 
                     <div class="form-group">
+                        <label>طبقة الحماية *</label>
+                        <select id="option-cover" onchange="calculateFinalPrice()">
+                            <option value="">اختر</option>
+                            <option value="none">بدون</option>
+                            <option value="matte">مطفي (Matte)</option>
+                            <option value="glossy">لامع (Glossy)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label>أطراف الكرت *</label>
                         <small class="label-hint">شكل زوايا الكرت النهائية</small>
-                        <select id="option-corners">
+                        <select id="option-corners" onchange="calculateFinalPrice()">
                             <option value="">اختر</option>
                             <option value="straight">زوايا مستقيمة (حادة)</option>
                             <option value="rounded">زوايا منحنية (Rounded)</option>
@@ -110,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- بطاقة المساعدة السريعة -->
             <div class="help-center-card">
                 <div class="help-content-wrap">
                     <div class="help-text">
@@ -122,7 +106,6 @@
                 <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" class="bg-logo-fade" alt="">
             </div>
 
-            <!-- التنبيهات -->
             <div class="important-notes">
                 <h4>تنبيهات هامة:</h4>
                 <ul>
@@ -141,7 +124,6 @@
     </section>
 </main>
 
-<!-- الشريط السفلي الثابت (للسعر والإضافة للسلة) -->
 <div class="sticky-footer-bar">
     <div class="container bar-content">
         <div class="price-side">
@@ -161,26 +143,25 @@
 
 @section Scripts {
     <script>
-        // تشغيل دوال الجافاسكريبت المخصصة لهذه الصفحة عند التحميل
         document.addEventListener("DOMContentLoaded", function() {
-            // سيقوم هذا الكود برسم المنتجات المقترحة في الأسفل من الداتا المؤقتة (storeData)
             if (typeof renderSection === "function") {
                 renderSection("featured", "related-render");
             }
-
-            // في حال وجود منتج ممرر، سيتم جلب بياناته، وإلا سيتم تشغيل كود تجريبي
-            @if (Model == null)
-            {
-                    <text>
-                    if (typeof renderProductDetails === "function") {
-                        renderProductDetails();
-                    }
-                    </text>
-            }
+            calculateFinalPrice();
         });
 
+        function changeQty(val) {
+            const input = document.getElementById('prod-qty');
+            if (!input) return;
+            let current = parseInt(input.value);
+            if (current + val >= 1) {
+                input.value = current + val;
+                calculateFinalPrice();
+            }
+        }
+
         function calculateFinalPrice() {
-            // هذه دالة تجريبية لتغيير السعر، وسيتم استبدالها لاحقاً بالتسعير الديناميكي القادم من الـ PricingMatrix
+            // منطق مبسط لحساب السعر للتجربة في الواجهة
             let base = 50;
             let designCost = parseFloat(document.getElementById('option-design').value) || 0;
             let qty = parseInt(document.getElementById('prod-qty').value) || 1;
@@ -189,6 +170,37 @@
 
             document.getElementById('sticky-price').innerText = total.toFixed(2) + ' ر.س';
             document.getElementById('tabby-price').innerText = (total / 4).toFixed(2);
+        }
+
+        function addToCartFromDetails() {
+            const titleEl = document.getElementById('product-title');
+            const imgEl = document.getElementById('main-product-img');
+            const priceEl = document.getElementById('sticky-price');
+            const qtyEl = document.getElementById('prod-qty');
+
+            if (!titleEl || !priceEl) return;
+
+            const design = document.getElementById('option-design')?.options[document.getElementById('option-design').selectedIndex].text || "";
+            const paperType = document.getElementById('option-paper-type')?.options[document.getElementById('option-paper-type').selectedIndex].text || "";
+            const sides = document.getElementById('option-sides')?.options[document.getElementById('option-sides').selectedIndex].text || "";
+            const cover = document.getElementById('option-cover')?.options[document.getElementById('option-cover').selectedIndex].text || "";
+
+            const item = {
+                id: @(Model != null ? Model.Id : 0),
+                name: titleEl.innerText,
+                price: parseFloat(priceEl.innerText.replace(' ر.س', '')),
+                img: imgEl ? imgEl.src : '',
+                quantity: parseInt(qtyEl.value) || 1,
+                details: { design: design, paperType: paperType, sides: sides, cover: cover }
+            };
+
+            let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
+            cart.push(item);
+            localStorage.setItem('printnesCart', JSON.stringify(cart));
+
+            // تحديث عداد السلة في الهيدر إذا كانت الدالة موجودة
+            if (typeof updateCartBadge === "function") updateCartBadge();
+            if (typeof showCartToast === "function") showCartToast(item);
         }
     </script>
 }

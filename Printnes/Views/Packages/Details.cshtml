@@ -1,0 +1,213 @@
+﻿<!-- الملف: Views/Packages/Details.cshtml -->
+@model Printnes.Models.Product
+@{
+    ViewData["Title"] = Model != null ? Model.NameAr : "تفاصيل البكج";
+    Layout = "_Layout";
+}
+
+<main class="container py-5">
+    <nav class="breadcrumb">
+        <a href="/">الرئيسية</a> &gt;
+        <a href="/Packages" style="color: var(--orange); text-decoration: none;">عروض البكجات</a> &gt;
+        <span id="breadcrumb-name">@(Model != null ? Model.NameAr : "اسم البكج")</span>
+    </nav>
+
+    <div class="product-details-wrapper">
+        <div class="product-image-side">
+            <div class="main-img-holder">
+                <img id="main-product-img" src="@(Model != null ? Model.CoverImageUrl : "")" alt="@(Model?.NameAr)">
+            </div>
+        </div>
+
+        <div class="product-info-side">
+            <div style="display: inline-block; background: var(--navy); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px;">
+                عرض خاص
+            </div>
+            <h1 id="product-title">@(Model != null ? Model.NameAr : "اسم البكج")</h1>
+
+            <div class="short-desc" id="product-short-desc">
+                @(Model != null && !string.IsNullOrEmpty(Model.DescriptionAr) ? Model.DescriptionAr : "تفاصيل هذا البكج ومميزاته تظهر هنا.")
+            </div>
+
+            <div class="tabby-box">
+                <img src="https://img.icons8.com/color/48/tabby.png" width="30" alt="Tabby">
+                <p>قسم مشترياتك على 4 دفعات بدون فوائد بقيمة <span id="tabby-price" style="font-weight: bold; color: var(--navy);">0</span> ر.س</p>
+            </div>
+
+            <div class="options-container">
+                <div class="options-tabs">
+                    <button class="tab-btn active">خيارات البكج</button>
+                </div>
+                <div class="options-body">
+
+                    @if (ViewBag.PaperOptions != null && Enumerable.Count(ViewBag.PaperOptions) > 0)
+                    {
+                        <div class="form-group">
+                            <label>نوع الورق *</label>
+                            <select id="opt-paper" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                <option value="">-- اختر --</option>
+                                @foreach (var opt in ViewBag.PaperOptions)
+                                {
+                                    <option value="@opt.Id">@opt.NameAr</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    @if (ViewBag.SizeOptions != null && Enumerable.Count(ViewBag.SizeOptions) > 0)
+                    {
+                        <div class="form-group">
+                            <label>المقاس *</label>
+                            <select id="opt-size" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                <option value="">-- اختر --</option>
+                                @foreach (var opt in ViewBag.SizeOptions)
+                                {
+                                    <option value="@opt.Id">@opt.NameAr</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    @if (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0)
+                    {
+                        <div class="form-group">
+                            <label>عدد أوجه الطباعة *</label>
+                            <select id="opt-sides" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                <option value="">-- اختر --</option>
+                                @foreach (var opt in ViewBag.SidesOptions)
+                                {
+                                    <option value="@opt.Id">@opt.NameAr</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    @if (Model != null && Model.ProductExtras != null && Model.ProductExtras.Any())
+                    {
+                        <div class="form-group" style="margin-top: 20px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                            <label style="color: var(--navy); font-weight: 800; margin-bottom: 10px; display: block;">إضافات اختيارية للبكج</label>
+                            @foreach (var extra in Model.ProductExtras)
+                            {
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px; font-size: 14px;">
+                                    <input type="checkbox" class="extra-checkbox" value="@extra.Id" onchange="calculateDynamicPrice()" style="width: 18px; height: 18px; accent-color: var(--orange);" />
+                                    @extra.NameAr <strong style="color: var(--success); margin-right: 5px;">(+@extra.Price.ToString("0.00") ر.س)</strong>
+                                </label>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="sticky-footer-bar">
+    <div class="container bar-content">
+        <div class="price-side">
+            <span class="final-price" id="sticky-price" style="font-size: 22px; color: var(--primary-color);">حدد الخيارات</span>
+            <small>السعر شامل الضريبة</small>
+        </div>
+        <div class="action-side">
+            <div class="quantity-picker">
+                <button type="button" onclick="changeQty(-10)">-</button>
+                <input type="number" id="prod-qty" value="@(Model != null ? Model.MinQuantity : 100)" min="@(Model != null ? Model.MinQuantity : 1)" onchange="calculateDynamicPrice()">
+                <button type="button" onclick="changeQty(10)">+</button>
+            </div>
+            <button class="btn-add-main" onclick="addToCartFromDetails()">إضافة البكج للسلة</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            calculateDynamicPrice();
+        });
+
+        function changeQty(val) {
+            const input = document.getElementById('prod-qty');
+            if (!input) return;
+            let current = parseInt(input.value);
+            let min = parseInt(input.getAttribute('min')) || 1;
+
+            if (current + val >= min) {
+                input.value = current + val;
+            } else {
+                input.value = min;
+            }
+            calculateDynamicPrice();
+        }
+
+        async function calculateDynamicPrice() {
+            const productId = @(Model != null ? Model.Id : 0);
+
+            const paperEl = document.getElementById('opt-paper');
+            const sizeEl = document.getElementById('opt-size');
+            const sidesEl = document.getElementById('opt-sides');
+            const qtyEl = document.getElementById('prod-qty');
+
+            if(!paperEl || !sizeEl || !sidesEl) {
+                document.getElementById('sticky-price').innerText = 'البكج غير مهيأ حالياً';
+                return;
+            }
+
+            const paperId = paperEl.value;
+            const sizeId = sizeEl.value;
+            const sidesId = sidesEl.value;
+            const qty = parseInt(qtyEl.value) || 1;
+
+            if (!paperId || !sizeId || !sidesId) {
+                document.getElementById('sticky-price').innerText = 'حدد الخيارات لعرض السعر';
+                document.getElementById('tabby-price').innerText = '0.00';
+                return;
+            }
+
+            const extraCheckboxes = document.querySelectorAll('.extra-checkbox:checked');
+            const extraIds = Array.from(extraCheckboxes).map(cb => parseInt(cb.value));
+
+            document.getElementById('sticky-price').innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:18px;"></i> حساب...';
+
+            const result = await ApiClient.calculatePrice(productId, paperId, sizeId, sidesId, qty, extraIds);
+
+            if (result && result.success) {
+                document.getElementById('sticky-price').innerText = result.total.toFixed(2) + ' ر.س';
+                document.getElementById('tabby-price').innerText = (result.total / 4).toFixed(2);
+            } else {
+                document.getElementById('sticky-price').innerText = 'غير متاح بهذه المواصفات';
+                document.getElementById('tabby-price').innerText = '0.00';
+            }
+        }
+
+        function addToCartFromDetails() {
+            const titleEl = document.getElementById('product-title');
+            const imgEl = document.getElementById('main-product-img');
+            const priceEl = document.getElementById('sticky-price');
+            const qtyEl = document.getElementById('prod-qty');
+
+            if (priceEl.innerText.includes('حدد الخيارات') || priceEl.innerText.includes('غير متاح') || priceEl.innerText.includes('حساب')) {
+                alert('الرجاء تحديد كافة الخيارات المطلوبة للبكج أولاً.');
+                return;
+            }
+
+            const paperText = document.getElementById('opt-paper') ? document.getElementById('opt-paper').options[document.getElementById('opt-paper').selectedIndex].text : '';
+            const sizeText = document.getElementById('opt-size') ? document.getElementById('opt-size').options[document.getElementById('opt-size').selectedIndex].text : '';
+            const sidesText = document.getElementById('opt-sides') ? document.getElementById('opt-sides').options[document.getElementById('opt-sides').selectedIndex].text : '';
+
+            const item = {
+                id: @(Model != null ? Model.Id : 0),
+                name: titleEl.innerText + ' (بكج)',
+                price: parseFloat(priceEl.innerText.replace(' ر.س', '')),
+                img: imgEl ? imgEl.src : '',
+                quantity: 1,
+                details: { paperType: paperText, sides: sidesText, design: sizeText }
+            };
+
+            let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
+            cart.push(item);
+            localStorage.setItem('printnesCart', JSON.stringify(cart));
+
+            if (typeof updateCartBadge === "function") updateCartBadge();
+            if (typeof showCartToast === "function") showCartToast(item);
+        }
+    </script>
+}

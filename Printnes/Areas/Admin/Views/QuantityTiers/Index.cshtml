@@ -1,51 +1,117 @@
-﻿@model IEnumerable<Printnes.Models.QuantityTier>
+﻿<!-- الملف: Areas/Admin/Views/QuantityTiers/Index.cshtml -->
+@model IEnumerable<Printnes.Models.QuantityTier>
 @{
     ViewData["Title"] = "شرائح خصم الكميات";
     Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-percent"></i> إدارة شرائح خصم الكميات</h1>
-    <a href="/Admin/QuantityTiers/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة شريحة خصم جديدة</a>
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-percent"></i> إدارة شرائح خصم الكميات</h1>
+    <a href="/Admin/QuantityTiers/Create" class="btn-premium"><i class="fas fa-plus"></i> إضافة شريحة خصم جديدة</a>
 </div>
 
-<div class="erp-card" style="padding: 0; overflow: hidden;">
-    <table class="erp-table">
-        <thead>
-            <tr>
-                <th>المنتج المرتبط</th>
-                <th>من كمية</th>
-                <th>إلى كمية</th>
-                <th>نسبة الخصم (%)</th>
-                <th>إجراءات</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- شريط الفلترة -->
+<div class="premium-card" style="padding: 18px 24px;">
+    <form asp-action="Index" method="get">
+        <div class="filter-bar">
+            <select name="productIdFilter" class="filter-select" asp-items="ViewBag.Products" style="min-width: 250px;">
+                <option value="">كل المنتجات المستهدفة</option>
+            </select>
+
+            <select name="sortBy" class="filter-select" style="min-width: 200px;">
+                <option value="quantity" selected="@(ViewBag.SortBy == "quantity")">الكمية (الأقل أولاً)</option>
+                <option value="quantity_high" selected="@(ViewBag.SortBy == "quantity_high")">الكمية (الأعلى أولاً)</option>
+                <option value="discount_high" selected="@(ViewBag.SortBy == "discount_high")">نسبة الخصم (الأعلى أولاً)</option>
+                <option value="discount_low" selected="@(ViewBag.SortBy == "discount_low")">نسبة الخصم (الأقل أولاً)</option>
+            </select>
+
+            <button type="submit" class="btn-premium btn-sm"><i class="fas fa-filter"></i> تصفية</button>
+            <a href="/Admin/QuantityTiers" class="btn-outline btn-sm"><i class="fas fa-redo"></i> إعادة تعيين</a>
+        </div>
+    </form>
+</div>
+
+<div class="table-container">
+    <div class="table-header">
+        <h3>
+            <i class="fas fa-list" style="color: var(--primary-color);"></i>
+            الشرائح المضافة
+            <span class="badge badge-neutral" style="font-size: 11px;">@(Model?.Count() ?? 0) شريحة</span>
+        </h3>
+    </div>
+
+    <div class="table-responsive">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>المنتج المرتبط</th>
+                    <th>من كمية</th>
+                    <th>إلى كمية</th>
+                    <th>نسبة الخصم (%)</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong style="color: var(--text-main); font-size: 14px;">@item.Product?.NameAr</strong>
+                            </td>
+                            <td>
+                                <span class="badge badge-info" style="font-weight: 700; font-size: 13px;">@item.MinQuantity.ToString("N0")</span>
+                                <small style="color: var(--text-muted); margin-right: 5px;">نسخة</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-purple" style="font-weight: 700; font-size: 13px;">@item.MaxQuantity.ToString("N0")</span>
+                                <small style="color: var(--text-muted); margin-right: 5px;">نسخة</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-success" style="font-size: 14px;">
+                                    <i class="fas fa-tags" style="margin-left: 5px; opacity: 0.7;"></i> @item.DiscountPercent.ToString("0.00") %
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="/Admin/QuantityTiers/Edit/@item.Id" class="btn-outline btn-icon" title="تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف شريحة الخصم هذه؟');">
+                                        <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: var(--danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td style="font-weight: 800; color: var(--erp-dark);">@item.Product?.NameAr</td>
-                        <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px; font-weight: 700;">@item.MinQuantity</span> <span style="font-size: 12px; color: var(--erp-text-light);">نسخة</span></td>
-                        <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px; font-weight: 700;">@item.MaxQuantity</span> <span style="font-size: 12px; color: var(--erp-text-light);">نسخة</span></td>
-                        <td><span class="status-badge status-success" style="font-size: 14px;"><i class="fas fa-tags" style="margin-left: 5px; opacity: 0.7;"></i> @item.DiscountPercent.ToString("0.00") %</span></td>
-                        <td>
-                            <a href="#" style="color: var(--erp-text-light); margin-left: 15px; font-size: 18px; transition: 0.3s;" onmouseover="this.style.color='var(--erp-orange)'" onmouseout="this.style.color='var(--erp-text-light)'"><i class="fas fa-edit"></i></a>
-                            <a href="#" class="btn-delete-confirm" style="color: #ef4444; font-size: 18px;"><i class="fas fa-trash"></i></a>
+                        <td colspan="5" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                            <div class="empty-state">
+                                <i class="fas fa-percentage" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                                <h3>لا توجد شرائح خصم مضافة حالياً.</h3>
+                                <p>قم بإضافة شرائح لتحفيز العملاء على طلب كميات أكبر.</p>
+                                <a href="/Admin/QuantityTiers/Create" class="btn-premium btn-sm" style="margin-top: 15px;">
+                                    <i class="fas fa-plus"></i> أضف شريحة الآن
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="5" style="padding: 40px; text-align: center; color: var(--erp-text-light);">
-                        <i class="fas fa-percentage" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <p>لا توجد شرائح خصم مضافة حالياً.</p>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>

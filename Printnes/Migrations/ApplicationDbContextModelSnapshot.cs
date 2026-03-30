@@ -182,6 +182,9 @@ namespace Printnes.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -200,10 +203,15 @@ namespace Printnes.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -226,6 +234,41 @@ namespace Printnes.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Printnes.Models.Banner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("Printnes.Models.Category", b =>
@@ -259,6 +302,10 @@ namespace Printnes.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ParentMenu")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
@@ -295,6 +342,7 @@ namespace Printnes.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
                     b.Property<string>("CustomerEmail")
@@ -311,15 +359,24 @@ namespace Printnes.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<string>("District")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("InternalNotes")
+                        .HasMaxLength(5000)
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("OrderNumber")
                         .IsRequired()
@@ -356,9 +413,15 @@ namespace Printnes.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -370,6 +433,10 @@ namespace Printnes.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<decimal>("CalculatedUnitPrice")
                         .HasColumnType("decimal(18,4)");
@@ -387,6 +454,9 @@ namespace Printnes.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId1")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductName")
@@ -412,6 +482,8 @@ namespace Printnes.Migrations
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductId1");
+
                     b.ToTable("OrderItems");
                 });
 
@@ -429,13 +501,15 @@ namespace Printnes.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
                     b.Property<byte>("NewStatus")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<byte?>("OldStatus")
                         .HasColumnType("tinyint");
@@ -462,6 +536,7 @@ namespace Printnes.Migrations
                         .HasColumnType("decimal(18,4)");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
                     b.Property<int>("OrderId")
@@ -601,6 +676,14 @@ namespace Printnes.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ExtraType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -639,8 +722,8 @@ namespace Printnes.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ExtraData")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -671,6 +754,77 @@ namespace Printnes.Migrations
                     b.ToTable("ProductOptions");
                 });
 
+            modelBuilder.Entity("Printnes.Models.ProductReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminReply")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("AdminReplyDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId1")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("Rating")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("ReviewText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("ReviewerImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ReviewerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ReviewerPhone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsApproved");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId1");
+
+                    b.HasIndex("Rating");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProductReviews");
+                });
+
             modelBuilder.Entity("Printnes.Models.QuantityTier", b =>
                 {
                     b.Property<int>("Id")
@@ -691,6 +845,9 @@ namespace Printnes.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
@@ -707,7 +864,11 @@ namespace Printnes.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("DesignFileId")
+                        .HasColumnType("int");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -740,7 +901,42 @@ namespace Printnes.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DesignFileId");
+
                     b.ToTable("UploadedFiles");
+                });
+
+            modelBuilder.Entity("Printnes.Models.UserFavorite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId1");
+
+                    b.HasIndex("UserId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("UserFavorites");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -794,6 +990,15 @@ namespace Printnes.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Printnes.Models.Order", b =>
+                {
+                    b.HasOne("Printnes.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Printnes.Models.OrderItem", b =>
                 {
                     b.HasOne("Printnes.Models.UploadedFile", "DesignFile")
@@ -811,6 +1016,10 @@ namespace Printnes.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Printnes.Models.Product", null)
+                        .WithMany("OrderItems")
+                        .HasForeignKey("ProductId1");
 
                     b.Navigation("DesignFile");
 
@@ -881,7 +1090,7 @@ namespace Printnes.Migrations
                     b.HasOne("Printnes.Models.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -909,6 +1118,28 @@ namespace Printnes.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Printnes.Models.ProductReview", b =>
+                {
+                    b.HasOne("Printnes.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Printnes.Models.Product", null)
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId1");
+
+                    b.HasOne("Printnes.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Printnes.Models.QuantityTier", b =>
                 {
                     b.HasOne("Printnes.Models.Product", "Product")
@@ -918,6 +1149,38 @@ namespace Printnes.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Printnes.Models.UploadedFile", b =>
+                {
+                    b.HasOne("Printnes.Models.OrderItem", "OrderItem")
+                        .WithMany()
+                        .HasForeignKey("DesignFileId");
+
+                    b.Navigation("OrderItem");
+                });
+
+            modelBuilder.Entity("Printnes.Models.UserFavorite", b =>
+                {
+                    b.HasOne("Printnes.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Printnes.Models.Product", null)
+                        .WithMany("UserFavorites")
+                        .HasForeignKey("ProductId1");
+
+                    b.HasOne("Printnes.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Printnes.Models.Category", b =>
@@ -936,6 +1199,8 @@ namespace Printnes.Migrations
 
             modelBuilder.Entity("Printnes.Models.Product", b =>
                 {
+                    b.Navigation("OrderItems");
+
                     b.Navigation("PricingMatrices");
 
                     b.Navigation("ProductExtras");
@@ -943,6 +1208,10 @@ namespace Printnes.Migrations
                     b.Navigation("ProductOptions");
 
                     b.Navigation("QuantityTiers");
+
+                    b.Navigation("Reviews");
+
+                    b.Navigation("UserFavorites");
                 });
 #pragma warning restore 612, 618
         }

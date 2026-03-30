@@ -1,5 +1,7 @@
-﻿@{
+﻿<!-- الملف: Views/Cart/Index.cshtml -->
+@{
     ViewData["Title"] = "سلة المشتريات";
+    Layout = "_Layout";
 }
 
 <main class="container cart-page-main">
@@ -37,16 +39,14 @@
         <!-- ملخص السلة النهائي -->
         <div class="cart-summary-final">
             <div class="summary-box">
-                <!-- فورم يوجه إلى الاكشن Checkout في الكنترولر -->
                 <form asp-controller="Cart" asp-action="Checkout" method="post">
                     <div class="s-row">
                         <span>إجمالي السلة:</span>
                         <strong id="grand-total">0</strong> <span>ر.س</span>
                     </div>
 
-                    <!-- يمكن تحويل هذه الدالة لإرسال البيانات للخادم لاحقاً بدلاً من الواتساب -->
                     <button type="button" class="btn-complete-order" onclick="checkoutFullCart()">
-                        إتمام الطلب عبر واتساب <i class="fab fa-whatsapp"></i>
+                        إتمام الطلب <i class="fas fa-arrow-left"></i>
                     </button>
                 </form>
             </div>

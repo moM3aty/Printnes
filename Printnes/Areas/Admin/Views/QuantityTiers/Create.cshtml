@@ -1,41 +1,52 @@
-﻿@model Printnes.Models.QuantityTier
+﻿<!-- الملف: Areas/Admin/Views/QuantityTiers/Create.cshtml -->
+@model Printnes.Models.QuantityTier
 @{
     ViewData["Title"] = "إضافة شريحة خصم";
+    Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-plus-circle"></i> إضافة شريحة خصم جديدة</h1>
-    <a href="/Admin/QuantityTiers" style="color: var(--erp-primary); text-decoration: none; font-weight:bold;"><i class="fas fa-arrow-right"></i> عودة للشرائح</a>
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-plus-circle"></i> إضافة شريحة خصم جديدة</h1>
+    <a href="/Admin/QuantityTiers" class="btn-outline"><i class="fas fa-arrow-right"></i> عودة للشرائح</a>
 </div>
 
-<div class="erp-card" style="max-width: 800px;">
+<div class="premium-card" style="max-width: 800px;">
     <form asp-action="Create" method="post">
-        <div asp-validation-summary="All" style="color: #ef4444; margin-bottom: 15px;"></div>
+        <div asp-validation-summary="All" class="validation-summary-errors"></div>
 
-        <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--erp-text);">المنتج المستهدف بالخصم *</label>
-            <select asp-for="ProductId" asp-items="ViewBag.ProductId" style="width: 100%; padding: 12px; border: 1px solid var(--erp-border); border-radius: 8px; background: var(--erp-bg); font-family: inherit;">
+        <div class="form-group">
+            <label class="form-label">المنتج المستهدف بالخصم *</label>
+            <select asp-for="ProductId" asp-items="ViewBag.ProductId" class="form-control" required>
                 <option value="">-- حدد المنتج --</option>
             </select>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div>
-                <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--erp-text);">الحد الأدنى للكمية *</label>
-                <input asp-for="MinQuantity" type="number" style="width: 100%; padding: 12px; border: 1px solid var(--erp-border); border-radius: 8px; background: var(--erp-bg); font-family: inherit;" placeholder="مثال: 500" required />
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">الحد الأدنى للكمية *</label>
+                <input asp-for="MinQuantity" type="number" class="form-control" placeholder="مثال: 500" required />
             </div>
-            <div>
-                <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--erp-text);">الحد الأقصى للكمية *</label>
-                <input asp-for="MaxQuantity" type="number" style="width: 100%; padding: 12px; border: 1px solid var(--erp-border); border-radius: 8px; background: var(--erp-bg); font-family: inherit;" placeholder="مثال: 1000" required />
+            <div class="form-group">
+                <label class="form-label">الحد الأقصى للكمية *</label>
+                <input asp-for="MaxQuantity" type="number" class="form-control" placeholder="مثال: 1000" required />
             </div>
         </div>
 
-        <div style="margin-bottom: 30px;">
-            <label style="display:block; margin-bottom:8px; font-weight:700; color:var(--erp-text);">نسبة الخصم المئوية (%) *</label>
-            <input asp-for="DiscountPercent" type="number" step="0.01" style="width: 100%; padding: 12px; border: 1px solid var(--erp-border); border-radius: 8px; background: var(--erp-bg); font-family: inherit;" placeholder="مثال: 15.50" required />
-            <small style="color: var(--erp-text-light); margin-top: 5px; display: block;">النسبة المئوية التي سيتم خصمها من الإجمالي إذا طابقت الكمية هذه الشريحة.</small>
+        <div class="form-group" style="max-width: 50%;">
+            <label class="form-label">نسبة الخصم المئوية (%) *</label>
+            <div style="position: relative;">
+                <input asp-for="DiscountPercent" type="number" step="0.01" class="form-control" placeholder="مثال: 15.50" required />
+                <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: bold;">%</span>
+            </div>
+            <span class="form-hint">النسبة المئوية التي سيتم خصمها من الإجمالي إذا طابقت الكمية هذه الشريحة.</span>
         </div>
 
-        <button type="submit" class="btn-erp" style="padding: 12px 35px; font-size: 16px;"><i class="fas fa-save"></i> حفظ شريحة الخصم</button>
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+        <button type="submit" class="btn-premium"><i class="fas fa-save"></i> حفظ شريحة الخصم</button>
     </form>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

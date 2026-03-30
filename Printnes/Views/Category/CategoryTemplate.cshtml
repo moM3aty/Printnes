@@ -1,0 +1,62 @@
+﻿<!-- الملف: Views/Category/CategoryTemplate.cshtml -->
+@{
+    // يأخذ الاسم من الـ Controller الديناميكي
+    ViewData["Title"] = ViewBag.CategoryName;
+    Layout = "_Layout";
+}
+
+<div class="category-header-bar" style="background: linear-gradient(90deg, var(--navy) 0%, #2a4b91 100%); padding: 30px 0; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+    <div class="container" style="position: relative; z-index: 2;">
+        <h1 style="color: #fff; font-size: 32px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">@ViewBag.CategoryName</h1>
+        <nav class="breadcrumb-white" style="font-size: 14px; opacity: 0.9;">
+            <a href="/" style="color: #fff; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='#fff'"><i class="fas fa-home"></i> الرئيسية</a>
+            <span style="margin: 0 8px;">/</span>
+            <strong style="color: var(--orange);">@ViewBag.CategoryName</strong>
+        </nav>
+    </div>
+</div>
+
+<main class="container py-5">
+    <div class="shop-controls" style="background: #fff; padding: 20px 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; background: #fff9f5; color: var(--orange); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <h2 style="font-size: 18px; color: var(--navy); margin: 0; font-weight: 800;">منتجات القسم</h2>
+        </div>
+
+        <div class="sort-filter" style="display: flex; align-items: center; gap: 10px;">
+            <label style="color: #666; font-weight: 700; font-size: 14px;">ترتيب حسب:</label>
+            <div class="custom-select-wrapper" style="min-width: 200px;">
+                <select id="sort-options" style="width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; background: #fdfdfd; font-family: inherit; font-weight: 600; color: var(--navy); outline: none;">
+                    <option value="suggestions" selected>مقترحاتنا</option>
+                    <option value="best-selling">الأكثر مبيعاً</option>
+                    <option value="top-rated">الأعلى تقييماً</option>
+                    <option value="price-high">السعر من الأعلى إلى الأقل</option>
+                    <option value="price-low">السعر من الأقل إلى الأعلى</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- حاوية عرض المنتجات الديناميكية -->
+    <div class="products-grid" id="render-@ViewBag.CategorySlug">
+        <div style="width: 100%; text-align: center; padding: 60px 20px; grid-column: 1 / -1; background: #fff; border-radius: 15px; border: 1px dashed #eee;">
+            <i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--orange); margin-bottom: 20px;"></i>
+            <h3 style="color: var(--navy); font-weight: 800;">جاري تحميل منتجات @ViewBag.CategoryName</h3>
+            <p style="color: #888;">لحظات ونستعرض لك أفضل خيارات الطباعة...</p>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // استدعاء دالة رسم المنتجات وتمرير الـ Slug الخاص بالقسم
+            if (typeof renderSection === "function") {
+                renderSection("@ViewBag.CategorySlug", "render-@ViewBag.CategorySlug");
+            }
+        });
+    </script>
+}

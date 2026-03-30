@@ -1,5 +1,7 @@
-﻿@{
+﻿<!-- الملف: Views/Blog/Index.cshtml -->
+@{
     ViewData["Title"] = "المدونة";
+    Layout = "_Layout";
 }
 
 <main class="container py-5">
@@ -58,8 +60,6 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             if (typeof renderBlogGrid === "function") {
-                // تعديل مسارات الروابط في دالة renderBlogGrid في الـ script.js
-                // لتشير إلى /Blog/Details/ بدلاً من ملفات الـ html المباشرة
                 renderBlogGrid();
             }
         });

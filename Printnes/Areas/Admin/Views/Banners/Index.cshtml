@@ -1,0 +1,62 @@
+﻿<!-- الملف: Areas/Admin/Views/Banners/Index.cshtml -->
+@model IEnumerable<Printnes.Models.Banner>
+@{
+    ViewData["Title"] = "إدارة البانرات";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-images"></i> صور متحركة (البانرات)</h1>
+    <a href="/Admin/Banners/Create" class="btn-premium"><i class="fas fa-plus"></i> رفع بانر جديد</a>
+</div>
+
+<div class="premium-card" style="padding: 0; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>الصورة</th>
+                    <th>العنوان التوضيحي</th>
+                    <th>ترتيب العرض</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <!-- عرض الصورة المرفوعة من مجلد wwwroot -->
+                                <img src="@item.ImageUrl" class="td-image" style="width: 120px; height: 60px;" alt="Banner">
+                            </td>
+                            <td>
+                                <strong>@item.Title</strong><br>
+                                <small style="color: var(--text-muted);">رابط: @(string.IsNullOrEmpty(item.LinkUrl) ? "لا يوجد" : item.LinkUrl)</small>
+                            </td>
+                            <td><span class="badge" style="background: var(--border-color); color: var(--text-main);">@item.SortOrder</span></td>
+                            <td>
+                                @(item.IsActive? Html.Raw("<span class='badge badge-success'><i class='fas fa-check'></i> نشط</span>") : Html.Raw("<span class='badge badge-danger'><i class='fas fa-times'></i> مخفي</span>"))
+                            </td>
+                            <td>
+                                <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا البانر نهائياً؟');">
+                                    <button type="submit" class="btn-premium btn-danger" style="padding: 6px 12px; font-size: 12px;"><i class="fas fa-trash"></i> حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" style="padding: 50px; text-align: center; color: var(--text-muted);">
+                            <i class="fas fa-image" style="font-size: 50px; opacity: 0.3; margin-bottom: 15px;"></i>
+                            <p>لا توجد صور بانرات مضافة حالياً. اضغط على الزر أعلاه للبدء.</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,102 +1,299 @@
-﻿@model Printnes.Models.Order
+﻿<!-- الملف: Areas/Admin/Views/Orders/Details.cshtml -->
+@model Printnes.Models.Order
 @{
     ViewData["Title"] = "تفاصيل الطلب " + Model.OrderNumber;
-    Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-file-invoice"></i> طلب رقم: @Model.OrderNumber</h1>
-    <a href="/Admin/Orders" class="btn-erp btn-erp-outline"><i class="fas fa-arrow-right"></i> عودة للطلبات</a>
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-file-invoice"></i>
+        طلب رقم: <span style="color: var(--primary-color);">@Model.OrderNumber</span>
+    </h1>
+    <a href="/Admin/Orders" class="btn-outline"><i class="fas fa-arrow-right"></i> العودة للطلبات</a>
 </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
-    <!-- الجانب الأيمن: عناصر الطلب -->
-    <div>
-        <div class="erp-card" style="padding: 0; overflow: hidden;">
-            <div style="padding: 20px 25px; border-bottom: 1px solid var(--erp-border); background: #f8fafc;">
-                <h3 style="margin: 0; color: var(--erp-dark); font-weight: 800; font-size: 18px;"><i class="fas fa-box-open" style="color: var(--erp-orange); margin-left: 5px;"></i> عناصر الطلب</h3>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- إعادة توجيه للواتساب إذا تم طلبه -->
+@if (TempData["WhatsAppUrl"] != null)
+{
+    <script>
+        window.open('@TempData["WhatsAppUrl"]', '_blank');
+    </script>
+}
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 28px;">
+    <!-- الجانب الأيمن: عناصر الطلب والتاريخ -->
+    <div style="display: flex; flex-direction: column; gap: 28px;">
+
+        <!-- كروت ملخص سريع -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <div class="stat-card orange" style="padding: 18px;">
+                <div class="stat-info">
+                    <div class="stat-info-title" style="font-size: 11px;">الإجمالي</div>
+                    <div class="stat-info-value" style="font-size: 22px;">@Model.TotalAmount.ToString("N2") <small>ر.س</small></div>
+                </div>
             </div>
-            <table class="erp-table">
-                <thead>
-                    <tr>
-                        <th>المنتج</th>
-                        <th>الكمية</th>
-                        <th>السعر</th>
-                        <th>الإجمالي</th>
-                        <th>ملف التصميم</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.OrderItems != null)
-                    {
-                        foreach (var item in Model.OrderItems)
+            <div class="stat-card blue" style="padding: 18px;">
+                <div class="stat-info">
+                    <div class="stat-info-title" style="font-size: 11px;">عناصر الطلب</div>
+                    <div class="stat-info-value" style="font-size: 22px;">@(Model.OrderItems?.Count ?? 0)</div>
+                </div>
+            </div>
+            <div class="stat-card green" style="padding: 18px;">
+                <div class="stat-info">
+                    <div class="stat-info-title" style="font-size: 11px;">تاريخ الطلب</div>
+                    <div class="stat-info-value" style="font-size: 16px;">@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- عناصر الطلب -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3>
+                    <i class="fas fa-box-open" style="color: var(--primary-color);"></i>
+                    عناصر الطلب
+                </h3>
+                <form asp-action="SendToWhatsApp" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                    <button type="submit" class="btn-outline btn-sm" style="color: #25d366; border-color: #25d366;">
+                        <i class="fab fa-whatsapp"></i> إرسال للواتساب
+                    </button>
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المنتج</th>
+                            <th>الخيارات</th>
+                            <th>الكمية</th>
+                            <th>سعر الوحدة</th>
+                            <th>الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.OrderItems != null)
                         {
-                            <tr>
-                                <td>
-                                    <strong style="color: var(--erp-dark);">@item.ProductName</strong><br>
-                                    <small style="color: var(--erp-text-light); font-size: 12px;">@item.SelectedOptionsJson</small>
-                                </td>
-                                <td><span style="background: var(--erp-bg); padding: 4px 10px; border-radius: 6px; font-weight: bold;">@item.Quantity</span></td>
-                                <td style="color: var(--erp-text-light);">@item.CalculatedUnitPrice.ToString("0.00")</td>
-                                <td style="font-weight: 800; color: var(--erp-orange);">@item.ItemTotal.ToString("0.00") ر.س</td>
-                                <td>
-                                    <a href="#" class="btn-erp btn-erp-outline" style="padding: 5px 10px; font-size: 12px; color: var(--erp-text);"><i class="fas fa-download"></i> تحميل</a>
-                                </td>
-                            </tr>
+                            int idx = 1;
+                            foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td style="color: var(--text-muted);">@idx</td>
+                                    <td>
+                                        <strong style="color: var(--text-main);">@item.ProductName</strong>
+                                        @if (item.Product != null)
+                                        {
+                                            <br>
+                                            <small style="color: var(--text-muted);">SKU: @item.Product.Slug</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.SelectedOptionsJson))
+                                        {
+                                            <div style="font-size: 12px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@item.SelectedOptionsJson">
+                                                @item.SelectedOptionsJson
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: var(--text-muted); font-size: 12px;">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-neutral">@item.Quantity</span>
+                                    </td>
+                                    <td style="color: var(--text-secondary);">@item.CalculatedUnitPrice.ToString("N2") ر.س</td>
+                                    <td style="font-weight: 800; color: var(--primary-color);">@item.ItemTotal.ToString("N2") ر.س</td>
+                                </tr>
+                                idx++;
+                            }
                         }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- تفاصيل المالية -->
+        <div class="premium-card" style="padding: 24px;">
+            <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main);">
+                <i class="fas fa-receipt" style="color: var(--primary-color); margin-left: 8px;"></i>
+                الملخص المالي
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
+                    <span style="color: var(--text-secondary);">المجموع الفرعي</span>
+                    <strong>@Model.SubTotal.ToString("N2") ر.س</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
+                    <span style="color: var(--text-secondary);">تكلفة الشحن</span>
+                    <strong>@Model.ShippingCost.ToString("N2") ر.س</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
+                    <span style="color: var(--text-secondary);">الضريبة (15%)</span>
+                    <strong>@Model.TaxAmount.ToString("N2") ر.س</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 14px 16px; background: var(--primary-light); border-radius: var(--radius-sm);">
+                    <span style="font-weight: 800; color: var(--primary-color); font-size: 16px;">الإجمالي النهائي</span>
+                    <strong style="color: var(--primary-color); font-size: 20px;">@Model.TotalAmount.ToString("N2") ر.س</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- سجل حالة الطلب -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3>
+                    <i class="fas fa-history" style="color: var(--purple);"></i>
+                    سجل تحديثات الحالة
+                </h3>
+            </div>
+            @if (Model.OrderStatusHistories != null && Model.OrderStatusHistories.Any())
+            {
+                <div style="padding: 20px;">
+                    @foreach (var hist in Model.OrderStatusHistories.OrderByDescending(h => h.CreatedAt))
+                    {
+                        <div style="display: flex; gap: 16px; margin-bottom: 20px; position: relative;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--info-bg); color: var(--info); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px;">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div style="flex: 1; padding-bottom: 16px; border-bottom: 1px solid var(--border-light);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                    <span style="font-weight: 700; color: var(--text-main); font-size: 14px;">
+                                        تم التغيير بواسطة: @hist.ChangedBy
+                                    </span>
+                                    <span style="font-size: 12px; color: var(--text-muted);">
+                                        @hist.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                    </span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(hist.Note))
+                                {
+                                    <p style="margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); background: var(--border-light); padding: 8px 12px; border-radius: var(--radius-xs);">
+                                        @hist.Note
+                                    </p>
+                                }
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+            }
+            else
+            {
+                <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+                    <i class="fas fa-history" style="font-size: 32px; margin-bottom: 10px; opacity: 0.3;"></i>
+                    <p>لا توجد تحديثات مسجلة</p>
+                </div>
+            }
         </div>
     </div>
 
     <!-- الجانب الأيسر: معلومات العميل وتحديث الحالة -->
-    <div style="display: flex; flex-direction: column; gap: 30px;">
-        <div class="erp-card">
-            <h3 style="margin-top: 0; color: var(--erp-dark); border-bottom: 2px solid var(--erp-bg); padding-bottom: 15px; font-weight: 800; font-size: 18px;"><i class="fas fa-user-circle" style="color: var(--erp-orange); margin-left: 5px;"></i> معلومات العميل</h3>
+    <div style="display: flex; flex-direction: column; gap: 28px;">
+        <!-- معلومات العميل -->
+        <div class="premium-card" style="padding: 24px;">
+            <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--primary-light); color: var(--primary-color); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                معلومات العميل
+            </h3>
 
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--erp-text-light); font-size: 14px;">الاسم:</span>
-                    <strong style="color: var(--erp-dark);">@Model.CustomerName</strong>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-user" style="margin-left: 6px;"></i> الاسم</span>
+                    <strong style="color: var(--text-main);">@Model.CustomerName</strong>
                 </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--erp-text-light); font-size: 14px;">الجوال:</span>
-                    <strong style="color: var(--erp-dark);" dir="ltr">@Model.CustomerPhone</strong>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-phone" style="margin-left: 6px;"></i> الجوال</span>
+                    <a href="tel:@Model.CustomerPhone" style="color: var(--info); font-weight: 700;" dir="ltr">@Model.CustomerPhone</a>
                 </div>
-                <div style="display: flex; justify-content: space-between; flex-direction: column; margin-top: 5px;">
-                    <span style="color: var(--erp-text-light); font-size: 14px; margin-bottom: 5px;">العنوان للتوصيل:</span>
-                    <div style="background: var(--erp-bg); padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.6; color: var(--erp-text);">
-                        @Model.City، @Model.District<br>@Model.Address
+                @if (!string.IsNullOrEmpty(Model.CustomerEmail))
+                {
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-envelope" style="margin-left: 6px;"></i> الإيميل</span>
+                        <a href="mailto:@Model.CustomerEmail" style="color: var(--info); font-weight: 700; font-size: 13px;">@Model.CustomerEmail</a>
+                    </div>
+                }
+                <div style="background: var(--border-light); padding: 12px; border-radius: var(--radius-sm); margin-top: 8px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><i class="fas fa-map-marker-alt" style="margin-left: 6px;"></i> عنوان التوصيل</div>
+                    <div style="font-size: 13px; color: var(--text-main); line-height: 1.8;">
+                        <strong>@Model.City</strong> - @Model.District<br>
+                        @Model.Address
                     </div>
                 </div>
+
+                <a href="https://wa.me/@(Model.CustomerPhone?.Replace(" ", "").Replace("+", ""))" target="_blank"
+                   class="btn-outline btn-sm" style="width: 100%; justify-content: center; color: #25d366; border-color: #25d366; margin-top: 8px;">
+                    <i class="fab fa-whatsapp"></i> تواصل عبر الواتساب
+                </a>
             </div>
         </div>
 
-        <div class="erp-card">
-            <h3 style="margin-top: 0; color: var(--erp-dark); border-bottom: 2px solid var(--erp-bg); padding-bottom: 15px; font-weight: 800; font-size: 18px;"><i class="fas fa-sync-alt" style="color: var(--erp-orange); margin-left: 5px;"></i> تحديث الحالة</h3>
+        <!-- تحديث الحالة -->
+        <div class="premium-card" style="padding: 24px;">
+            <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--warning-bg); color: var(--warning); display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                تحديث الحالة
+            </h3>
 
-            <form asp-action="UpdateStatus" method="post" style="margin-top: 20px;">
+            <form asp-action="UpdateStatus" method="post" style="display: flex; flex-direction: column; gap: 16px;">
                 <input type="hidden" name="id" value="@Model.Id" />
 
-                <div class="erp-form-group">
-                    <label class="erp-form-label">الحالة الجديدة للمرحلة</label>
-                    <select name="newStatus" class="erp-form-control">
-                        <option value="1" selected="@(Model.OrderStatus == 1)">جديد (بانتظار المراجعة)</option>
-                        <option value="2" selected="@(Model.OrderStatus == 2)">قيد المراجعة / التصميم</option>
-                        <option value="3" selected="@(Model.OrderStatus == 3)">جاري الطباعة والتجهيز</option>
-                        <option value="4" selected="@(Model.OrderStatus == 4)">تم الشحن / التوصيل</option>
-                        <option value="5" selected="@(Model.OrderStatus == 5)">مكتمل</option>
+                <div class="form-group" style="margin: 0;">
+                    <label class="form-label">الحالة الجديدة</label>
+                    <select name="newStatus" class="form-control">
+                        <option value="1" selected="@(Model.OrderStatus == 1)">📋 جديد (بانتظار المراجعة)</option>
+                        <option value="2" selected="@(Model.OrderStatus == 2)">🔍 قيد المراجعة / التصميم</option>
+                        <option value="3" selected="@(Model.OrderStatus == 3)">🖨️ جاري الطباعة والتجهيز</option>
+                        <option value="4" selected="@(Model.OrderStatus == 4)">🚚 تم الشحن / التوصيل</option>
+                        <option value="5" selected="@(Model.OrderStatus == 5)">✅ مكتمل</option>
                     </select>
                 </div>
 
-                <div class="erp-form-group">
-                    <label class="erp-form-label">ملاحظة (للسجل الداخلي فقط)</label>
-                    <textarea name="note" rows="3" class="erp-form-control" placeholder="اكتب ملاحظة حول سبب التحديث..."></textarea>
+                <div class="form-group" style="margin: 0;">
+                    <label class="form-label">ملاحظة (داخلية)</label>
+                    <textarea name="note" rows="3" class="form-control" placeholder="اكتب ملاحظة حول سبب التحديث..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-erp" style="width: 100%; justify-content: center;"><i class="fas fa-save"></i> حفظ وتحديث الحالة</button>
+                <label class="form-check" style="padding: 12px; background: #ecfdf5; border-radius: var(--radius-sm); border: 1px solid #a7f3d0;">
+                    <input type="checkbox" name="sendWhatsApp" value="true" />
+                    <span style="font-weight: 700; color: var(--success-text); font-size: 13px;">
+                        <i class="fab fa-whatsapp" style="margin-left: 6px;"></i>
+                        إرسال إشعار واتساب للعميل بالتحديث
+                    </span>
+                </label>
+
+                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-save"></i> حفظ وتحديث الحالة
+                </button>
             </form>
+        </div>
+
+        <!-- ملاحظات إضافية -->
+        <div class="premium-card" style="padding: 24px;">
+            <h3 style="margin: 0 0 15px; font-size: 16px; font-weight: 800; color: var(--text-main);">
+                <i class="fas fa-sticky-note" style="color: var(--warning); margin-left: 8px;"></i>
+                ملاحظات العميل
+            </h3>
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.8; background: var(--border-light); padding: 14px; border-radius: var(--radius-sm);">
+                    @Model.Notes
+                </p>
+            }
+            else
+            {
+                <p style="color: var(--text-muted); font-size: 14px;">لا توجد ملاحظات</p>
+            }
         </div>
     </div>
 </div>

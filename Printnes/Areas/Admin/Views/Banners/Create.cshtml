@@ -1,0 +1,56 @@
+﻿<!-- الملف: Areas/Admin/Views/Banners/Create.cshtml -->
+@model Printnes.Models.Banner
+@{
+    ViewData["Title"] = "رفع بانر جديد";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-image"></i> إضافة صورة (بانر) للمتجر</h1>
+    <a href="/Admin/Banners" class="btn-premium" style="background: transparent; color: var(--text-main); border: 1px solid var(--border-color);"><i class="fas fa-arrow-right"></i> العودة للبانرات</a>
+</div>
+
+<div class="premium-card" style="max-width: 800px;">
+    <!-- هام جداً: يجب إضافة enctype="multipart/form-data" لكي يعمل رفع الملفات -->
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label class="form-label">صورة البانر (القياس المفضل: 1200x400 بكسل) *</label>
+            <!-- واجهة الرفع المخصصة -->
+            <div class="file-upload-wrapper">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>اضغط هنا لاختيار الصورة من جهازك</span>
+                <!-- الـ name هنا يجب أن يطابق اسم الـ parameter في الكنترولر (imageFile) -->
+                <input type="file" name="imageFile" accept="image/*" onchange="previewImage(this, 'bannerPreview')" required />
+            </div>
+            <!-- مكان معاينة الصورة بعد اختيارها -->
+            <img id="bannerPreview" class="img-preview" src="#" alt="معاينة" />
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Title" class="form-label">عنوان توضيحي للبانر *</label>
+                <input asp-for="Title" class="form-control" placeholder="مثال: عروض اليوم الوطني" required />
+            </div>
+            <div class="form-group">
+                <label asp-for="LinkUrl" class="form-label">الرابط عند الضغط على الصورة</label>
+                <input asp-for="LinkUrl" class="form-control" placeholder="/Category/Boxes" />
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="SortOrder" class="form-label">ترتيب الظهور</label>
+                <input asp-for="SortOrder" type="number" class="form-control" value="0" />
+            </div>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" asp-for="IsActive" checked style="width: 18px; height: 18px; accent-color: var(--primary-color);" />
+            <label class="form-label" style="margin: 0; cursor: pointer;">نشر البانر وعرضه للعملاء</label>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+        <button type="submit" class="btn-premium"><i class="fas fa-check"></i> حفظ ورفع البانر</button>
+    </form>
+</div>

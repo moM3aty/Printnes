@@ -1,0 +1,168 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<Printnes.Models.ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "الملف الشخصي";
+    Layout = "_Layout";
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<main class="container" style="padding: 40px 15px 80px;">
+
+    <nav class="breadcrumb-simple" style="margin-bottom: 30px;">
+        <a href="/">الرئيسية</a> <span>&gt;</span>
+        <strong>الملف الشخصي</strong>
+    </nav>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background: #ecfdf5; color: #065f46; padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 600; border: 1px solid #a7f3d0; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-check-circle" style="font-size: 18px;"></i>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ProfileError"] != null)
+    {
+        <div style="background: #fef2f2; color: #991b1b; padding: 14px 18px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; font-weight: 600; border: 1px solid #fecaca; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 18px;"></i>
+            @Html.Raw(TempData["ProfileError"])
+        </div>
+    }
+
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 30px; align-items: flex-start;">
+
+        <!-- القائمة الجانبية للملف الشخصي -->
+        <div style="background: #fff; border-radius: 20px; padding: 30px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; text-align: center; position: sticky; top: 100px;">
+            <div style="width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #d8561d); display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 36px; color: #fff; font-weight: 900; box-shadow: 0 10px 20px rgba(242, 106, 46, 0.3);">
+                @(!string.IsNullOrEmpty(user?.FullName) ? user.FullName.Substring(0, 1) : "U")
+            </div>
+            <h3 style="font-size: 18px; color: var(--navy); margin-bottom: 5px; font-weight: 900;">@user?.FullName</h3>
+            <p style="font-size: 13px; color: #888; margin-bottom: 25px;">@(user?.Email)</p>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="/Favorites" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; color: #555; font-size: 14px; font-weight: 700; transition: 0.3s; text-decoration: none;"
+                   onmouseover="this.style.background='#fff5f2'; this.style.color='var(--orange)'" onmouseout="this.style.background='none'; this.style.color='#555'">
+                    <i class="fas fa-heart" style="width: 20px;"></i> المفضلات
+                </a>
+                <a href="#orders-section" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; color: #555; font-size: 14px; font-weight: 700; transition: 0.3s; text-decoration: none;"
+                   onmouseover="this.style.background='#fff5f2'; this.style.color='var(--orange)'" onmouseout="this.style.background='none'; this.style.color='#555'">
+                    <i class="fas fa-box" style="width: 20px;"></i> طلباتي
+                </a>
+                <a href="#password-section" style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; color: #555; font-size: 14px; font-weight: 700; transition: 0.3s; text-decoration: none;"
+                   onmouseover="this.style.background='#fff5f2'; this.style.color='var(--orange)'" onmouseout="this.style.background='none'; this.style.color='#555'">
+                    <i class="fas fa-lock" style="width: 20px;"></i> الأمان وكلمة المرور
+                </a>
+                <form asp-action="Logout" method="post" style="margin-top: 15px;">
+                    <button type="submit" style="width: 100%; padding: 12px; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;"
+                            onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- المحتوى الرئيسي للملف الشخصي -->
+        <div style="display: flex; flex-direction: column; gap: 25px;">
+
+            <!-- تعديل البيانات الشخصية -->
+            <div style="background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;">
+                <h2 style="font-size: 20px; color: var(--navy); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; padding-bottom: 15px; border-bottom: 2px solid #f5f5f5; font-weight: 900;">
+                    <div style="width: 36px; height: 36px; background: #fff5f2; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--orange);">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    البيانات الشخصية
+                </h2>
+
+                <form asp-action="UpdateProfile" method="post" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">الاسم الكامل</label>
+                        <input type="text" name="fullName" value="@user?.FullName" required
+                               style="width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s;"
+                               onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e0e0e0'" />
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">رقم الجوال</label>
+                        <input type="tel" name="phone" value="@user?.PhoneNumber" dir="ltr" required
+                               style="width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; text-align: left; transition: 0.3s;"
+                               onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e0e0e0'" />
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">البريد الإلكتروني</label>
+                        <input type="email" value="@user?.Email" disabled
+                               style="width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; background: #f9f9f9; color: #999; text-align: left; cursor: not-allowed;" />
+                        <span style="font-size: 11px; color: #aaa; margin-top: 5px; display: inline-block;">* لا يمكن تغيير البريد الإلكتروني</span>
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button type="submit" style="width: 100%; padding: 13px; background: var(--orange); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                                onmouseover="this.style.background='#d8561d'" onmouseout="this.style.background='var(--orange)'">
+                            <i class="fas fa-save"></i> حفظ التعديلات
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- طلباتي -->
+            <div id="orders-section" style="background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;">
+                <h2 style="font-size: 20px; color: var(--navy); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; padding-bottom: 15px; border-bottom: 2px solid #f5f5f5; font-weight: 900;">
+                    <div style="width: 36px; height: 36px; background: #f0f5ff; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--navy);">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    طلباتي السابقة
+                </h2>
+                <div style="text-align: center; padding: 30px; color: #888;">
+                    <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 15px; opacity: 0.3; display: block;"></i>
+                    <p style="font-size: 15px; margin-bottom: 15px; font-weight: 700;">جميع طلباتك يتم متابعتها عبر الواتساب حالياً</p>
+                    <p style="font-size: 13px; color: #aaa;">للاستفسار عن حالة طلبك يرجى التواصل معنا</p>
+                    <a href="https://wa.me/966554804857" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; padding: 12px 24px; background: #25d366; color: #fff; border-radius: 10px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
+                        <i class="fab fa-whatsapp" style="font-size: 18px;"></i> تواصل معنا
+                    </a>
+                </div>
+            </div>
+
+            <!-- الأمان وكلمة المرور -->
+            <div id="password-section" style="background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;">
+                <h2 style="font-size: 20px; color: var(--navy); margin-bottom: 25px; display: flex; align-items: center; gap: 10px; padding-bottom: 15px; border-bottom: 2px solid #f5f5f5; font-weight: 900;">
+                    <div style="width: 36px; height: 36px; background: #fef3c7; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #d97706;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    الأمان وتغيير كلمة المرور
+                </h2>
+
+                <form asp-action="ChangePassword" method="post" style="display: flex; flex-direction: column; gap: 18px; max-width: 500px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">كلمة المرور الحالية</label>
+                        <input type="password" name="currentPassword" required placeholder="أدخل كلمة المرور الحالية"
+                               style="width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; text-align: left; transition: 0.3s;"
+                               onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e0e0e0'" />
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">كلمة المرور الجديدة</label>
+                        <input type="password" name="newPassword" required placeholder="6 أحرف على الأقل"
+                               style="width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; text-align: left; transition: 0.3s;"
+                               onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e0e0e0'" />
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">تأكيد كلمة المرور الجديدة</label>
+                        <input type="password" name="confirmNewPassword" required placeholder="أعد كتابة كلمة المرور الجديدة"
+                               style="width: 100%; padding: 12px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; text-align: left; transition: 0.3s;"
+                               onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='#e0e0e0'" />
+                    </div>
+                    <button type="submit" style="width: fit-content; padding: 13px 40px; background: var(--navy); color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; margin-top: 10px;"
+                            onmouseover="this.style.background='#162d5f'" onmouseout="this.style.background='var(--navy)'">
+                        <i class="fas fa-shield-alt"></i> تحديث كلمة المرور
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <style>
+        @@media (max-width: 768px) {
+            div[style*="grid-template-columns: 300px"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+}

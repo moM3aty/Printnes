@@ -1,22 +1,31 @@
-﻿@{
+﻿<!-- الملف: Views/Products/Index.cshtml -->
+@{
     ViewData["Title"] = "كل المنتجات";
+    Layout = "_Layout";
 }
 
-<div class="category-header-bar">
-    <div class="container">
-        <nav class="breadcrumb-white">
-            <a href="/">الرئيسية</a> <span>/</span> <strong>كل المنتجات</strong>
+<div class="category-header-bar" style="background: linear-gradient(90deg, var(--navy) 0%, #2a4b91 100%); padding: 30px 0; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+    <div class="container" style="position: relative; z-index: 2;">
+        <h1 style="color: #fff; font-size: 32px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">كل المنتجات</h1>
+        <nav class="breadcrumb-white" style="font-size: 14px; opacity: 0.9;">
+            <a href="/" style="color: #fff; text-decoration: none; transition: 0.3s;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='#fff'"><i class="fas fa-home"></i> الرئيسية</a>
+            <span style="margin: 0 8px;">/</span>
+            <strong style="color: var(--orange);">المنتجات</strong>
         </nav>
     </div>
 </div>
 
-<main class="container py-4">
-    <div class="shop-controls">
-        <h2 class="page-title-main">كل المنتجات</h2>
-        <div class="sort-filter">
-            <label>ترتيب</label>
-            <div class="custom-select-wrapper">
-                <select id="sort-options">
+<main class="container py-5">
+    <div class="shop-controls" style="background: #fff; padding: 20px 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <h2 class="page-title-main" style="font-size: 18px; color: var(--navy); margin: 0; font-weight: 800;">
+            <i class="fas fa-box-open" style="color: var(--orange); margin-left: 8px;"></i> قائمة المنتجات الكاملة
+        </h2>
+
+        <div class="sort-filter" style="display: flex; align-items: center; gap: 10px;">
+            <label style="color: #666; font-weight: 700; font-size: 14px;">ترتيب حسب:</label>
+            <div class="custom-select-wrapper" style="min-width: 200px;">
+                <select id="sort-options" style="width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; background: #fdfdfd; font-family: inherit; font-weight: 600; color: var(--navy); outline: none;">
                     <option value="suggestions" selected>مقترحاتنا</option>
                     <option value="best-selling">الأكثر مبيعاً</option>
                     <option value="top-rated">الأعلى تقييماً</option>
@@ -29,17 +38,23 @@
 
     <!-- حاوية عرض كل المنتجات -->
     <div class="products-grid" id="all-products-render">
+        <div style="width: 100%; text-align: center; padding: 60px 20px; grid-column: 1 / -1; background: #fff; border-radius: 15px; border: 1px dashed #eee;">
+            <i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--orange); margin-bottom: 20px;"></i>
+            <h3 style="color: var(--navy); font-weight: 800;">جاري تحميل المنتجات</h3>
+            <p style="color: #888;">لحظات ونستعرض لك كافة الخيارات المتاحة...</p>
+        </div>
     </div>
 </main>
 
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // استخدام الدوال الديناميكية للرسم من script.js
             if (typeof renderSection === "function") {
-                // دمج عدة أقسام لعرضها كـ "كل المنتجات"
+                // ندمج مجموعة استدعاءات لعرض مختلف الأقسام كمنتجات كلية
                 renderSection("featured", "all-products-render");
-                renderSection("boxes", "all-products-render");
-                renderSection("cartons", "all-products-render");
+                // تأخير بسيط لمنع التعارض في حال استخدام نفس الحاوية
+                setTimeout(() => { renderSection("boxes", "all-products-render"); }, 500);
             }
         });
     </script>

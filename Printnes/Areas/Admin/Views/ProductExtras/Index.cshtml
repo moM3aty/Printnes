@@ -1,51 +1,72 @@
-﻿@model IEnumerable<Printnes.Models.ProductExtra>
+﻿<!-- الملف: Areas/Admin/Views/ProductExtras/Index.cshtml -->
+@model IEnumerable<Printnes.Models.ProductExtra>
 @{
     ViewData["Title"] = "الإضافات الاختيارية";
+    Layout = "_AdminLayout";
 }
 
-<div class="erp-page-header">
-    <h1 class="erp-page-title"><i class="fas fa-puzzle-piece"></i> الإضافات الاختيارية للمنتجات</h1>
-    <a href="/Admin/ProductExtras/Create" class="btn-erp"><i class="fas fa-plus"></i> إضافة خيار إضافي</a>
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-puzzle-piece"></i> الإضافات الاختيارية للمنتجات</h1>
+    <a href="/Admin/ProductExtras/Create" class="btn-premium"><i class="fas fa-plus"></i> إضافة خيار إضافي</a>
 </div>
 
-<div class="erp-card">
-    <table class="erp-table">
-        <thead>
-            <tr>
-                <th>المنتج</th>
-                <th>اسم الإضافة (عربي)</th>
-                <th>السعر (ثابت)</th>
-                <th>الترتيب</th>
-                <th>الحالة</th>
-                <th>إجراءات</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="premium-card" style="padding: 0; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>المنتج</th>
+                    <th>اسم الإضافة (عربي)</th>
+                    <th>السعر (ثابت)</th>
+                    <th>الترتيب</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><span style="color: var(--primary-color); font-weight: 800;">@item.Product?.NameAr</span></td>
+                            <td><strong style="color: var(--text-main);">@item.NameAr</strong></td>
+                            <td><span class="badge badge-warning" style="font-weight: bold; font-size: 13px;">@item.Price.ToString("0.00") ر.س</span></td>
+                            <td><span class="badge badge-neutral">@item.SortOrder</span></td>
+                            <td>
+                                @(item.IsActive? Html.Raw("<span class='badge badge-success'><i class='fas fa-check-circle'></i> نشط</span>") : Html.Raw("<span class='badge badge-danger'><i class='fas fa-times-circle'></i> معطل</span>"))
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="/Admin/ProductExtras/Edit/@item.Id" class="btn-outline btn-icon" title="تعديل"><i class="fas fa-edit"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا الخيار الإضافي؟');">
+                                        <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: var(--danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td><span style="color: var(--erp-primary); font-weight: 800;">@item.Product?.NameAr</span></td>
-                        <td>@item.NameAr</td>
-                        <td><span style="color: var(--erp-orange); font-weight: bold;">@item.Price.ToString("0.00") ر.س</span></td>
-                        <td>@item.SortOrder</td>
-                        <td>
-                            @(item.IsActive? Html.Raw("<span class='status-badge status-success'>نشط</span>") : Html.Raw("<span class='status-badge status-danger'>معطل</span>"))
-                        </td>
-                        <td>
-                            <a href="#" style="color: var(--erp-text-light); margin-left: 10px;"><i class="fas fa-edit"></i></a>
-                            <a href="#" style="color: #ef4444;"><i class="fas fa-trash"></i></a>
+                        <td colspan="6" style="padding: 40px; text-align: center; color: var(--text-muted);">
+                            <i class="fas fa-puzzle-piece" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                            <p>لا توجد إضافات اختيارية مضافة حالياً.</p>
                         </td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="6" style="text-align: center; color: var(--erp-text-light);">لا توجد إضافات اختيارية مضافة حالياً.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </div>

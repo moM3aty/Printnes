@@ -1,0 +1,267 @@
+﻿<!-- الملف: Areas/Admin/Views/Categories/Create.cshtml -->
+@model Printnes.Models.Category
+@{
+    ViewData["Title"] = "إضافة قسم جديد";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-layer-group"></i> إضافة قسم جديد</h1>
+    <a href="/Admin/Categories" class="btn-outline"><i class="fas fa-arrow-right"></i> العودة للأقسام</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i>
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i>
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="premium-card" style="max-width: 850px;">
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+        <!-- القسم الأب -->
+        <div class="form-group">
+            <label asp-for="ParentMenu" class="form-label">القائمة الرئيسية (القسم الأب)</label>
+            <select asp-for="ParentMenu" class="form-control">
+                <option value="">-- بدون (قسم رئيسي مستقل) --</option>
+                <option value="Stickers">طباعة الملصقات والاستيكرات</option>
+                <option value="PaperPrints">مطبوعات ورقية</option>
+                <option value="Boxes">الطباعة على البوكسات</option>
+                <option value="GiftCards">بطاقات الشكر والاهداء</option>
+                <option value="Packaging">التغليف والتعبئة</option>
+            </select>
+            <span class="form-hint">إذا اخترت قسماً رئيسياً، سيظهر هذا القسم كعنصر فرعي تحته في الموقع</span>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="NameAr" class="form-label">الاسم بالعربية <span class="required">*</span></label>
+                <input asp-for="NameAr" class="form-control" placeholder="مثال: استيكرات دائرية" required />
+                <span asp-validation-for="NameAr" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NameEn" class="form-label">الاسم بالإنجليزية <span class="required">*</span></label>
+                <input asp-for="NameEn" class="form-control" placeholder="e.g: Circle Stickers" required />
+                <span asp-validation-for="NameEn" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Slug" class="form-label">الرابط (Slug) <span class="required">*</span></label>
+                <input asp-for="Slug" class="form-control" id="slugInput" placeholder="circle-stickers" required />
+                <span asp-validation-for="Slug" class="field-validation-error"></span>
+                <span class="form-hint">يستخدم في رابط الصفحة، استخدم أحرف إنجليزية صغيرة وشرطات فقط</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SortOrder" class="form-label">ترتيب العرض</label>
+                <input asp-for="SortOrder" type="number" class="form-control" value="0" />
+                <span class="form-hint">الرقم الأصغر يظهر أولاً</span>
+            </div>
+        </div>
+
+        <!-- اختيار الأيقونة -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">أيقونة القسم</label>
+                <div class="icon-picker-wrapper">
+                    <div class="icon-picker-btn" onclick="toggleIconPicker()" id="iconPickerBtn">
+                        <div class="selected-icon" id="selectedIconDisplay">
+                            <i class="fas fa-icons"></i>
+                        </div>
+                        <span class="icon-text" id="selectedIconText">اضغط لاختيار أيقونة</span>
+                    </div>
+                    <input type="hidden" asp-for="IconClass" id="IconClassInput" />
+                    <div class="icon-picker-dropdown" id="iconPickerDropdown">
+                        <input type="text" class="icon-picker-search" placeholder="ابحث عن أيقونة..." oninput="filterIcons(this.value)" />
+                        <div class="icon-grid" id="iconGrid">
+                            <!-- يتم تعبئتها بالجافاسكريبت -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- رفع صورة القسم -->
+            <div class="form-group">
+                <label class="form-label">صورة القسم</label>
+                <div class="file-upload-wrapper" id="imageUploadWrapper" style="height: 110px;">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>اضغط لرفع صورة</span>
+                    <span class="file-name" id="fileName"></span>
+                    <input type="file" name="imageFile" accept="image/*" id="imageFile" onchange="handleCategoryImageUpload(this)" />
+                </div>
+                <div class="img-preview-container">
+                    <img id="imagePreview" class="img-preview" src="#" alt="معاينة" />
+                    <button type="button" id="removePreviewBtn" class="btn-remove-preview" onclick="removeCategoryPreview()">
+                        <i class="fas fa-trash"></i> حذف
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 5px;">
+            <label class="form-check">
+                <input type="checkbox" asp-for="IsActive" checked />
+                <label asp-for="IsActive">القسم نشط ويظهر للعملاء</label>
+            </label>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 28px 0;">
+
+        <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn-premium"><i class="fas fa-save"></i> حفظ القسم</button>
+            <a href="/Admin/Categories" class="btn-outline">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // توليد Slug تلقائياً
+        document.getElementById('NameEn').addEventListener('input', function() {
+            document.getElementById('slugInput').value = this.value
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+        });
+
+        // قائمة الأيقونات المتاحة للطباعة
+        const availableIcons = [
+            'fa-print','fa-id-card','fa-box','fa-box-open','fa-gift','fa-tag','fa-tags',
+            'fa-star','fa-heart','fa-crown','fa-gem','fa-palette','fa-paint-brush',
+            'fa-cut','fa-scissors','fa-layer-group','fa-shapes','fa-vector-square',
+            'fa-file-alt','fa-file-image','fa-image','fa-images','fa-photo-video',
+            'fa-shopping-bag','fa-shopping-cart','fa-store','fa-store-alt',
+            'fa-truck','fa-truck-loading','fa-shipping-fast','fa-dolly',
+            'fa-book','fa-book-open','fa-newspaper','fa-scroll',
+            'fa-envelope','fa-envelope-open','fa-paper-plane','fa-at',
+            'fa-certificate','fa-award','fa-medal','fa-trophy',
+            'fa-circle','fa-square','fa-rectangle-landscape',
+            'fa-sticky-note','fa-note-sticky','fa-thumbtack','fa-pushpin',
+            'fa-ribbon','fa-magic','fa-wand-magic-sparkles','fa-sparkles',
+            'fa-pen','fa-pen-fancy','fa-pencil-alt','fa-marker',
+            'fa-ruler','fa-ruler-combined','fa-drafting-compass',
+            'fa-tshirt','fa-shirt','fa-bag-shopping',
+            'fa-mug-hot','fa-coffee','fa-utensils',
+            'fa-baby','fa-child','fa-users','fa-user','fa-user-tie',
+            'fa-building','fa-city','fa-landmark',
+            'fa-phone','fa-mobile-alt','fa-laptop','fa-desktop',
+            'fa-leaf','fa-tree','fa-seedling','fa-plant-wilt',
+            'fa-fire','fa-bolt','fa-sun','fa-moon',
+            'fa-cloud','fa-snowflake','fa-umbrella','fa-rainbow',
+            'fa-flag','fa-map-marker-alt','fa-globe','fa-earth-americas',
+            'fa-music','fa-headphones','fa-microphone','fa-film',
+            'fa-camera','fa-video','fa-tv','fa-gamepad',
+            'fa-futbol','fa-basketball-ball','fa-football-ball',
+            'fa-dumbbell','fa-heartbeat','fa-medkit',
+            'fa-graduation-cap','fa-school','fa-chalkboard',
+            'fa-briefcase','fa-chart-line','fa-chart-pie','fa-chart-bar',
+            'fa-cog','fa-cogs','fa-tools','fa-wrench','fa-screwdriver',
+            'fa-home','fa-door-open','fa-key',
+            'fa-comment','fa-comments','fa-bell','fa-bullhorn',
+            'fa-handshake','fa-thumbs-up','fa-check','fa-check-circle',
+            'fa-times','fa-times-circle','fa-exclamation-triangle','fa-info-circle',
+            'fa-question-circle','fa-search','fa-filter','fa-sort'
+        ];
+
+        // بناء شبكة الأيقونات
+        function buildIconGrid(filter = '') {
+            const grid = document.getElementById('iconGrid');
+            const currentIcon = document.getElementById('IconClassInput').value;
+
+            const filtered = filter
+                ? availableIcons.filter(i => i.includes(filter.toLowerCase()))
+                : availableIcons;
+
+            grid.innerHTML = filtered.map(icon => `
+                <div class="icon-option ${icon === currentIcon ? 'selected' : ''}"
+                     onclick="selectIcon('${icon}')" title="${icon}">
+                    <i class="fas ${icon}"></i>
+                </div>
+            `).join('');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:20px; color:var(--text-muted);">لا توجد نتائج</div>';
+            }
+        }
+
+        // فتح/إغلاق محدد الأيقونات
+        function toggleIconPicker() {
+            const dropdown = document.getElementById('iconPickerDropdown');
+            dropdown.classList.toggle('open');
+            if (dropdown.classList.contains('open')) {
+                buildIconGrid();
+                document.querySelector('.icon-picker-search').focus();
+            }
+        }
+
+        // فلترة الأيقونات
+        function filterIcons(query) {
+            buildIconGrid(query);
+        }
+
+        // اختيار أيقونة
+        function selectIcon(iconClass) {
+            document.getElementById('IconClassInput').value = 'fas ' + iconClass;
+            document.getElementById('selectedIconDisplay').innerHTML = `<i class="fas ${iconClass}"></i>`;
+            document.getElementById('selectedIconText').textContent = iconClass.replace('fa-', ' ');
+            document.getElementById('iconPickerDropdown').classList.remove('open');
+
+            // تحديث التحديد المرئي
+            document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+
+        // إغلاق عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.icon-picker-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('iconPickerDropdown').classList.remove('open');
+            }
+        });
+
+        // رفع صورة القسم
+        function handleCategoryImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('حجم الملف يتجاوز 5MB');
+                    input.value = '';
+                    return;
+                }
+
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('imageUploadWrapper').classList.add('has-file');
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = e.target.result;
+                    preview.classList.add('visible');
+                    document.getElementById('removePreviewBtn').classList.add('visible');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeCategoryPreview() {
+            document.getElementById('imageFile').value = '';
+            document.getElementById('imagePreview').src = '#';
+            document.getElementById('imagePreview').classList.remove('visible');
+            document.getElementById('removePreviewBtn').classList.remove('visible');
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('imageUploadWrapper').classList.remove('has-file');
+        }
+    </script>
+}
