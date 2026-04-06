@@ -1,4 +1,5 @@
 ﻿<!-- الملف: Areas/Admin/Views/Orders/Details.cshtml -->
+@using System.Text.Json
 @model Printnes.Models.Order
 @{
     ViewData["Title"] = "تفاصيل الطلب " + Model.OrderNumber;
@@ -24,7 +25,7 @@
 @if (TempData["WhatsAppUrl"] != null)
 {
     <script>
-        window.open('@TempData["WhatsAppUrl"]', '_blank');
+        window.open('@Html.Raw(TempData["WhatsAppUrl"])', '_blank');
     </script>
 }
 
@@ -73,7 +74,7 @@
                         <tr>
                             <th>#</th>
                             <th>المنتج</th>
-                            <th>الخيارات</th>
+                            <th style="min-width: 250px;">الخيارات والمقاسات</th>
                             <th>الكمية</th>
                             <th>سعر الوحدة</th>
                             <th>الإجمالي</th>
@@ -88,30 +89,61 @@
                                 <tr>
                                     <td style="color: var(--text-muted);">@idx</td>
                                     <td>
-                                        <strong style="color: var(--text-main);">@item.ProductName</strong>
+                                        <strong style="color: var(--text-main); font-size: 14px;">@item.ProductName</strong>
                                         @if (item.Product != null)
                                         {
                                             <br>
-                                            <small style="color: var(--text-muted);">SKU: @item.Product.Slug</small>
+                                            <small style="color: var(--text-muted); background: #f8fafc; padding: 2px 6px; border-radius: 4px; font-family: monospace;">SKU: @item.Product.Slug</small>
                                         }
                                     </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(item.SelectedOptionsJson))
                                         {
-                                            <div style="font-size: 12px; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@item.SelectedOptionsJson">
-                                                @item.SelectedOptionsJson
-                                            </div>
+                                            try
+                                            {
+                                                // تحويل الـ JSON إلى Dictionary لعرضه بشكل أنيق
+                                                var details = JsonSerializer.Deserialize<Dictionary<string, string>>(item.SelectedOptionsJson);
+                                                if (details != null && details.Count > 0)
+                                                {
+                                                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+                                                        @foreach (var kvp in details)
+                                                        {
+                                                            if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
+
+                                                            // ترجمة المفاتيح الإنجليزية إلى مسميات عربية للوحة التحكم
+                                                            string labelName = kvp.Key switch
+                                                            {
+                                                                "paperType" => "الورق",
+                                                                "sides" => "الأوجه",
+                                                                "design" => "المقاس",
+                                                                "cover" => "التشطيب",
+                                                                _ => kvp.Key
+                                                            };
+
+                                                            <div style="background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; line-height: 1.5;">
+                                                                <strong style="color: var(--orange);">@labelName:</strong>
+                                                                <span style="color: var(--navy); font-weight: 600;">@kvp.Value</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                            catch
+                                            {
+                                                // في حال فشل التحويل (Fallback)
+                                                <span style="font-size: 12px; color: var(--text-secondary);">@item.SelectedOptionsJson</span>
+                                            }
                                         }
                                         else
                                         {
-                                            <span style="color: var(--text-muted); font-size: 12px;">—</span>
+                                            <span style="color: var(--text-muted); font-size: 13px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">بدون خيارات إضافية</span>
                                         }
                                     </td>
                                     <td>
-                                        <span class="badge badge-neutral">@item.Quantity</span>
+                                        <span class="badge badge-neutral" style="font-size: 14px;">@item.Quantity</span>
                                     </td>
                                     <td style="color: var(--text-secondary);">@item.CalculatedUnitPrice.ToString("N2") ر.س</td>
-                                    <td style="font-weight: 800; color: var(--primary-color);">@item.ItemTotal.ToString("N2") ر.س</td>
+                                    <td style="font-weight: 900; color: var(--primary-color); font-size: 15px;">@item.ItemTotal.ToString("N2") ر.س</td>
                                 </tr>
                                 idx++;
                             }
@@ -137,12 +169,12 @@
                     <strong>@Model.ShippingCost.ToString("N2") ر.س</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
-                    <span style="color: var(--text-secondary);">الضريبة (15%)</span>
+                    <span style="color: var(--text-secondary);">الضريبة المضافة</span>
                     <strong>@Model.TaxAmount.ToString("N2") ر.س</strong>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 14px 16px; background: var(--primary-light); border-radius: var(--radius-sm);">
-                    <span style="font-weight: 800; color: var(--primary-color); font-size: 16px;">الإجمالي النهائي</span>
-                    <strong style="color: var(--primary-color); font-size: 20px;">@Model.TotalAmount.ToString("N2") ر.س</strong>
+                <div style="display: flex; justify-content: space-between; padding: 16px; background: var(--primary-light); border-radius: var(--radius-sm); border: 1px dashed var(--primary-color);">
+                    <span style="font-weight: 900; color: var(--primary-color); font-size: 16px;">الإجمالي النهائي</span>
+                    <strong style="color: var(--primary-color); font-size: 22px;">@Model.TotalAmount.ToString("N2") <small style="font-size: 14px;">ر.س</small></strong>
                 </div>
             </div>
         </div>
@@ -169,13 +201,13 @@
                                     <span style="font-weight: 700; color: var(--text-main); font-size: 14px;">
                                         تم التغيير بواسطة: @hist.ChangedBy
                                     </span>
-                                    <span style="font-size: 12px; color: var(--text-muted);">
-                                        @hist.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+                                    <span style="font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
+                                        @hist.CreatedAt.ToString("yyyy-MM-dd hh:mm tt")
                                     </span>
                                 </div>
                                 @if (!string.IsNullOrEmpty(hist.Note))
                                 {
-                                    <p style="margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); background: var(--border-light); padding: 8px 12px; border-radius: var(--radius-xs);">
+                                    <p style="margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); background: #f8fafc; padding: 10px 14px; border-radius: 8px; border-right: 3px solid var(--info);">
                                         @hist.Note
                                     </p>
                                 }
@@ -188,7 +220,7 @@
             {
                 <div style="padding: 40px; text-align: center; color: var(--text-muted);">
                     <i class="fas fa-history" style="font-size: 32px; margin-bottom: 10px; opacity: 0.3;"></i>
-                    <p>لا توجد تحديثات مسجلة</p>
+                    <p>لا توجد تحديثات مسجلة حتى الآن</p>
                 </div>
             }
         </div>
@@ -221,17 +253,17 @@
                         <a href="mailto:@Model.CustomerEmail" style="color: var(--info); font-weight: 700; font-size: 13px;">@Model.CustomerEmail</a>
                     </div>
                 }
-                <div style="background: var(--border-light); padding: 12px; border-radius: var(--radius-sm); margin-top: 8px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><i class="fas fa-map-marker-alt" style="margin-left: 6px;"></i> عنوان التوصيل</div>
-                    <div style="font-size: 13px; color: var(--text-main); line-height: 1.8;">
-                        <strong>@Model.City</strong> - @Model.District<br>
-                        @Model.Address
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 12px; color: var(--orange); margin-bottom: 8px; font-weight: bold;"><i class="fas fa-map-marker-alt" style="margin-left: 6px;"></i> عنوان التوصيل</div>
+                    <div style="font-size: 14px; color: var(--navy); line-height: 1.8; font-weight: 600;">
+                        @Model.City - @Model.District<br>
+                        <span style="color: var(--text-secondary); font-weight: normal;">@Model.Address</span>
                     </div>
                 </div>
 
                 <a href="https://wa.me/@(Model.CustomerPhone?.Replace(" ", "").Replace("+", ""))" target="_blank"
-                   class="btn-outline btn-sm" style="width: 100%; justify-content: center; color: #25d366; border-color: #25d366; margin-top: 8px;">
-                    <i class="fab fa-whatsapp"></i> تواصل عبر الواتساب
+                   class="btn-premium btn-sm" style="width: 100%; justify-content: center; background: #25d366; color: #fff; border: none; margin-top: 8px;">
+                    <i class="fab fa-whatsapp" style="font-size: 16px;"></i> تواصل عبر الواتساب
                 </a>
             </div>
         </div>
@@ -249,50 +281,52 @@
                 <input type="hidden" name="id" value="@Model.Id" />
 
                 <div class="form-group" style="margin: 0;">
-                    <label class="form-label">الحالة الجديدة</label>
-                    <select name="newStatus" class="form-control">
-                        <option value="1" selected="@(Model.OrderStatus == 1)">📋 جديد (بانتظار المراجعة)</option>
-                        <option value="2" selected="@(Model.OrderStatus == 2)">🔍 قيد المراجعة / التصميم</option>
+                    <label class="form-label">الحالة الحالية / الجديدة</label>
+                    <select name="newStatus" class="form-control" style="font-weight: bold; color: var(--navy);">
+                        <option value="1" selected="@(Model.OrderStatus == 1)">📋 بانتظار المراجعة (جديد)</option>
+                        <option value="2" selected="@(Model.OrderStatus == 2)">🔍 قيد المراجعة والتصميم</option>
                         <option value="3" selected="@(Model.OrderStatus == 3)">🖨️ جاري الطباعة والتجهيز</option>
                         <option value="4" selected="@(Model.OrderStatus == 4)">🚚 تم الشحن / التوصيل</option>
-                        <option value="5" selected="@(Model.OrderStatus == 5)">✅ مكتمل</option>
+                        <option value="5" selected="@(Model.OrderStatus == 5)">✅ مكتمل تماماً</option>
                     </select>
                 </div>
 
                 <div class="form-group" style="margin: 0;">
-                    <label class="form-label">ملاحظة (داخلية)</label>
-                    <textarea name="note" rows="3" class="form-control" placeholder="اكتب ملاحظة حول سبب التحديث..."></textarea>
+                    <label class="form-label">ملاحظة (للإدارة أو للعميل)</label>
+                    <textarea name="note" rows="3" class="form-control" placeholder="اكتب ملاحظة حول سبب التحديث..." style="resize: vertical;"></textarea>
                 </div>
 
-                <label class="form-check" style="padding: 12px; background: #ecfdf5; border-radius: var(--radius-sm); border: 1px solid #a7f3d0;">
-                    <input type="checkbox" name="sendWhatsApp" value="true" />
-                    <span style="font-weight: 700; color: var(--success-text); font-size: 13px;">
-                        <i class="fab fa-whatsapp" style="margin-left: 6px;"></i>
-                        إرسال إشعار واتساب للعميل بالتحديث
+                <label class="form-check" style="padding: 12px; background: #ecfdf5; border-radius: var(--radius-sm); border: 1px solid #a7f3d0; cursor: pointer;">
+                    <input type="checkbox" name="sendWhatsApp" value="true" style="accent-color: #10b981; width: 18px; height: 18px;" />
+                    <span style="font-weight: 700; color: #065f46; font-size: 13px;">
+                        <i class="fab fa-whatsapp" style="margin-left: 6px; color: #25d366;"></i>
+                        إرسال إشعار آلي للعميل عبر الواتساب
                     </span>
                 </label>
 
-                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center;">
+                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center; font-size: 15px; padding: 14px;">
                     <i class="fas fa-save"></i> حفظ وتحديث الحالة
                 </button>
             </form>
         </div>
 
-        <!-- ملاحظات إضافية -->
+        <!-- ملاحظات إضافية من العميل -->
         <div class="premium-card" style="padding: 24px;">
             <h3 style="margin: 0 0 15px; font-size: 16px; font-weight: 800; color: var(--text-main);">
                 <i class="fas fa-sticky-note" style="color: var(--warning); margin-left: 8px;"></i>
-                ملاحظات العميل
+                ملاحظات من العميل للطباعة
             </h3>
             @if (!string.IsNullOrEmpty(Model.Notes))
             {
-                <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.8; background: var(--border-light); padding: 14px; border-radius: var(--radius-sm);">
+                <div style="font-size: 14px; color: var(--navy); line-height: 1.8; background: #fffbeb; padding: 16px; border-radius: 8px; border-right: 4px solid var(--warning); font-weight: 600;">
                     @Model.Notes
-                </p>
+                </div>
             }
             else
             {
-                <p style="color: var(--text-muted); font-size: 14px;">لا توجد ملاحظات</p>
+                <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                    لا توجد ملاحظات مرفقة مع الطلب
+                </div>
             }
         </div>
     </div>

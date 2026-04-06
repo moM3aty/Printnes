@@ -101,14 +101,7 @@ namespace Printnes.Areas.Admin.Controllers
                         return View(product);
                     }
 
-                    if (coverImageFile.Length > 5 * 1024 * 1024)
-                    {
-                        ModelState.AddModelError("CoverImageUrl", "حجم الصورة يتجاوز 5MB");
-                        ViewData["CategoryId"] = new SelectList(
-                            _context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
-                        return View(product);
-                    }
-
+                    
                     product.CoverImageUrl = await UploadFileAsync(coverImageFile, "products");
                 }
                 else

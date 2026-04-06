@@ -1,14 +1,17 @@
 ﻿/*
  * الملف: Controllers/Api/StoreApiController.cs
- * تم التعديل لحل مشكلة الأقسام الفارغة: الآن يجلب المنتجات من القسم المحدد ومن كافة الأقسام الفرعية التابعة له.
+ * تم إضافة دالة UploadDesign لاستقبال صور تصاميم العملاء من ستوديو الـ 3D
  */
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using Printnes.Data;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Printnes.Controllers.Api
 {
@@ -17,10 +20,12 @@ namespace Printnes.Controllers.Api
     public class StoreApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public StoreApiController(ApplicationDbContext context)
+        public StoreApiController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet("GetProductsByCategory")]
@@ -31,8 +36,6 @@ namespace Printnes.Controllers.Api
 
             var slugLower = slug.ToLower();
 
-            // تعديل جوهري: نجلب المنتجات التي يطابق قسمها الـ slug الممرر 
-            // أو التي يكون قسمها الأب يطابق الـ slug الممرر (لحل مشكلة الأقسام الرئيسية الفارغة)
             var products = await _context.Products
                 .Include(p => p.Category)
                 .Where(p => p.IsActive &&
@@ -108,6 +111,42 @@ namespace Printnes.Controllers.Api
                 unitPrice = matrix.UnitPrice,
                 discount = discountAmount
             });
+        }
+
+        // دالة جديدة: رفع ملف تصميم العميل من ستوديو الـ 3D
+        [HttpPost("UploadDesign")]
+        public async Task<IActionResult> UploadDesign(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest(new { success = false, message = "لم يتم إرسال أي ملف." });
+
+            try
+            {
+                // التحقق من أن المجلد موجود، وإذا لم يكن نقوم بإنشائه
+                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "designs");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // إنشاء اسم فريد للملف لتجنب التكرار
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                // الرابط الذي سيتم حفظه في الطلب
+                string fileUrl = $"/uploads/designs/{uniqueFileName}";
+
+                return Ok(new { success = true, url = fileUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "حدث خطأ أثناء رفع الملف: " + ex.Message });
+            }
         }
     }
 }

@@ -2,23 +2,377 @@
 @model IEnumerable<Printnes.Models.Product>
 @using Printnes.Data
 @using Microsoft.EntityFrameworkCore
+@using Printnes.Helpers
 @inject ApplicationDbContext DbContext
 
 @{
     ViewData["Title"] = "الصفحة الرئيسية";
-
-    var activeBanners = await DbContext.Banners
-        .Where(b => b.IsActive)
-        .OrderBy(b => b.SortOrder)
-        .ToListAsync();
-
-    var mainCategories = await DbContext.Categories
-        .Where(c => c.IsActive && string.IsNullOrEmpty(c.ParentMenu))
-        .OrderBy(c => c.SortOrder)
-        .ToListAsync();
+    var siteSettings = SiteSettingsManager.LoadSettings();
+    string waNumber = siteSettings.WhatsappNumber?.Replace("+", "") ?? "";
+    var activeBanners = ViewBag.ActiveBanners as List<Printnes.Models.Banner>;
+    var mainCategories = ViewBag.MainCategories as List<Printnes.Models.Category>;
 }
 
+<style>
+    /* ====================== */
+    /* ستوديو التصميم الاحترافي - الأنماط المتقدمة */
+    /* ====================== */
+
+    .studio-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(20px);
+        z-index: 99999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .studio-overlay.open {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+    }
+
+    .studio-container {
+        width: 96%;
+        max-width: 1400px;
+        height: 92vh;
+        background: #0f172a;
+        border-radius: 24px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(249,115,22,0.2);
+        box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 100px rgba(249,115,22,0.05);
+        transform: scale(0.9) translateY(40px);
+        transition: all 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    .studio-overlay.open .studio-container {
+        transform: scale(1) translateY(0);
+    }
+
+    /* الهيدر */
+    .studio-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 24px;
+        background: rgba(15,23,42,0.95);
+        border-bottom: 1px solid rgba(249,115,22,0.15);
+        flex-shrink: 0;
+    }
+
+    .studio-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .studio-logo-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg,#f97316,#ea580c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 16px;
+    }
+
+    .studio-logo h3 {
+        color: #fff;
+        font-size: 18px;
+        font-weight: 900;
+        margin: 0;
+    }
+
+    .studio-logo span {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .studio-header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .s-btn {
+        padding: 8px 18px;
+        border-radius: 10px;
+        border: none;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .s-btn-ghost {
+        background: rgba(255,255,255,0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .s-btn-ghost:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+    }
+
+    .s-btn-close {
+        background: rgba(239,68,68,0.1);
+        color: #f87171;
+        border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    .s-btn-close:hover {
+        background: rgba(239,68,68,0.2);
+    }
+
+    .s-btn-primary {
+        background: linear-gradient(135deg,#f97316,#ea580c);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(249,115,22,0.3);
+    }
+
+    .s-btn-wa {
+        background: linear-gradient(135deg,#25d366,#128c7e);
+        color: #fff;
+        box-shadow: 0 3px 12px rgba(37,211,102,.2);
+    }
+
+    .s-btn-dl {
+        background: rgba(99,102,241,.1);
+        color: #818cf8;
+        border: 1px solid rgba(99,102,241,.2);
+    }
+
+    /* الجسم */
+    .studio-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* لوحة المنتجات اليسرى */
+    .studio-products-panel {
+        width: 80px;
+        background: rgba(15,23,42,0.9);
+        border-left: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 0;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .pt-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        border: 2px solid transparent;
+        background: rgba(255,255,255,0.03);
+        color: #64748b;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 18px;
+    }
+
+    .pt-btn span {
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    .pt-btn:hover {
+        background: rgba(249,115,22,0.08);
+        color: #f97316;
+        border-color: rgba(249,115,22,0.2);
+    }
+
+    .pt-btn.active {
+        background: rgba(249,115,22,0.12);
+        color: #f97316;
+        border-color: #f97316;
+    }
+
+    /* منطقة المعاينة الوسطى */
+    .studio-viewport {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .vp-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background: rgba(15,23,42,0.6);
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        flex-shrink: 0;
+    }
+
+    .vm-modes { display: flex; gap: 4px; }
+    .vm-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: transparent;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .vm-btn:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+    .vm-btn.active { background: rgba(249,115,22,0.12); color: #f97316; border-color: rgba(249,115,22,0.3); }
+
+    .vp-info { color: #475569; font-size: 11px; display: flex; gap: 16px; }
+    .vp-info span i { margin-left: 4px; color: #f97316; }
+
+    #studio-canvas-3d {
+        flex: 1;
+        width: 100%;
+        cursor: grab;
+    }
+    #studio-canvas-3d:active { cursor: grabbing; }
+
+    /* محرر 2D (يظهر فوق الـ 3D) */
+    .ed-2d-wrap {
+        position: absolute;
+        top: 42px; left: 0; right: 0; bottom: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: repeating-conic-gradient(rgba(255,255,255,0.02) 0% 25%, transparent 0% 50%) 0 0 / 20px 20px;
+        padding: 20px;
+    }
+    .ed-2d-wrap.active { display: flex; }
+    #editor-canvas-2d { border: 2px dashed rgba(249,115,22,0.3); border-radius: 8px; cursor: crosshair; box-shadow: 0 0 40px rgba(0,0,0,0.3); }
+
+    /* لوحة الأدوات اليمنى */
+    .studio-tools-panel {
+        width: 320px;
+        background: rgba(15,23,42,0.95);
+        border-right: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .t-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 0 8px; flex-shrink: 0; }
+    .t-tab {
+        flex: 1; padding: 12px 4px; text-align: center; border: none; background: transparent; color: #475569; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s; border-bottom: 2px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .t-tab i { font-size: 16px; }
+    .t-tab:hover { color: #94a3b8; background: rgba(255,255,255,0.02); }
+    .t-tab.active { color: #f97316; border-bottom-color: #f97316; }
+
+    .t-content { flex: 1; overflow-y: auto; padding: 16px; }
+    .t-content::-webkit-scrollbar { width: 4px; }
+    .t-content::-webkit-scrollbar-track { background: transparent; }
+    .t-content::-webkit-scrollbar-thumb { background: rgba(249,115,22,0.3); border-radius: 4px; }
+
+    .t-sec { display: none; animation: slideUp 0.3s ease; }
+    .t-sec.active { display: block; }
+    @@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .t-grp { margin-bottom: 20px; }
+    .t-lbl { font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .t-inp {
+        width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #e2e8f0; font-size: 13px; font-weight: 600; transition: all 0.3s; box-sizing: border-box;
+    }
+    .t-inp:focus { outline: none; border-color: rgba(249,115,22,0.5); background: rgba(249,115,22,0.05); box-shadow: 0 0 0 3px rgba(249,115,22,0.1); }
+
+    .t-row { display: flex; gap: 8px; }
+    .t-row > * { flex: 1; }
+
+    .c-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; }
+    .c-sw { width: 100%; aspect-ratio: 1; border-radius: 10px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s; }
+    .c-sw:hover { transform: scale(1.15); z-index: 2; }
+    .c-sw.act { border-color: #fff; box-shadow: 0 0 0 2px #f97316; transform: scale(1.1); }
+
+    .t-btn {
+        width: 100%; padding: 10px; border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); color: #94a3b8; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .t-btn:hover { background: rgba(249,115,22,0.08); color: #f97316; border-color: rgba(249,115,22,0.3); }
+
+    .el-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 8px; transition: all 0.3s; cursor: pointer; }
+    .el-item:hover { background: rgba(249,115,22,0.06); border-color: rgba(249,115,22,0.2); }
+    .el-item.sel { background: rgba(249,115,22,0.1); border-color: #f97316; }
+    .el-info { flex: 1; }
+    .el-info span { display: block; color: #e2e8f0; font-size: 13px; font-weight: 600; }
+    .el-info small { color: #64748b; font-size: 11px; }
+
+    .del-el { width: 28px; height: 28px; border-radius: 8px; border: none; background: rgba(239,68,68,0.1); color: #f87171; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all 0.3s; }
+    .del-el:hover { background: rgba(239,68,68,0.2); }
+
+    .dim-grp label { display: block; font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; }
+    .dim-grp input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #e2e8f0; font-size: 13px; font-weight: 600; }
+    .dim-grp input:focus { outline: none; border-color: rgba(249,115,22,0.5); }
+
+    .studio-error { color: #f87171; font-size: 11px; text-align: center; margin-top: 8px; display: none; font-weight: 700; padding: 8px; border-radius: 8px; background: rgba(239,68,68,0.08); }
+
+    .studio-loader { position: absolute; inset: 0; background: #080d18; display: flex; align-items: center; justify-content: center; z-index: 100; transition: opacity .5s; }
+    .studio-loader.hidden { opacity: 0; pointer-events: none; }
+    .studio-spinner { width: 44px; height: 44px; border: 3px solid rgba(249,115,22,.12); border-top-color: #f97316; border-radius: 50%; animation: spin .7s linear infinite; }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
+    .studio-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(15,23,42,0.95); border: 1px solid rgba(249,115,22,0.3); color: #e2e8f0; padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 700; z-index: 999999; transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .studio-toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* بانر الرئيسية */
+    .studio-banner { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); border-radius: 24px; padding: 0; display: flex; overflow: hidden; box-shadow: 0 20px 60px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255,255,255,0.05); position: relative; min-height: 220px; }
+    .studio-banner::before { content: ''; position: absolute; top: -50%; right: -20%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%); pointer-events: none; }
+    .studio-banner-content { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; }
+    .studio-banner h2 { font-size: 30px; font-weight: 900; margin: 0 0 12px 0; color: #f1f5f9; line-height: 1.3; }
+    .studio-banner h2 span { background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .studio-btn-open { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #38bdf8, #0284c7); color: #fff; border: none; padding: 14px 32px; font-size: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3); transition: 0.3s; width: fit-content; }
+    .studio-btn-open:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(56, 189, 248, 0.4); }
+    .studio-banner-visual { width: 340px; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
+    .studio-visual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; transform: rotate(3deg) translateX(-20px); }
+    .studio-visual-item { width: 120px; height: 120px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .studio-visual-item img { width: 100%; height: 100%; object-fit: cover; }
+    .studio-visual-item.wide { grid-column: span 2; width: 100%; height: 80px; }
+
+    @@media(max-width:900px) {
+        .studio-body { flex-direction: column; }
+        .studio-products-panel { width: 100%; flex-direction: row; height: 60px; padding: 0 10px; border-left: none; border-bottom: 1px solid rgba(255,255,255,0.06); overflow-x: auto; }
+        .studio-tools-panel { width: 100%; height: 45%; border-right: none; border-top: 1px solid rgba(255,255,255,0.06); }
+        .studio-viewport { height: 55%; }
+        .studio-banner { flex-direction: column; padding: 0; }
+        .studio-banner-content { padding: 30px 25px 20px; }
+        .studio-banner-visual { width: 100%; padding: 0 25px 25px; }
+        .studio-visual-grid { transform: none; }
+    }
+</style>
+
 <main class="container">
+    <!-- البانرات المتحركة -->
     <section class="hero-slider-wrapper">
         <div class="swiper hero-swiper">
             <div class="swiper-wrapper">
@@ -26,67 +380,59 @@
                 {
                     foreach (var banner in activeBanners)
                     {
-                        <div class="swiper-slide">
-                            <a href="@(string.IsNullOrEmpty(banner.LinkUrl) ? "#" : banner.LinkUrl)">
-                                <img src="@banner.ImageUrl" alt="@banner.Title" class="full-banner-img">
-                            </a>
-                        </div>
+                        <div class="swiper-slide"><a href="@(string.IsNullOrEmpty(banner.LinkUrl) ? "#" : banner.LinkUrl)"><img src="@banner.ImageUrl" alt="@banner.Title" class="full-banner-img"></a></div>
                     }
                 }
-                else
-                {
-                    <div class="swiper-slide">
-                        <a href="#">
-                            <img src="https://cdn.salla.sa/form-builder/wzsdRwVsUbNJVFVyQS6oTkganoSdKqnn1KADKYWk.png" alt="بانر افتراضي" class="full-banner-img">
-                        </a>
-                    </div>
-                }
             </div>
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div><div class="swiper-button-prev"></div><div class="swiper-pagination"></div>
         </div>
     </section>
 
+    <!-- الأقسام الرئيسية -->
     <section class="main-categories">
-        <div class="section-title-box">
-            <h2>الأقسام الرئيسية</h2>
-            <p>حرك القائمة لليسار لعرض جميع الأقسام</p>
-        </div>
+        <div class="section-title-box"><h2>الأقسام الرئيسية</h2><p>حرك القائمة لليسار لعرض جميع الأقسام</p></div>
         <div class="categories-scroll">
-            <div class="cat-card" onclick="location.href='/Packages'">
-                <div class="circle-img">
-                    <img src="https://cdn.salla.sa/form-builder/PD53rr1LUNb19Hj3je9ULKSfhYUGg0o3TOBdz1T7.png" alt="العروض والبكجات">
-                </div>
-                <h4>العروض والبكجات</h4>
-            </div>
-
-            @foreach (var cat in mainCategories)
+            <div class="cat-card" onclick="location.href='/Packages'"><div class="circle-img"><img src="https://cdn.salla.sa/form-builder/PD53rr1LUNb19Hj3je9ULKSfhYUGg0o3TOBdz1T7.png" alt="العروض"></div><h4>العروض والبكجات</h4></div>
+            @if (mainCategories != null)
             {
-                string catImage = !string.IsNullOrEmpty(cat.ImageUrl) ? cat.ImageUrl : "https://cdn.salla.sa/form-builder/lnB9NCS8slVsu7xfA6j6Ka37ZIEGCnEu9de9JiR3.png";
-                <div class="cat-card" onclick="location.href='/Category/@cat.Slug'">
-                    <div class="circle-img">
-                        <img src="@catImage" alt="@cat.NameAr">
-                    </div>
-                    <h4>@cat.NameAr</h4>
-                </div>
+                foreach (var cat in mainCategories)
+                {
+                    string catImage = !string.IsNullOrEmpty(cat.ImageUrl) ? cat.ImageUrl : "https://cdn.salla.sa/form-builder/lnB9NCS8slVsu7xfA6j6Ka37ZIEGCnEu9de9JiR3.png";
+                    <div class="cat-card" onclick="location.href='/Category/@cat.Slug'"><div class="circle-img"><img src="@catImage" alt="@cat.NameAr"></div><h4>@cat.NameAr</h4></div>
+                }
             }
         </div>
     </section>
 
-    <!-- المنتجات المميزة (التي ترسم من السيرفر) تم ربطها بالمفضلة -->
-    <section class="products-slider-section container">
-        <div class="section-header">
-            <div class="right-side">
-                <h2 class="section-title">الأكثر مبيعاً / مميز</h2>
+    <!-- بانر ستوديو التصميم 3D -->
+    <section style="margin: 40px 0;">
+        <div class="studio-banner">
+            <div class="studio-banner-content">
+                <div style="display: inline-flex; align-items: center; gap: 7px; background: rgba(56, 189, 248, 0.1); padding: 4px 13px; border-radius: 18px; margin-bottom: 14px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                    <span style="width: 5px; height: 5px; background: #38bdf8; border-radius: 50%; animation: pulseDot 1.5s infinite;"></span>
+                    <span style="font-size: 10px; color: #38bdf8; font-weight: 800; letter-spacing: 1px;">ستوديو ثلاثي الأبعاد</span>
+                </div>
+                <h2>صمّم منتجك <span>بواقعية تامة</span></h2>
+                <p>كراتين، تيشيرتات، أكواب — معاينة 3D لحظية. أضف نصوصك، صورك، واختار ألوانك وشوف النتيجة فوراً قبل الطلب.</p>
+                <button onclick="openDesignStudio()" class="studio-btn-open">
+                    <i class="fas fa-wand-magic-sparkles"></i> ادخل الستوديو
+                </button>
             </div>
-            <div class="left-side">
-                <a href="/Products" class="view-all">عرض الكل</a>
-                <div class="slider-controls">
-                    <div class="swiper-button-prev-prod"><i class="fas fa-chevron-right"></i></div>
-                    <div class="swiper-button-next-prod"><i class="fas fa-chevron-left"></i></div>
+            <div class="studio-banner-visual">
+                <div class="studio-visual-grid">
+                    <div class="studio-visual-item"><img src="https://cdn.salla.sa/rDvVQ/1pKR8dtK4Hd9UoYFf1hqwqPQJMn5YFEqyOyJngiZ.jpg" alt="مطبوعات"></div>
+                    <div class="studio-visual-item"><img src="https://cdn.salla.sa/rDvVQ/OQxmT3F9y8bS0SrRQOIZVusIvSyRHalGpw0j7rJX.png" alt="أكواب"></div>
+                    <div class="studio-visual-item wide"><img src="https://cdn.salla.sa/form-builder/PD53rr1LUNb19Hj3je9ULKSfhYUGg0o3TOBdz1T7.png" alt="بوكسات"></div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- المنتجات المميزة -->
+    <section class="products-slider-section">
+        <div class="section-header">
+            <div class="right-side"><h2 class="section-title">الأكثر مبيعاً / مميز</h2></div>
+            <div class="left-side"><a href="/Products" class="view-all">عرض الكل</a><div class="slider-controls"><div class="swiper-button-prev-prod"><i class="fas fa-chevron-right"></i></div><div class="swiper-button-next-prod"><i class="fas fa-chevron-left"></i></div></div></div>
         </div>
         <div class="swiper most-selling-swiper">
             <div class="swiper-wrapper" id="featured-products-slider">
@@ -97,18 +443,12 @@
                         <div class="swiper-slide">
                             <div class="product-card">
                                 <div class="p-badge">منتج مميز</div>
-                                <!-- تم ربط الزر هنا وتمرير الـ ID -->
-                                <div class="wish-icon fav-btn-element" data-product-id="@product.Id" onclick="handleFavoriteToggle(@product.Id, this, '@product.NameAr.Replace("'", "\\'")', '@product.CoverImageUrl')" style="cursor: pointer; z-index: 5;">
-                                    <i class="far fa-heart"></i>
-                                </div>
+                                <div class="wish-icon fav-btn-element" data-product-id="@product.Id" onclick="handleFavoriteToggle(@product.Id,this,'@product.NameAr.Replace("'", "\\'")','@product.CoverImageUrl')" style="cursor:pointer;z-index:5;"><i class="far fa-heart"></i></div>
                                 <img src="@product.CoverImageUrl" alt="@product.NameAr" onclick="location.href='/Products/Details/@product.Id'" style="cursor:pointer;">
                                 <div class="p-info">
                                     <h3 onclick="location.href='/Products/Details/@product.Id'" style="cursor:pointer;">@product.NameAr</h3>
-                                    <p class="p-desc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@(string.IsNullOrEmpty(product.DescriptionAr) ? "منتج عالي الجودة" : product.DescriptionAr)</p>
                                     <span class="p-price">السعر حسب الاختيارات</span>
-                                    <button class="add-to-cart-orange" onclick="location.href='/Products/Details/@product.Id'">
-                                        عرض التفاصيل <i class="fas fa-arrow-left"></i>
-                                    </button>
+                                    <button class="add-to-cart-orange" onclick="location.href='/Products/Details/@product.Id'">عرض التفاصيل <i class="fas fa-arrow-left"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -118,112 +458,123 @@
         </div>
     </section>
 
-    <!-- الأقسام الديناميكية السفلية -->
-    <section class="product-group">
-        <div class="group-header">
-            <h2>بوكسات</h2> <a href="/Category/boxes">عرض الكل</a>
-        </div>
-        <div class="products-grid" id="render-boxes"></div>
-    </section>
+    <section class="product-group"><div class="group-header"><h2>بوكسات وتغليف</h2><a href="/Category/boxes">عرض الكل</a></div><div class="products-grid" id="render-boxes"></div></section>
+    <section class="product-group"><div class="group-header"><h2>مطبوعات ورقية</h2><a href="/Category/paperprints">عرض الكل</a></div><div class="products-grid" id="render-paperprints"></div></section>
+    <section class="product-group"><div class="group-header"><h2>استيكرات</h2><a href="/Category/stickers">عرض الكل</a></div><div class="products-grid" id="render-stickers"></div></section>
 
-    <section class="product-group">
-        <div class="group-header">
-            <h2>مطبوعات ورقية</h2> <a href="/Category/paperprints">عرض الكل</a>
-        </div>
-        <div class="products-grid" id="render-paperprints"></div>
-    </section>
-
-    <section class="product-group">
-        <div class="group-header">
-            <h2>استيكرات</h2> <a href="/Category/stickers">عرض الكل</a>
-        </div>
-        <div class="products-grid" id="render-stickers"></div>
-    </section>
-
-    <section class="premium-stats">
-        <div class="container">
-            <div class="section-header-right">
-                <h2 class="orange-line-title">لماذا برنتنس ؟!</h2>
-            </div>
-            <div class="stats-container">
-                <div class="stat-card-new">
-                    <div class="icon-circle-navy"><i class="far fa-user-circle"></i></div>
-                    <div class="stat-content">
-                        <span class="stat-num">+8000</span>
-                        <p class="stat-desc">عميل جرب منتجاتنا</p>
-                    </div>
-                </div>
-                <div class="stat-card-new">
-                    <div class="icon-circle-navy"><i class="fas fa-location-arrow"></i></div>
-                    <div class="stat-content">
-                        <span class="stat-num">+500</span>
-                        <p class="stat-desc">شحنة دولية ناجحة</p>
-                    </div>
-                </div>
-                <div class="stat-card-new">
-                    <div class="icon-circle-navy"><i class="far fa-envelope-open"></i></div>
-                    <div class="stat-content">
-                        <span class="stat-num">+160000</span>
-                        <p class="stat-desc">رسالة رددنا عليها</p>
-                    </div>
-                </div>
-                <div class="stat-card-new">
-                    <div class="icon-circle-navy"><i class="fas fa-store-alt"></i></div>
-                    <div class="stat-content">
-                        <span class="stat-num">+700</span>
-                        <p class="stat-desc">متجر يستفيد شهرياً</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="faq-section">
-        <div class="container">
-            <div class="section-title-wrapper">
-                <h2 class="orange-title">الأسئلة الشائعة</h2>
-            </div>
-            <div class="faq-grid">
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">
-                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
-                        <span>هل يمكنني تغيير طلبي الاضافة او التعديل ؟</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>نعم يمكنك الاضافة او التعديل في فترة اقصاها 24 ساعة ولكن بعد تنفيذ المنتج أو شحنه يجب طلب اضافتك في طلب جديد.</p>
-                    </div>
-                </div>
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">
-                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
-                        <span>كيف يمكنني الطلب من الموقع ؟</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>يمكنك بكل سهولة اضافة جميع البيانات من خلال صفحة طلب المنتج وفي حال واجهت اي مشكلة بإمكانك التواصل معنا من خلال الواتس اب او الايميل.</p>
-                    </div>
-                </div>
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">
-                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
-                        <span>هل يمكن تعديل بياناتي؟</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>نعم. يمكنك من خلال التواصل معنا ويتم تعديلها بشكل فوري.</p>
-                    </div>
-                </div>
-                <div class="faq-item" onclick="toggleFaq(this)">
-                    <div class="faq-question">
-                        <div class="faq-btn"><i class="fas fa-plus"></i></div>
-                        <span>هل تعملون افكار خارج ما هو بالموقع ؟</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>نعم، يعتمد على الفكرة والمنتج المطبوع يرجى مشاركتنا المنتج الذي تود تصنيعه من خلال الواتس اب او الايميل حتى يتسنى لنا اعطائك المزيد من التفاصيل.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 </main>
+
+<!-- ===== نافذة ستوديو الـ 3D ===== -->
+<div id="designStudioModal" class="studio-overlay">
+    <div class="studio-container">
+        <div class="studio-loader" id="studioLoader"><div class="studio-spinner"></div></div>
+        <div class="studio-header">
+            <div class="studio-logo">
+                <div class="studio-logo-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                <div><h3>ستوديو التصميم</h3><span>معاينة ثلاثية الأبعاد حية</span></div>
+            </div>
+            <div class="studio-header-actions">
+                <button class="s-btn s-btn-dl" onclick="downloadDesign()"><i class="fas fa-download"></i> حفظ كصورة</button>
+                <button class="s-btn s-btn-ghost" onclick="resetDesign()"><i class="fas fa-rotate-right"></i> تعيين</button>
+                <button class="s-btn s-btn-wa" onclick="sendDesignWhatsApp()"><i class="fab fa-whatsapp"></i> اطلب الآن</button>
+                <button class="s-btn s-btn-close" onclick="closeDesignStudio()"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="studio-body">
+            <div class="studio-products-panel">
+                <button class="pt-btn active" onclick="switchProduct('shipping-box',this)"><i class="fas fa-box"></i><span>شحن</span></button>
+                <button class="pt-btn" onclick="switchProduct('fold-box',this)"><i class="fas fa-box-open"></i><span>ورقي</span></button>
+                <button class="pt-btn" onclick="switchProduct('gift-box',this)"><i class="fas fa-gift"></i><span>هدايا</span></button>
+                <button class="pt-btn" onclick="switchProduct('tshirt',this)"><i class="fas fa-shirt"></i><span>تيشيرت</span></button>
+                <button class="pt-btn" onclick="switchProduct('cup',this)"><i class="fas fa-mug-hot"></i><span>كوباية</span></button>
+                <div style="flex:1;"></div>
+                <button class="pt-btn" onclick="toggleAutoRotate()" id="autoRotateBtn" style="color:#22c55e;"><i class="fas fa-sync-alt"></i><span>دوران</span></button>
+            </div>
+            <div class="studio-viewport">
+                <div class="vp-bg"></div>
+                <div class="vp-toolbar">
+                    <div class="vm-modes">
+                        <button class="vm-btn active" onclick="switchView('3d',this)"><i class="fas fa-cube"></i> 3D</button>
+                        <button class="vm-btn" onclick="switchView('2d',this)"><i class="fas fa-pen-ruler"></i> محرر 2D</button>
+                    </div>
+                    <div class="vp-info"><span><i class="fas fa-arrows-alt"></i> اسحب للتدوير</span><span><i class="fas fa-search-plus"></i> سكرول للتكبير</span></div>
+                </div>
+                <canvas id="studio-canvas-3d"></canvas>
+                <div class="ed-2d-wrap" id="editor2dWrap"><canvas id="editor-canvas-2d" width="500" height="500"></canvas></div>
+            </div>
+            <div class="studio-tools-panel">
+                <div class="t-tabs">
+                    <button class="t-tab active" onclick="switchToolTab('color',this)"><i class="fas fa-palette"></i>اللون</button>
+                    <button class="t-tab" onclick="switchToolTab('text',this)"><i class="fas fa-font"></i>النصوص</button>
+                    <button class="t-tab" onclick="switchToolTab('image',this)"><i class="fas fa-image"></i>الصور</button>
+                    <button class="t-tab" onclick="switchToolTab('dims',this)"><i class="fas fa-ruler-combined"></i>المواصفات</button>
+                </div>
+                <div class="t-content">
+                    <div class="t-sec active" id="tab-color">
+                        <div class="t-grp"><label class="t-lbl">لون الخلفية</label><div class="c-grid" id="colorGrid"></div></div>
+                        <div class="t-grp">
+                            <label class="t-lbl">لون مخصص</label>
+                            <div style="display:flex;gap:7px;align-items:center;">
+                                <input type="color" id="customColorPicker" value="#f97316" style="width:42px;height:36px;border:none;border-radius:7px;cursor:pointer;background:transparent;">
+                                <input type="text" id="customColorHex" class="t-inp" placeholder="#f97316" style="flex:1;" oninput="applyCustomColor(this.value)">
+                            </div>
+                        </div>
+                        <div class="t-grp"><label class="t-lbl">تدرج لوني</label><div class="c-grid" id="gradientGrid"></div></div>
+                    </div>
+                    <div class="t-sec" id="tab-text">
+                        <div class="t-grp"><button class="t-btn" onclick="addTextElement()"><i class="fas fa-plus"></i> إضافة نص</button></div>
+                        <div class="t-grp" id="textProps" style="display:none;">
+                            <label class="t-lbl">تعديل النص المختار</label>
+                            <input type="text" id="textContent" class="t-inp" placeholder="اكتب هنا..." oninput="updateSelectedText()">
+                            <div class="t-row" style="margin-top:8px;">
+                                <div><label class="t-lbl">الحجم</label><input type="range" id="textSize" min="10" max="80" value="28" style="width:100%;accent-color:#f97316;" oninput="updateSelectedText()"></div>
+                                <div style="display:flex;align-items:flex-end;padding-bottom:1px;"><span id="textSizeVal" style="color:#f97316;font-weight:900;font-size:15px;">28</span></div>
+                            </div>
+                            <div class="t-row" style="margin-top:8px;">
+                                <div><label class="t-lbl">لون</label><input type="color" id="textColor" value="#ffffff" style="width:100%;height:30px;border:none;border-radius:7px;cursor:pointer;" oninput="updateSelectedText()"></div>
+                                <div><label class="t-lbl">الخط</label><select id="textFont" class="t-inp" style="padding:6px;" onchange="updateSelectedText()"><option value="Cairo">Cairo</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option></select></div>
+                            </div>
+                            <div class="t-row" style="margin-top:8px;">
+                                <div><label class="t-lbl">السمك</label><select id="textWeight" class="t-inp" style="padding:6px;" onchange="updateSelectedText()"><option value="normal">عادي</option><option value="bold" selected>عريض</option></select></div>
+                                <div><label class="t-lbl">الدوران</label><input type="range" id="textRotation" min="-180" max="180" value="0" style="width:100%;accent-color:#f97316;" oninput="updateSelectedText()"></div>
+                            </div>
+                        </div>
+                        <div class="t-grp" id="textList"></div>
+                    </div>
+                    <div class="t-sec" id="tab-image">
+                        <div class="t-grp">
+                            <button class="t-btn" onclick="document.getElementById('imgUploader').click()"><i class="fas fa-cloud-upload-alt"></i> رفع شعار / صورة</button>
+                            <input type="file" id="imgUploader" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                            <p style="color:#64748b;font-size:10px;margin-top:8px;text-align:center;">يُفضل استخدام صورة PNG بخلفية شفافة</p>
+                        </div>
+                        <div class="t-grp" id="imgProps" style="display:none;">
+                            <label class="t-lbl">تعديل الصورة المختارة</label>
+                            <div class="t-row">
+                                <div><label class="t-lbl">الحجم</label><input type="range" id="imgW" min="20" max="600" value="200" style="width:100%;accent-color:#f97316;" oninput="updateSelectedImage()"></div>
+                            </div>
+                        </div>
+                        <div class="t-grp" id="imageList"></div>
+                    </div>
+                    <div class="t-sec" id="tab-dims">
+                        <div class="t-grp">
+                            <label class="t-lbl">أبعاد المنتج (سم)</label>
+                            <div class="dim-grp"><label>الطول</label><input type="number" id="dimL" value="20" min="5" max="200" oninput="updateDimensions()"></div>
+                            <div class="dim-grp"><label>العرض</label><input type="number" id="dimW" value="15" min="5" max="200" oninput="updateDimensions()"></div>
+                            <div class="dim-grp"><label>الارتفاع / العمق</label><input type="number" id="dimH" value="10" min="1" max="200" oninput="updateDimensions()"></div>
+                        </div>
+                        <div class="t-grp"><label class="t-lbl">الكمية المطلوبة لتسعيرها</label><input type="number" id="dimQty" class="t-inp" placeholder="مثال: 500" min="1" value="100"></div>
+                        <div class="t-grp"><label class="t-lbl">ملاحظات إضافية (اختياري)</label><textarea id="dimNotes" class="t-inp" rows="3" placeholder="اكتب أي ملاحظات للطباعة..." style="resize:vertical;"></textarea></div>
+                        <button class="s-btn s-btn-wa" onclick="sendDesignWhatsApp()" style="width:100%;padding:14px;font-size:14px;border-radius:11px;margin-top:10px;justify-content:center;">
+                            <i class="fab fa-whatsapp" style="font-size:18px;"></i> اطلب تسعيرة لهذا التصميم
+                        </button>
+                        <div class="studio-error" id="studioError"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="studio-toast" id="studioToast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
 
 @section Scripts {
     <script>
@@ -233,25 +584,491 @@
                 renderSection("paperprints", "render-paperprints");
                 renderSection("stickers", "render-stickers");
             }
-
             if (typeof Swiper !== 'undefined') {
-                new Swiper('.hero-swiper', {
-                    loop: true,
-                    pagination: { el: '.swiper-pagination', clickable: true },
-                    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-                    autoplay: { delay: 5000, disableOnInteraction: false }
-                });
-
-                new Swiper('.most-selling-swiper', {
-                    slidesPerView: 2,
-                    spaceBetween: 15,
-                    navigation: { nextEl: '.swiper-button-next-prod', prevEl: '.swiper-button-prev-prod' },
-                    breakpoints: {
-                        768: { slidesPerView: 3, spaceBetween: 20 },
-                        1024: { slidesPerView: 4, spaceBetween: 25 }
-                    }
-                });
+                new Swiper('.hero-swiper', { loop: true, pagination: { el: '.swiper-pagination', clickable: true }, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, autoplay: { delay: 5000, disableOnInteraction: false } });
+                new Swiper('.most-selling-swiper', { slidesPerView: 2, spaceBetween: 15, navigation: { nextEl: '.swiper-button-next-prod', prevEl: '.swiper-button-prev-prod' }, breakpoints: { 768: { slidesPerView: 3, spaceBetween: 20 }, 1024: { slidesPerView: 4, spaceBetween: 25 } } });
             }
         });
+    </script>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, curMesh;
+        let autoRot = true;
+        let cTex, cCtx, tCanvas;
+        const SZ = 1024;
+        let els = [], selIdx = -1;
+        let curType = 'shipping-box';
+        let bgColor = '#c9a87c';
+        let grad = null;
+        let inited = false;
+        let fabricBumpTex = null;
+
+        const COLORS = ['#f97316','#ef4444','#dc2626','#ec4899','#a855f7','#7c3aed','#6366f1','#3b82f6','#0ea5e9','#06b6d4','#14b8a6','#10b981','#22c55e','#84cc16','#eab308','#f59e0b','#ffffff','#f1f5f9','#cbd5e1','#64748b','#334155','#1e293b','#0f172a','#c9a87c','#e8e0d4'];
+        const GRADS = [['#f97316','#dc2626'],['#6366f1','#ec4899'],['#06b6d4','#3b82f6'],['#22c55e','#06b6d4'],['#f59e0b','#ef4444'],['#0f172a','#1e3a5f']];
+        const PNAMES = {'shipping-box':'كرتون شحن مضلع', 'fold-box':'بوكس ورقي', 'gift-box':'بوكس هدايا صلب', 'tshirt':'تيشيرت قطني', 'cup':'كوب سيراميك'};
+        const waNumber = "@waNumber";
+
+        /* ===== خامة القماش للتيشيرت ===== */
+        function makeFabricBump(){
+            const s = 256, cv = document.createElement('canvas'); cv.width = s; cv.height = s;
+            const x = cv.getContext('2d');
+            x.fillStyle = '#808080'; x.fillRect(0, 0, s, s);
+            x.globalAlpha = 0.2; x.strokeStyle = '#aaa'; x.lineWidth = 0.5;
+            for(let i = -s; i < s * 2; i += 3) {
+                x.beginPath(); x.moveTo(i, 0); x.lineTo(i + s, s); x.stroke();
+                x.beginPath(); x.moveTo(i + s, 0); x.lineTo(i, s); x.stroke();
+            }
+            const t = new THREE.CanvasTexture(cv);
+            t.wrapS = t.wrapT = THREE.RepeatWrapping;
+            t.repeat.set(15, 15);
+            return t;
+        }
+
+        /* ===== تهيئة الـ 3D ===== */
+        function init(){
+            const cv = document.getElementById('studio-canvas-3d');
+            const ct = cv.parentElement;
+            
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(38, ct.clientWidth / ct.clientHeight, 0.1, 1000);
+            camera.position.set(3.5, 3.5, 5);
+
+            renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+            renderer.setSize(ct.clientWidth, ct.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            
+            const key = new THREE.DirectionalLight(0xffffff, 1.2);
+            key.position.set(5, 10, 5);
+            key.castShadow = true;
+            key.shadow.mapSize.set(1024, 1024);
+            scene.add(key);
+
+            const fill = new THREE.DirectionalLight(0xb4c6ef, 0.5);
+            fill.position.set(-5, 4, -5);
+            scene.add(fill);
+
+            // أرضية عاكسة للظلال
+            const sm = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.ShadowMaterial({ opacity: 0.15 }));
+            sm.rotation.x = -Math.PI / 2; sm.position.y = -1.25; sm.receiveShadow = true;
+            scene.add(sm);
+
+            const grid = new THREE.GridHelper(14, 28, 0x1a2236, 0x1a2236);
+            grid.position.y = -1.26; grid.material.opacity = 0.15; grid.material.transparent = true;
+            scene.add(grid);
+
+            controls = new OrbitControls(camera, cv);
+            controls.enableDamping = true; controls.dampingFactor = 0.05;
+            controls.minDistance = 2; controls.maxDistance = 15;
+            controls.autoRotate = true; controls.autoRotateSpeed = 1.0;
+            controls.target.set(0, 0, 0);
+
+            tCanvas = document.createElement('canvas'); tCanvas.width = SZ; tCanvas.height = SZ;
+            cCtx = tCanvas.getContext('2d');
+            cTex = new THREE.CanvasTexture(tCanvas);
+            cTex.colorSpace = THREE.SRGBColorSpace;
+            cTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+            fabricBumpTex = makeFabricBump();
+            createProduct('shipping-box');
+            anim();
+            window.addEventListener('resize', onRS);
+            inited = true;
+        }
+
+        function onRS(){
+            const c = document.getElementById('studio-canvas-3d'), ct = c.parentElement;
+            camera.aspect = ct.clientWidth / ct.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(ct.clientWidth, ct.clientHeight);
+        }
+
+        function anim() { 
+            requestAnimationFrame(anim); 
+            controls.update(); 
+            renderer.render(scene, camera); 
+        }
+
+        /* ===== بناء المنتجات الهندسية ===== */
+        function dispose(){
+            if(!curMesh) return;
+            scene.remove(curMesh);
+            (function d(o){
+                if(o.geometry) o.geometry.dispose();
+                if(o.material){
+                    if(Array.isArray(o.material)) o.material.forEach(m => { if(m.map) m.map.dispose(); m.dispose(); });
+                    else { if(o.material.map) o.material.map.dispose(); o.material.dispose(); }
+                }
+                if(o.children) o.children.forEach(c => d(c));
+            })(curMesh);
+        }
+
+        function animScale(o, t, dur){
+            o.scale.set(0.01, 0.01, 0.01);
+            const s = { x: 0.01, y: 0.01, z: 0.01 }, t0 = performance.now();
+            !function tk(n){
+                const p = Math.min((n - t0) / dur, 1);
+                const e = p === 0 ? 0 : p === 1 ? 1 : Math.pow(2, -10 * p) * Math.sin((p * 10 - 0.75) * (2 * Math.PI) / 3) + 1;
+                o.scale.x = s.x + (t.x - s.x) * e;
+                o.scale.y = s.y + (t.y - s.y) * e;
+                o.scale.z = s.z + (t.z - s.z) * e;
+                if(p < 1) requestAnimationFrame(tk);
+            }(performance.now());
+        }
+
+        function createProduct(type) {
+            dispose(); updateTex();
+            let m;
+            switch(type){
+                case 'shipping-box': m = mkBox(2, 1.5, 1.5, bgColor, 0.7); break;
+                case 'fold-box': m = mkBox(2, 1, 1.5, bgColor, 0.4); break;
+                case 'gift-box': m = mkBox(1.8, 1.8, 1.8, bgColor, 0.15); break;
+                case 'tshirt': m = mkTshirt(); break;
+                case 'cup': m = mkCup(); break;
+                default: m = mkBox(2, 1.5, 1.5, bgColor, 0.7);
+            }
+            curMesh = m; 
+            animScale(m, { x: 1, y: 1, z: 1 }, 800);
+            scene.add(m); 
+            curType = type;
+            
+            const cp = { x: 3.5, y: 2.5, z: 4.5 };
+            if(type === 'tshirt') { controls.target.set(0, 0.2, 0); }
+            else if(type === 'cup') { controls.target.set(0, 0, 0); cp.z = 3.5; }
+            else { controls.target.set(0, 0, 0); }
+            camera.position.set(cp.x, cp.y, cp.z);
+        }
+
+        function mkBox(w, h, d, sc, rough) {
+            const g = new THREE.BoxGeometry(w, h, d, 10, 10, 10);
+            const printedMat = new THREE.MeshStandardMaterial({ map: cTex, roughness: rough });
+            const sideMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(sc), roughness: rough });
+            const m = new THREE.Mesh(g, [sideMat, sideMat, sideMat, sideMat, printedMat, sideMat]);
+            m.castShadow = true; m.receiveShadow = true;
+            
+            // إضافة حواف واقعية
+            const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d));
+            const edgeColor = isLightColor(sc) ? 0x94a3b8 : 0x000000;
+            const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: edgeColor, transparent: true, opacity: 0.3, linewidth: 2 }));
+            m.add(lines);
+            return m;
+        }
+
+        function mkTshirt() {
+            const shape = new THREE.Shape();
+            shape.moveTo(-1.2, -1.5); 
+            shape.lineTo(1.2, -1.5);  
+            shape.quadraticCurveTo(1.25, -1.0, 1.15, 0.2); 
+            shape.quadraticCurveTo(1.15, 0.4, 1.25, 0.45); 
+            shape.lineTo(2.0, -0.1);  
+            shape.quadraticCurveTo(2.1, -0.15, 2.2, 0.05); 
+            shape.lineTo(1.25, 1.0);   
+            shape.quadraticCurveTo(1.1, 1.2, 0.8, 1.2); 
+            shape.lineTo(0.5, 1.2);   
+            shape.quadraticCurveTo(0, 0.8, -0.5, 1.2);  
+            shape.lineTo(-0.8, 1.2);  
+            shape.quadraticCurveTo(-1.1, 1.2, -1.25, 1.0);
+            shape.lineTo(-2.2, 0.05);  
+            shape.quadraticCurveTo(-2.1, -0.15, -2.0, -0.1);
+            shape.lineTo(-1.25, 0.45);
+            shape.quadraticCurveTo(-1.15, 0.4, -1.15, 0.2);
+            shape.quadraticCurveTo(-1.25, -1.0, -1.2, -1.5);
+
+            const extrudeSettings = { depth: 0.15, bevelEnabled: true, bevelSegments: 6, steps: 1, bevelSize: 0.05, bevelThickness: 0.1 };
+            const g = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+            g.center();
+
+            const printedMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(bgColor),
+                map: cTex,
+                roughness: 1.0,
+                bumpMap: fabricBumpTex,
+                bumpScale: 0.008
+            });
+            const sideMat = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(bgColor),
+                roughness: 1.0,
+                bumpMap: fabricBumpTex,
+                bumpScale: 0.008
+            });
+
+            const m = new THREE.Mesh(g, [printedMat, sideMat]);
+            m.castShadow = true; m.receiveShadow = true;
+            return m;
+        }
+
+        function mkCup() {
+            const grp = new THREE.Group();
+            
+            const outerG = new THREE.CylinderGeometry(0.78, 0.64, 2.3, 64, 1, true);
+            const outerM = new THREE.MeshPhysicalMaterial({ map: cTex, roughness: 0.1, metalness: 0.1, clearcoat: 0.8, clearcoatRoughness: 0.1, side: THREE.DoubleSide });
+            const outer = new THREE.Mesh(outerG, outerM);
+            outer.rotation.y = -Math.PI / 2;
+            outer.castShadow = true;
+            grp.add(outer);
+            
+            const innerG = new THREE.CylinderGeometry(0.75, 0.62, 2.28, 64, 1, true);
+            const innerM = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, side: THREE.BackSide });
+            grp.add(new THREE.Mesh(innerG, innerM));
+            
+            const rimG = new THREE.TorusGeometry(0.765, 0.035, 16, 64);
+            const rimM = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.1, metalness: 0.05, clearcoat: 0.8 });
+            const rim = new THREE.Mesh(rimG, rimM);
+            rim.position.y = 1.15; rim.rotation.x = Math.PI / 2;
+            grp.add(rim);
+            
+            const bG = new THREE.CircleGeometry(0.64, 64);
+            const bM = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.2, side: THREE.DoubleSide });
+            const bt = new THREE.Mesh(bG, bM);
+            bt.rotation.x = -Math.PI / 2; bt.position.y = -1.15;
+            grp.add(bt);
+            
+            const brG = new THREE.TorusGeometry(0.64, 0.025, 12, 64);
+            const br = new THREE.Mesh(brG, rimM.clone());
+            br.position.y = -1.15; br.rotation.x = Math.PI / 2;
+            grp.add(br);
+            
+            const hp = [new THREE.Vector3(0.78, 0.80, 0), new THREE.Vector3(1.15, 0.68, 0), new THREE.Vector3(1.25, 0.30, 0), new THREE.Vector3(1.20, -0.15, 0), new THREE.Vector3(1.05, -0.52, 0), new THREE.Vector3(0.78, -0.62, 0)];
+            const hc = new THREE.CatmullRomCurve3(hp);
+            const hG = new THREE.TubeGeometry(hc, 48, 0.06, 16, false);
+            const hM = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(bgColor), roughness: 0.1, metalness: 0.1, clearcoat: 0.8 });
+            const handle = new THREE.Mesh(hG, hM);
+            handle.castShadow = true;
+            grp.add(handle);
+            
+            grp.position.y = 0.2;
+            return grp;
+        }
+
+        /* ===== رسم الـ Texture ===== */
+        function rrect(x, rx, ry, rw, rh, r) { x.beginPath(); x.moveTo(rx+r, ry); x.lineTo(rx+rw-r, ry); x.quadraticCurveTo(rx+rw, ry, rx+rw, ry+r); x.lineTo(rx+rw, ry+rh-r); x.quadraticCurveTo(rx+rw, ry+rh, rx+rw-r, ry+rh); x.lineTo(rx+r, ry+rh); x.quadraticCurveTo(rx, ry+rh, rx, ry+rh-r); x.lineTo(rx, ry+r); x.quadraticCurveTo(rx, ry, rx+r, ry); x.closePath(); }
+
+        function updateTex() {
+            const c = cCtx, W = SZ, H = SZ;
+            c.clearRect(0, 0, W, H);
+
+            if (curType === 'tshirt') {
+                if(grad){ const g = c.createLinearGradient(0,0,W,H); g.addColorStop(0,grad[0]); g.addColorStop(1,grad[1]); c.fillStyle=g; } else { c.fillStyle=bgColor; }
+                c.fillRect(0, 0, W, H);
+                drawEls(c, W, H);
+            } else if (curType === 'cup') {
+                c.fillStyle = '#0a0f1a'; c.fillRect(0,0,W,H);
+                const aw = W * 0.82, ah = H * 0.85, ax = (W - aw) / 2, ay = (H - ah) / 2;
+                c.save(); rrect(c, ax, ay, aw, ah, 14);
+                if(grad){ const g = c.createLinearGradient(0,0,W,H); g.addColorStop(0,grad[0]); g.addColorStop(1,grad[1]); c.fillStyle=g; } else { c.fillStyle=bgColor; }
+                c.fill(); rrect(c, ax, ay, aw, ah, 14); c.clip();
+                drawEls(c, W, H);
+                c.restore();
+                rrect(c, ax, ay, aw, ah, 14); c.strokeStyle = 'rgba(255,255,255,0.04)'; c.lineWidth = 1; c.stroke();
+            } else {
+                if(grad){ const g = c.createLinearGradient(0,0,W,H); g.addColorStop(0,grad[0]); g.addColorStop(1,grad[1]); c.fillStyle=g; } else { c.fillStyle=bgColor; }
+                c.fillRect(0, 0, W, H);
+                drawEls(c, W, H);
+            }
+            if(cTex) cTex.needsUpdate = true;
+            update2D();
+        }
+
+        function drawEls(c, W, H) {
+            els.forEach((el, i) => {
+                c.save();
+                const cx = (el.x / 100) * W, cy = (el.y / 100) * H;
+                c.globalAlpha = (el.opacity || 100) / 100;
+                
+                if (el.type === 'text') {
+                    const fs = el.size * (W / 500);
+                    c.font = `${el.weight} ${fs}px "${el.font}", Arial, sans-serif`;
+                    c.textAlign = 'center'; c.textBaseline = 'middle';
+                    c.translate(cx, cy); c.rotate((el.rotation || 0) * Math.PI / 180);
+                    if(el.stroke){ c.strokeStyle=el.stroke; c.lineWidth=Math.max(2,fs*0.06); c.lineJoin='round'; c.strokeText(el.content,0,0); }
+                    c.fillStyle = el.color; c.fillText(el.content, 0, 0);
+                    
+                    if (i === selIdx) {
+                        const m = c.measureText(el.content), tw = m.width, th = fs;
+                        c.strokeStyle = '#f97316'; c.lineWidth = 2.5; c.setLineDash([7, 4]); c.strokeRect(-tw/2-10, -th/2-6, tw+20, th+12); c.setLineDash([]);
+                    }
+                } else if (el.type === 'image' && el.img) {
+                    c.translate(cx, cy); c.rotate((el.rotation || 0) * Math.PI / 180);
+                    const iw = el.width * (W / 500), ih = el.height * (W / 500);
+                    c.drawImage(el.img, -iw/2, -ih/2, iw, ih);
+                    
+                    if (i === selIdx) {
+                        c.strokeStyle = '#f97316'; c.lineWidth = 2.5; c.setLineDash([7, 4]); c.strokeRect(-iw/2-5, -ih/2-5, iw+10, ih+10); c.setLineDash([]);
+                    }
+                }
+                c.restore();
+            });
+        }
+
+        function update2D(){
+            const cv = document.getElementById('editor-canvas-2d');
+            if(!cv) return;
+            const x = cv.getContext('2d');
+            x.clearRect(0, 0, cv.width, cv.height);
+            x.drawImage(tCanvas, 0, 0, cv.width, cv.height);
+        }
+
+        /* ===== المحرر 2D والأحداث ===== */
+        function init2D() {
+            const cv = document.getElementById('editor-canvas-2d');
+            let dragging = false, mode = 'none', di = -1, ox = 0, oy = 0, sw = 0, sh = 0, sdx = 0, sdy = 0;
+            
+            function gp(e){ const r = cv.getBoundingClientRect(); const cl = e.touches ? e.touches[0] : e; return { x: ((cl.clientX - r.left) / r.width) * 100, y: ((cl.clientY - r.top) / r.height) * 100 }; }
+            
+            function hitEl(mx, my, el) {
+                if(el.type === 'text') return Math.abs(mx - el.x) < el.size * 1.5 && Math.abs(my - el.y) < el.size * 0.8;
+                if(el.type === 'image') { const iw = (el.width / 500) * 100, ih = (el.height / 500) * 100; return Math.abs(mx - el.x) < iw / 2 && Math.abs(my - el.y) < ih / 2; }
+                return false;
+            }
+
+            function down(e) {
+                e.preventDefault(); const p = gp(e);
+                for(let i = els.length - 1; i >= 0; i--) {
+                    if(hitEl(p.x, p.y, els[i])) {
+                        mode = 'drag'; di = i; ox = p.x - els[i].x; oy = p.y - els[i].y;
+                        selElement(i); updateTex(); return;
+                    }
+                }
+                selIdx = -1; document.getElementById('textProps').style.display = 'none'; document.getElementById('imgProps').style.display = 'none';
+                renderTList(); renderIList(); updateTex();
+            }
+
+            function move(e) {
+                e.preventDefault();
+                if(mode === 'drag' && di >= 0) {
+                    const p = gp(e); els[di].x = Math.max(2, Math.min(98, p.x - ox)); els[di].y = Math.max(2, Math.min(98, p.y - oy)); updateTex();
+                }
+                if(mode === 'none' && selIdx >= 0 && els[selIdx]) {
+                    cv.style.cursor = hitEl(gp(e).x, gp(e).y, els[selIdx]) ? 'move' : 'default';
+                }
+            }
+
+            function up() { mode = 'none'; di = -1; cv.style.cursor = 'default'; }
+            
+            cv.addEventListener('mousedown', down); cv.addEventListener('mousemove', move); cv.addEventListener('mouseup', up); cv.addEventListener('mouseleave', up);
+            cv.addEventListener('touchstart', down, { passive: false }); cv.addEventListener('touchmove', move, { passive: false }); cv.addEventListener('touchend', up);
+        }
+
+        /* ===== الألوان ===== */
+        function initColors(){
+            const cg = document.getElementById('colorGrid'); cg.innerHTML = '';
+            COLORS.forEach(c => {
+                const s = document.createElement('div'); s.className = `c-sw ${c === bgColor ? 'act' : ''}`; s.style.background = c;
+                if(isLightColor(c)) s.style.border = '2px solid rgba(255,255,255,.1)';
+                s.onclick = () => { grad = null; bgColor = c; document.querySelectorAll('#colorGrid .c-sw, #gradientGrid .c-sw').forEach(x => x.classList.remove('act')); s.classList.add('act'); document.getElementById('customColorPicker').value = c; document.getElementById('customColorHex').value = c; updateTex(); updSides(); };
+                cg.appendChild(s);
+            });
+            const gg = document.getElementById('gradientGrid'); gg.innerHTML = '';
+            GRADS.forEach(g => {
+                const s = document.createElement('div'); s.className = 'c-sw'; s.style.background = `linear-gradient(135deg, ${g[0]}, ${g[1]})`;
+                s.onclick = () => { grad = g; bgColor = g[0]; document.querySelectorAll('#colorGrid .c-sw, #gradientGrid .c-sw').forEach(x => x.classList.remove('act')); s.classList.add('act'); updateTex(); updSides(); };
+                gg.appendChild(s);
+            });
+            document.getElementById('customColorPicker').addEventListener('input', e => { grad = null; bgColor = e.target.value; document.getElementById('customColorHex').value = e.target.value; document.querySelectorAll('.c-sw').forEach(x => x.classList.remove('act')); updateTex(); updSides(); });
+        }
+        
+        function applyCustomColor(h) { if(/^#[0-9a-fA-F]{6}$/.test(h)) { grad = null; bgColor = h; document.getElementById('customColorPicker').value = h; document.querySelectorAll('.c-sw').forEach(x => x.classList.remove('act')); updateTex(); updSides(); } }
+        function updSides() { if(!curMesh || curType === 'tshirt' || curType === 'cup' || !Array.isArray(curMesh.material)) return; const c = new THREE.Color(bgColor); curMesh.material.forEach((m, i) => { if(i !== 4 && m.color) m.color.copy(c); }); }
+        function isLightColor(h) { const c = h.replace('#', ''); return c.length === 6 && (parseInt(c.substr(0,2),16)*299 + parseInt(c.substr(2,2),16)*587 + parseInt(c.substr(4,2),16)*114)/1000 > 150; }
+
+        /* ===== التبديلات والإجراءات ===== */
+        function switchProduct(t, b) { document.querySelectorAll('.pt-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); createProduct(t); }
+        function switchView(v, b) { document.querySelectorAll('.vm-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); document.getElementById('editor2dWrap').classList.toggle('active', v === '2d'); }
+        function switchToolTab(t, b) { document.querySelectorAll('.t-tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.t-sec').forEach(x => x.classList.remove('active')); document.getElementById('tab-' + t).classList.add('active'); }
+        function toggleAutoRotate() { autoRot = !autoRot; controls.autoRotate = autoRot; document.getElementById('autoRotateBtn').style.color = autoRot ? '#22c55e' : '#64748b'; }
+        
+        function updateDims() { 
+            if(!curMesh) return; 
+            const l = +(document.getElementById('dimL').value) || 30, w = +(document.getElementById('dimW').value) || 20, h = +(document.getElementById('dimH').value) || 15; 
+            const mx = Math.max(l, w, h), s = 3 / mx; 
+            if(curType === 'tshirt') curMesh.scale.set(s*l, s*h, 1); 
+            else if(curType === 'cup') curMesh.scale.set(1, s*h, 1); 
+            else curMesh.scale.set(s*w, s*h, s*l); // تصحيح بسيط للكرتون
+        }
+
+        function resetDesign() { els = []; selIdx = -1; bgColor = '#c9a87c'; grad = null; document.getElementById('textProps').style.display = 'none'; document.getElementById('imgProps').style.display = 'none'; document.getElementById('dimL').value = 20; document.getElementById('dimW').value = 15; document.getElementById('dimH').value = 10; document.getElementById('dimQty').value = 100; document.getElementById('dimNotes').value = ''; renderTList(); renderIList(); createProduct(curType); initColors(); showToast('تم إعادة التعيين'); }
+
+        function showToast(t) { const s = document.getElementById('studioToast'); document.getElementById('toastMsg').textContent = t; s.classList.add('show'); setTimeout(() => s.classList.remove('show'), 3000); }
+
+        /* ===== إدارة العناصر ===== */
+        function addTextElement() { els.push({ type: 'text', content: 'نص جديد', x: 50, y: 45, size: 28, color: '#ffffff', font: 'Cairo', weight: 'bold', rotation: 0, opacity: 100, stroke: null }); selIdx = els.length - 1; renderTList(); document.getElementById('textProps').style.display = 'block'; updateTex(); showToast('أضف النص — حرّكه من المحرر'); }
+        
+        function updateSelectedText() { if(selIdx < 0 || els[selIdx]?.type !== 'text') return; const e = els[selIdx]; e.content = document.getElementById('textContent').value || 'نص'; e.size = +document.getElementById('textSize').value; e.color = document.getElementById('textColor').value; e.font = document.getElementById('textFont').value; e.weight = document.getElementById('textWeight').value; e.rotation = +document.getElementById('textRotation').value; e.opacity = +document.getElementById('textOpacity').value; e.stroke = document.getElementById('textStroke').checked ? 'rgba(0,0,0,0.5)' : null; document.getElementById('textSizeVal').textContent = e.size; document.getElementById('textOpacityVal').textContent = e.opacity + '%'; renderTList(); updateTex(); }
+        
+        function deleteElement(i) { els.splice(i, 1); if(selIdx === i) { selIdx = -1; document.getElementById('textProps').style.display = 'none'; document.getElementById('imgProps').style.display = 'none'; } else if(selIdx > i) selIdx--; renderTList(); renderIList(); updateTex(); }
+        
+        function selElement(i) { selIdx = i; const e = els[i]; if(e.type === 'text') { document.getElementById('textProps').style.display = 'block'; document.getElementById('textContent').value = e.content; document.getElementById('textSize').value = e.size; document.getElementById('textSizeVal').textContent = e.size; document.getElementById('textColor').value = e.color; document.getElementById('textFont').value = e.font; document.getElementById('textWeight').value = e.weight; document.getElementById('textRotation').value = e.rotation || 0; document.getElementById('textOpacity').value = e.opacity || 100; document.getElementById('textOpacityVal').textContent = (e.opacity || 100) + '%'; document.getElementById('textStroke').checked = !!e.stroke; } else if(e.type === 'image') { document.getElementById('imgProps').style.display = 'block'; document.getElementById('imgW').value = Math.round(e.width); document.getElementById('imgWVal').textContent = Math.round(e.width); document.getElementById('imgOpacity').value = e.opacity || 100; } renderTList(); renderIList(); updateTex(); }
+        
+        function renderTList() { const c = document.getElementById('textList'); c.innerHTML = ''; els.forEach((e, i) => { if(e.type !== 'text') return; const d = document.createElement('div'); d.className = `el-item ${i === selIdx ? 'sel' : ''}`; d.innerHTML = `<div style="width:28px;height:28px;border-radius:6px;background:${e.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-font" style="color:${isLightColor(e.color)?'#000':'#fff'};font-size:10px;"></i></div><div class="el-info"><span>${e.content.substring(0,16)}</span><small>${e.size}px</small></div><button class="del-el" onclick="event.stopPropagation();deleteElement(${i})"><i class="fas fa-trash"></i></button>`; d.onclick = () => selElement(i); c.appendChild(d); }); }
+        
+        function renderIList() { const c = document.getElementById('imageList'); c.innerHTML = ''; els.forEach((e, i) => { if(e.type !== 'image') return; const d = document.createElement('div'); d.className = `el-item ${i === selIdx ? 'sel' : ''}`; d.innerHTML = `<div style="width:36px;height:36px;border-radius:6px;overflow:hidden;background:#1e293b;flex-shrink:0;"><img src="${e.imgSrc}" style="width:100%;height:100%;object-fit:cover;"></div><div class="el-info"><span>صورة ${i+1}</span></div><button class="del-el" onclick="event.stopPropagation();deleteElement(${i})"><i class="fas fa-trash"></i></button>`; d.onclick = () => selElement(i); c.appendChild(d); }); }
+
+        function handleImageUpload(ev) {
+            const f = ev.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let w = img.width, h = img.height; const mx = 300;
+                    if(w > mx || h > mx) { const r2 = Math.min(mx/w, mx/h); w *= r2; h *= r2; }
+                    els.push({ type: 'image', img, imgSrc: e.target.result, x: 50, y: 50, width: w, height: h, origW: w, origH: h, rotation: 0, opacity: 100 });
+                    selIdx = els.length - 1; renderIList(); document.getElementById('imgProps').style.display = 'block'; updateTex(); showToast('تم رفع الصورة — حرّكها من المحرر');
+                }; img.src = e.target.result;
+            }; r.readAsDataURL(f); ev.target.value = '';
+        }
+
+        function updateSelectedImage() { if(selIdx < 0 || els[selIdx]?.type !== 'image') return; const e = els[selIdx]; e.width = +document.getElementById('imgW').value; e.opacity = +document.getElementById('imgOpacity').value; document.getElementById('imgWVal').textContent = Math.round(e.width); updateTex(); }
+
+        /* ===== الإرسال ===== */
+        function sendDesignWhatsApp() {
+            const qty = document.getElementById('dimQty').value, l = document.getElementById('dimL').value, w = document.getElementById('dimW').value, h = document.getElementById('dimH').value, notes = document.getElementById('dimNotes').value, er = document.getElementById('studioError');
+            if(!qty || +qty < 1) { er.textContent = 'أدخل الكمية'; er.style.display = 'block'; return; }
+            er.style.display = 'none';
+            let m = `مرحباً برنتنس 👋\nتصميم مخصص:\n\n📦 *المنتج:* ${PNAMES[curType]}\n🎨 *اللون:* ${bgColor}${grad ? ` تدرج` : ''}\n`;
+            const tx = els.filter(e => e.type === 'text');
+            if(tx.length) { m += `✏️ *النصوص:*\n`; tx.forEach((t, i) => { m += `   ${i+1}. "${t.content}" — ${t.size}px — ${t.color}\n`; }); }
+            const ix = els.filter(e => e.type === 'image');
+            if(ix.length) m += `🖼️ *صور:* ${ix.length} صورة\n`;
+            if(curType !== 'tshirt' && curType !== 'cup') m += `\n📏 *المقاسات:* ${l}×${w}×${h} سم\n`;
+            m += `🔢 *الكمية:* ${qty}\n`; if(notes) m += `📝 *ملاحظات:* ${notes}\n`;
+            m += `\nالتسعيرة؟ شكراً!`;
+            window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(m)}`, '_blank');
+        }
+
+        /* ===== ربط الدوال بالواجهة ===== */
+        window.openDesignStudio = function() {
+            document.getElementById('designStudioModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            const ld = document.getElementById('studioLoader');
+            ld.classList.remove('hidden');
+            setTimeout(() => {
+                if(!inited) { init(); init2D(); initColors(); } else { onRS(); initColors(); }
+                setTimeout(() => ld.classList.add('hidden'), 350);
+            }, 120);
+        };
+        window.closeDesignStudio = function() { document.getElementById('designStudioModal').classList.remove('open'); document.body.style.overflow = 'auto'; };
+        
+        // توجيه الدوال للمساحة العالمية للوصول من الـ HTML
+        window.switchProduct = switchProduct; window.switchView = switchView; window.switchToolTab = switchToolTab; window.toggleAutoRotate = toggleAutoRotate; window.updateDims = updateDims; window.addTextElement = addTextElement; window.updateSelectedText = updateSelectedText; window.deleteElement = deleteElement; window.handleImageUpload = handleImageUpload; window.updateSelectedImage = updateSelectedImage; window.applyCustomColor = applyCustomColor; window.sendDesignWhatsApp = sendDesignWhatsApp; window.resetDesign = resetDesign; window.downloadDesign = function(){ const a=document.createElement('a');a.download='printnes-design.png';a.href=tCanvas.toDataURL('image/png');a.click();showToast('تم تحميل التصميم كصورة'); };
+
+        document.getElementById('designStudioModal').addEventListener('click', e => { if (e.target === document.getElementById('designStudioModal')) closeDesignStudio(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDesignStudio(); });
+
     </script>
 }

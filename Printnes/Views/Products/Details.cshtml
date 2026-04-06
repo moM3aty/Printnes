@@ -1,16 +1,21 @@
-﻿@model Printnes.Models.Product
+﻿<!-- الملف: Views/Products/Details.cshtml -->
+@model Printnes.Models.Product
+@using Printnes.Helpers
 @{
     ViewData["Title"] = Model != null ? Model.NameAr : "تفاصيل المنتج";
     Layout = "_Layout";
+
+    // جلب الإعدادات ديناميكياً
+    var siteSettings = SiteSettingsManager.LoadSettings();
+    string waNumber = siteSettings.WhatsappNumber?.Replace("+", "") ?? "";
 
     bool hasAnyOptions = (ViewBag.PaperOptions != null && Enumerable.Count(ViewBag.PaperOptions) > 0) ||
                          (ViewBag.SizeOptions != null && Enumerable.Count(ViewBag.SizeOptions) > 0) ||
                          (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0);
 
-    // حساب متوسط التقييمات وعددها
     var approvedReviews = Model?.ProductReviews?.Where(r => r.IsApproved).OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Printnes.Models.ProductReview>();
     int reviewsCount = approvedReviews.Count;
-    double avgRating = reviewsCount > 0 ? approvedReviews.Average(r => r.Rating) : 5.0; // افتراضي 5 إذا لم يوجد تقييم
+    double avgRating = reviewsCount > 0 ? approvedReviews.Average(r => r.Rating) : 5.0;
 }
 
 <main class="container py-5">
@@ -62,7 +67,13 @@
                 @(Model != null && !string.IsNullOrEmpty(Model.DescriptionAr) ? Model.DescriptionAr : "وصف مختصر للمنتج.")
             </div>
 
-        
+            @if (hasAnyOptions)
+            {
+                <div class="tabby-box">
+                    <img src="https://img.icons8.com/color/48/tabby.png" width="30" alt="Tabby">
+                    <p>قسم مشترياتك على 4 دفعات بدون فوائد بقيمة <span id="tabby-price" style="font-weight: bold; color: var(--navy);">0</span> @siteSettings.Currency</p>
+                </div>
+            }
 
             <div class="options-container">
                 <div class="options-tabs">
@@ -86,19 +97,48 @@
                             </div>
                         }
 
+                        <!-- بداية التعديل: قسم المقاسات المخصص -->
                         @if (ViewBag.SizeOptions != null && Enumerable.Count(ViewBag.SizeOptions) > 0)
                         {
                             <div class="form-group">
                                 <label>المقاس *</label>
-                                <select id="opt-size" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="calculateDynamicPrice()">
+                                <select id="opt-size" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;" onchange="handleSizeChange()">
                                     <option value="">-- اختر --</option>
                                     @foreach (var opt in ViewBag.SizeOptions)
                                     {
                                         <option value="@opt.Id">@opt.NameAr</option>
                                     }
+                                    <!-- الخيار الذكي للمقاس المخصص -->
+                                    @if (Model != null && Model.AllowCustomSize)
+                                    {
+                                        <option value="custom" style="color: var(--orange); font-weight: bold;">✨ تفصيل مقاس خاص</option>
+                                    }
                                 </select>
                             </div>
+
+                            <!-- الحقول المخفية التي تظهر عند اختيار المقاس الخاص -->
+                            <div id="custom-size-inputs" style="display: none; background: #fff5f2; border: 1px dashed var(--orange); border-radius: 8px; padding: 15px; margin-top: -10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                                <div style="width: 100%; margin-bottom: 5px;">
+                                    <strong style="color: var(--orange); font-size: 13px;"><i class="fas fa-ruler-combined"></i> أدخل أبعادك المخصصة بالسنتيمتر (سم)</strong>
+                                </div>
+                                <div style="flex: 1; min-width: 80px;">
+                                    <label style="font-size: 12px; color: var(--navy); font-weight: bold;">الطول *</label>
+                                    <input type="number" id="custom-length" class="form-control" placeholder="مثال: 20" min="1" style="padding: 8px;" />
+                                </div>
+                                <div style="flex: 1; min-width: 80px;">
+                                    <label style="font-size: 12px; color: var(--navy); font-weight: bold;">العرض *</label>
+                                    <input type="number" id="custom-width" class="form-control" placeholder="مثال: 15" min="1" style="padding: 8px;" />
+                                </div>
+                                <div style="flex: 1; min-width: 80px;">
+                                    <label style="font-size: 12px; color: var(--navy); font-weight: bold;">الارتفاع</label>
+                                    <input type="number" id="custom-height" class="form-control" placeholder="للعلب" min="0" style="padding: 8px;" />
+                                </div>
+                                <div style="width: 100%; margin-top: 5px;">
+                                    <span style="font-size: 11px; color: #dc2626;"><i class="fas fa-info-circle"></i> المقاسات المخصصة يتم تحديد سعرها من قبل الإدارة بعد إرسال الطلب.</span>
+                                </div>
+                            </div>
                         }
+                        <!-- نهاية التعديل -->
 
                         @if (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0)
                         {
@@ -136,7 +176,7 @@
                                 {
                                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 8px; font-size: 14px;">
                                         <input type="checkbox" class="extra-checkbox" value="@extra.Id" onchange="calculateDynamicPrice()" style="width: 18px; height: 18px; accent-color: var(--orange);" />
-                                        @extra.NameAr <strong style="color: var(--success); margin-right: 5px;">(+@extra.Price.ToString("0.00") ر.س)</strong>
+                                        @extra.NameAr <strong style="color: var(--success); margin-right: 5px;">(+@extra.Price.ToString("0.00") @siteSettings.Currency)</strong>
                                     </label>
                                 }
                             </div>
@@ -173,7 +213,8 @@
                     <div class="help-text">
                         <h3>تحتاج مساعدة في اتمام طلبك ؟ <i class="fab fa-whatsapp"></i></h3>
                         <p>ما عرفت تكمل طلبك أو واجهت أي مشكلة تواصل معنا على الواتس اب</p>
-                        <a href="https://wa.me/966554804857" target="_blank" class="btn-click-here">اضغط هنا</a>
+                        <!-- رابط الواتساب الديناميكي -->
+                        <a href="https://wa.me/@waNumber" target="_blank" class="btn-click-here">اضغط هنا</a>
                     </div>
                 </div>
                 <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" class="bg-logo-fade" alt="">
@@ -181,6 +222,7 @@
         </div>
     </div>
 
+    <!-- قسم التقييمات (Reviews Section) -->
     <section class="product-reviews-section mt-5">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 class="sec-title" style="margin: 0;"><i class="fas fa-star" style="color: var(--orange);"></i> آراء وتجارب العملاء</h2>
@@ -271,7 +313,8 @@
                 <span class="final-price" style="font-size: 18px; color: var(--navy);">تواصل معنا للطلب</span>
             </div>
             <div class="action-side">
-                <a href="https://wa.me/966554804857?text=مرحباً، أود طلب منتج: @(Model?.NameAr)" target="_blank" class="btn-add-main" style="background: #25d366; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <!-- رابط الواتساب الديناميكي -->
+                <a href="https://wa.me/@waNumber?text=مرحباً، أود طلب منتج: @(Model?.NameAr)" target="_blank" class="btn-add-main" style="background: #25d366; text-decoration: none; display: flex; align-items: center; gap: 8px;">
                     <i class="fab fa-whatsapp" style="font-size: 18px;"></i> اطلب عبر واتساب
                 </a>
             </div>
@@ -282,6 +325,7 @@
 @section Scripts {
     <script>
         var hasOptions = @(hasAnyOptions.ToString().ToLower());
+        var currency = '@siteSettings.Currency';
 
         document.addEventListener("DOMContentLoaded", function() {
             if (typeof renderSection === "function") {
@@ -291,6 +335,20 @@
                 calculateDynamicPrice();
             }
         });
+
+        // دالة لإظهار/إخفاء حقول المقاس المخصص
+        function handleSizeChange() {
+            const sizeSelect = document.getElementById('opt-size');
+            const customInputs = document.getElementById('custom-size-inputs');
+
+            if (sizeSelect && sizeSelect.value === 'custom') {
+                customInputs.style.display = 'flex';
+            } else if (customInputs) {
+                customInputs.style.display = 'none';
+            }
+            
+            calculateDynamicPrice();
+        }
 
         function changeQty(val) {
             if(!hasOptions) return;
@@ -329,6 +387,13 @@
                 return;
             }
 
+            // إذا كان المقاس مخصص، نوقف حساب السعر التلقائي ونعرض رسالة
+            if (sizeId === 'custom') {
+                document.getElementById('sticky-price').innerHTML = '<span style="font-size: 16px;">يحدد بعد المراجعة</span>';
+                if(document.getElementById('tabby-price')) document.getElementById('tabby-price').innerText = '0.00';
+                return;
+            }
+
             const extraCheckboxes = document.querySelectorAll('.extra-checkbox:checked');
             const extraIds = Array.from(extraCheckboxes).map(cb => parseInt(cb.value));
 
@@ -337,7 +402,7 @@
             const result = await ApiClient.calculatePrice(productId, paperId, sizeId, sidesId, qty, extraIds);
 
             if (result && result.success) {
-                document.getElementById('sticky-price').innerText = result.total.toFixed(2) + ' ر.س';
+                document.getElementById('sticky-price').innerText = result.total.toFixed(2) + ' ' + currency;
                 if(document.getElementById('tabby-price')) document.getElementById('tabby-price').innerText = (result.total / 4).toFixed(2);
             } else {
                 document.getElementById('sticky-price').innerText = 'غير متاح بهذه المواصفات';
@@ -358,16 +423,35 @@
             }
 
             const paperText = document.getElementById('opt-paper') ? document.getElementById('opt-paper').options[document.getElementById('opt-paper').selectedIndex].text : '';
-            const sizeText = document.getElementById('opt-size') ? document.getElementById('opt-size').options[document.getElementById('opt-size').selectedIndex].text : '';
             const sidesText = document.getElementById('opt-sides') ? document.getElementById('opt-sides').options[document.getElementById('opt-sides').selectedIndex].text : '';
-
             const finishEl = document.getElementById('opt-finish');
             const finishText = finishEl && finishEl.value ? finishEl.options[finishEl.selectedIndex].text : '';
+
+            // معالجة نص المقاس والسعر (لتدعم المقاس المخصص)
+            let sizeText = '';
+            const sizeSelect = document.getElementById('opt-size');
+            let itemPrice = 0;
+
+            if (sizeSelect && sizeSelect.value === 'custom') {
+                const l = document.getElementById('custom-length').value;
+                const w = document.getElementById('custom-width').value;
+                const h = document.getElementById('custom-height').value;
+
+                if (!l || !w) {
+                    alert('الرجاء إدخال الطول والعرض على الأقل لتفصيل المقاس الخاص.');
+                    return;
+                }
+                sizeText = `مقاس مخصص: الطول ${l}سم، العرض ${w}سم` + (h ? `، الارتفاع ${h}سم` : '');
+                itemPrice = 0; // السعر المبدئي للمقاس المخصص
+            } else {
+                sizeText = sizeSelect ? sizeSelect.options[sizeSelect.selectedIndex].text : '';
+                itemPrice = parseFloat(priceEl.innerText.replace(currency, '').replace('يحدد بعد المراجعة', '0').trim());
+            }
 
             const item = {
                 id: @(Model != null ? Model.Id : 0),
                 name: titleEl.innerText.trim(),
-                price: parseFloat(priceEl.innerText.replace(' ر.س', '')),
+                price: itemPrice || 0,
                 img: imgEl ? imgEl.src : '',
                 quantity: parseInt(qtyEl.value) || 1,
                 details: { paperType: paperText, sides: sidesText, design: sizeText, cover: finishText }
