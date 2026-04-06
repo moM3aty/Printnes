@@ -17,7 +17,7 @@
     </div>
 }
 
-<div class="premium-card" style="max-width: 900px;">
+<div class="premium-card" style="max-width: 900px; padding: 35px;">
     <form asp-action="Save" method="post">
 
         <!-- قسم الإعدادات العامة -->
@@ -25,43 +25,100 @@
             <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--primary-light); display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-store"></i>
             </div>
-            الإعدادات العامة
+            البيانات الأساسية
         </h3>
 
         <div class="form-grid">
             <div class="form-group">
-                <label asp-for="StoreName" class="form-label">اسم المتجر</label>
-                <input asp-for="StoreName" class="form-control" />
+                <label asp-for="StoreName" class="form-label">اسم المتجر *</label>
+                <input asp-for="StoreName" class="form-control" placeholder="مثال: مطابع برنتس" />
                 <span asp-validation-for="StoreName" class="field-validation-error"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ContactEmail" class="form-label">البريد الإلكتروني للدعم</label>
-                <input asp-for="ContactEmail" type="email" class="form-control" dir="ltr" style="text-align: right;" />
-                <span asp-validation-for="ContactEmail" class="field-validation-error"></span>
+                <label asp-for="Currency" class="form-label">العملة الافتراضية</label>
+                <input asp-for="Currency" class="form-control" placeholder="مثال: ر.س" />
+                <span asp-validation-for="Currency" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div class="form-grid" style="margin-bottom: 30px;">
-            <div class="form-group">
-                <label asp-for="ContactPhone" class="form-label">رقم جوال الواتساب</label>
-                <input asp-for="ContactPhone" class="form-control" dir="ltr" style="text-align: right;" placeholder="مثال: 9665XXXXXXXX" />
-                <span asp-validation-for="ContactPhone" class="field-validation-error"></span>
-            </div>
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label asp-for="StoreDescription" class="form-label">وصف المتجر (يظهر في الفوتر ومحركات البحث)</label>
+            <textarea asp-for="StoreDescription" class="form-control" rows="3" placeholder="وصف قصير لنشاط المتجر..."></textarea>
+            <span asp-validation-for="StoreDescription" class="field-validation-error"></span>
         </div>
 
         <hr style="border: none; border-top: 1px solid var(--border-color); margin-bottom: 30px;">
 
-        <!-- قسم الإعدادات المالية -->
-        <h3 style="font-size: 16px; margin: 0 0 20px 0; color: var(--success); font-weight: 800; display: flex; align-items: center; gap: 10px;">
-            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--success-bg); display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-file-invoice-dollar"></i>
+        <!-- قسم التواصل والسوشيال ميديا -->
+        <h3 style="font-size: 16px; margin: 0 0 20px 0; color: var(--info); font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--info-bg); color: var(--info); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-headset"></i>
             </div>
-            الإعدادات المالية
+            بيانات التواصل والشبكات الاجتماعية
         </h3>
 
         <div class="form-grid">
             <div class="form-group">
-                <label asp-for="TaxPercentage" class="form-label">نسبة الضريبة المضافة (%)</label>
+                <label asp-for="ContactEmail" class="form-label">البريد الإلكتروني للدعم *</label>
+                <input asp-for="ContactEmail" type="email" class="form-control" dir="ltr" style="text-align: right;" placeholder="support@printnes.co" />
+                <span asp-validation-for="ContactEmail" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ContactPhone" class="form-label">رقم الجوال *</label>
+                <input asp-for="ContactPhone" class="form-control" dir="ltr" style="text-align: right;" placeholder="05XXXXXXXX" />
+                <span asp-validation-for="ContactPhone" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WhatsappNumber" class="form-label">رقم الواتساب *</label>
+                <div style="position: relative;">
+                    <input asp-for="WhatsappNumber" class="form-control" dir="ltr" style="text-align: right; padding-right: 40px;" placeholder="9665XXXXXXXX" />
+                    <i class="fab fa-whatsapp" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #25d366; font-size: 18px;"></i>
+                </div>
+                <span asp-validation-for="WhatsappNumber" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="InstagramUrl" class="form-label">رابط الانستجرام</label>
+                <div style="position: relative;">
+                    <input asp-for="InstagramUrl" class="form-control" dir="ltr" style="text-align: right; padding-right: 40px;" placeholder="https://instagram.com/..." />
+                    <i class="fab fa-instagram" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #e1306c; font-size: 18px;"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="TiktokUrl" class="form-label">رابط التيك توك</label>
+                <div style="position: relative;">
+                    <input asp-for="TiktokUrl" class="form-control" dir="ltr" style="text-align: right; padding-right: 40px;" placeholder="https://tiktok.com/..." />
+                    <i class="fab fa-tiktok" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #000; font-size: 18px;"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="TwitterUrl" class="form-label">رابط تويتر (X)</label>
+                <div style="position: relative;">
+                    <input asp-for="TwitterUrl" class="form-control" dir="ltr" style="text-align: right; padding-right: 40px;" placeholder="https://x.com/..." />
+                    <i class="fab fa-twitter" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #1da1f2; font-size: 18px;"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="FacebookUrl" class="form-label">رابط الفيسبوك</label>
+                <div style="position: relative;">
+                    <input asp-for="FacebookUrl" class="form-control" dir="ltr" style="text-align: right; padding-right: 40px;" placeholder="https://facebook.com/..." />
+                    <i class="fab fa-facebook" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #1877f2; font-size: 18px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+        <!-- الإعدادات المالية والشحن -->
+        <h3 style="font-size: 16px; margin: 0 0 20px 0; color: var(--success); font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--success-bg); color: var(--success); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            الإعدادات المالية والشحن
+        </h3>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="TaxPercentage" class="form-label">نسبة الضريبة المضافة (%) *</label>
                 <div style="position: relative;">
                     <input asp-for="TaxPercentage" type="number" step="0.1" class="form-control" />
                     <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: bold;">%</span>
@@ -69,18 +126,59 @@
                 <span asp-validation-for="TaxPercentage" class="field-validation-error"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DefaultShippingCost" class="form-label">تكلفة الشحن الافتراضية</label>
+                <label asp-for="DefaultShippingCost" class="form-label">تكلفة الشحن الافتراضية *</label>
                 <div style="position: relative;">
                     <input asp-for="DefaultShippingCost" type="number" step="0.1" class="form-control" />
-                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: bold;">ر.س</span>
+                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: bold;">@Model.Currency</span>
                 </div>
                 <span asp-validation-for="DefaultShippingCost" class="field-validation-error"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FreeShippingAbove" class="form-label">شحن مجاني للطلبات فوق</label>
+                <div style="position: relative;">
+                    <input asp-for="FreeShippingAbove" type="number" step="0.1" class="form-control" />
+                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: bold;">@Model.Currency</span>
+                </div>
+                <span class="form-hint">اتركه 0 لإلغاء الشحن المجاني</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinimumOrderAmount" class="form-label">الحد الأدنى لقيمة الطلب</label>
+                <div style="position: relative;">
+                    <input asp-for="MinimumOrderAmount" type="number" step="0.1" class="form-control" />
+                    <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-weight: bold;">@Model.Currency</span>
+                </div>
+                <span class="form-hint">اتركه 0 لإلغاء الحد الأدنى للطلب</span>
             </div>
         </div>
 
         <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
 
-        <button type="submit" class="btn-premium" style="padding: 12px 40px; font-size: 15px;"><i class="fas fa-save"></i> حفظ كافة الإعدادات</button>
+        <!-- خيارات التحكم -->
+        <h3 style="font-size: 16px; margin: 0 0 20px 0; color: var(--purple); font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #fdf4ff; color: var(--purple); display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-toggle-on"></i>
+            </div>
+            خيارات المتجر
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 15px; background: var(--border-light); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+            <label class="form-check" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                <input type="checkbox" asp-for="EnableReviews" style="width: 20px; height: 20px; accent-color: var(--primary-color);" />
+                <span style="font-weight: bold; color: var(--text-main);">تفعيل نظام التقييمات للمنتجات</span>
+            </label>
+            <label class="form-check" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                <input type="checkbox" asp-for="EnableUserRegistration" style="width: 20px; height: 20px; accent-color: var(--primary-color);" />
+                <span style="font-weight: bold; color: var(--text-main);">السماح للزوار بإنشاء حسابات جديدة</span>
+            </label>
+            <label class="form-check" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                <input type="checkbox" asp-for="EnableGuestCheckout" style="width: 20px; height: 20px; accent-color: var(--primary-color);" />
+                <span style="font-weight: bold; color: var(--text-main);">السماح للزوار بالطلب كضيوف (بدون تسجيل دخول)</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn-premium" style="padding: 14px 40px; font-size: 16px; width: 100%; justify-content: center;">
+            <i class="fas fa-save"></i> حفظ كافة الإعدادات
+        </button>
     </form>
 </div>
 

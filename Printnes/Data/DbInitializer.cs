@@ -238,6 +238,7 @@ namespace Printnes.Data
 
                         new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "وجه واحد", NameEn = "1 Side", SortOrder = 1, IsActive = true },
                         new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "وجهين", NameEn = "2 Sides", SortOrder = 2, IsActive = true },
+                        new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "بدون طباعه", NameEn = "No Print", SortOrder = 3, IsActive = true },
 
                         new ProductOption { ProductId = prod.Id, OptionType = 4, NameAr = "بدون حماية", NameEn = "None", SortOrder = 1, IsActive = true },
                         new ProductOption { ProductId = prod.Id, OptionType = 4, NameAr = "سلوفان مطفي", NameEn = "Matte Lam", SortOrder = 2, IsActive = true }
@@ -267,7 +268,9 @@ namespace Printnes.Data
                         new ProductOption { ProductId = prod.Id, OptionType = 2, NameAr = "كبير (L)", NameEn = "Size L", SortOrder = 2, IsActive = true },
 
                         new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "طباعة جهة واحدة", NameEn = "Front Print", SortOrder = 1, IsActive = true },
-                        new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "طباعة جهتين", NameEn = "Front & Back", SortOrder = 2, IsActive = true }
+                        new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "طباعة جهتين", NameEn = "Front & Back", SortOrder = 2, IsActive = true },
+                        new ProductOption { ProductId = prod.Id, OptionType = 3, NameAr = "بدون طباعه", NameEn = "No Print", SortOrder = 3, IsActive = true },
+
                     });
                 }
                 else

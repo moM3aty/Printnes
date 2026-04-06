@@ -85,6 +85,7 @@ namespace Printnes.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product, IFormFile coverImageFile)
         {
+            ModelState.Remove("CoverImageUrl");
             if (ModelState.IsValid)
             {
                 if (coverImageFile != null && coverImageFile.Length > 0)
@@ -148,7 +149,7 @@ namespace Printnes.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, Product product, IFormFile coverImageFile)
         {
             if (id != product.Id) return NotFound();
-
+            ModelState.Remove("CoverImageUrl");
             if (ModelState.IsValid)
             {
                 if (coverImageFile != null && coverImageFile.Length > 0)

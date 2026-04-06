@@ -1,6 +1,7 @@
 ﻿<!-- الملف: Views/Shared/_Layout.cshtml -->
 @using Printnes.Data
 @using Microsoft.EntityFrameworkCore
+@using Printnes.Helpers
 @inject ApplicationDbContext DbContext
 
 @{
@@ -8,6 +9,9 @@
         .Where(c => c.IsActive)
         .OrderBy(c => c.SortOrder)
         .ToListAsync();
+
+    // جلب إعدادات المتجر الديناميكية
+    var siteSettings = SiteSettingsManager.LoadSettings();
 
     // التحقق من حالة تسجيل الدخول
     bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
@@ -19,11 +23,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] | برنتس للطباعة والمطبوعات</title>
+    <title>@ViewData["Title"] | @siteSettings.StoreName</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="~/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" rel="icon" type="image/x-icon" />
 
     <style>
         .menu-promo-item {
@@ -72,10 +77,11 @@
         <div class="container header-content">
             <div class="brand-area">
                 <div class="logo-and-text" onclick="location.href='/'" style="cursor: pointer;">
-                    <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes" class="logo-img">
+                    <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="@siteSettings.StoreName" class="logo-img">
                     <div class="brand-text">
-                        <h1>Printnes</h1>
-                        <span>للطباعة والمطبوعات</span>
+                        <!-- اسم المتجر ديناميكي -->
+                        <h1 style="font-size: 22px;">@siteSettings.StoreName.Split(' ')[0]</h1>
+                        <span>@siteSettings.StoreName</span>
                     </div>
                 </div>
                 <button class="menu-toggle-btn" onclick="openSideMenu()"><i class="fas fa-bars"></i></button>
@@ -131,7 +137,7 @@
             <img id="toast-product-img" src="" alt="">
             <div class="toast-info">
                 <h4 id="toast-product-name">اسم المنتج</h4>
-                <span class="toast-price" id="toast-price-container"><span id="toast-product-price">0</span> ر.س</span>
+                <span class="toast-price" id="toast-price-container"><span id="toast-product-price">0</span> @siteSettings.Currency</span>
             </div>
         </div>
         <div class="toast-footer" id="toast-footer">
@@ -147,8 +153,8 @@
     <aside id="side-menu" class="side-menu shadow-lg">
         <div class="menu-header">
             <div class="brand-small">
-                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes">
-                <span>برنتس</span>
+                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="@siteSettings.StoreName">
+                <span>@siteSettings.StoreName.Split(' ')[0]</span>
             </div>
             <button class="close-menu-btn" onclick="closeSideMenu()">&times;</button>
         </div>
@@ -200,13 +206,27 @@
     <footer class="main-footer">
         <div class="container footer-inner">
             <div class="footer-col brand-col">
-                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes" class="footer-logo">
+                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="@siteSettings.StoreName" class="footer-logo">
                 <p class="footer-desc">
-                    PRINTNES مؤسسة سعودية معرّفه في وزارة التجارة "معروف" متخصصين في تصنيع المطبوعات وتقديم خدمات التصميم الفريدة والمتميزة
+                    @siteSettings.StoreDescription
                 </p>
                 <div class="footer-socials">
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                    @if (!string.IsNullOrEmpty(siteSettings.InstagramUrl))
+                    {
+                        <a href="@siteSettings.InstagramUrl" target="_blank"><i class="fab fa-instagram"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(siteSettings.TiktokUrl))
+                    {
+                        <a href="@siteSettings.TiktokUrl" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(siteSettings.FacebookUrl))
+                    {
+                        <a href="@siteSettings.FacebookUrl" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    }
+                    @if (!string.IsNullOrEmpty(siteSettings.TwitterUrl))
+                    {
+                        <a href="@siteSettings.TwitterUrl" target="_blank"><i class="fab fa-twitter"></i></a>
+                    }
                 </div>
             </div>
 
@@ -223,12 +243,12 @@
             <div class="footer-col contact-col">
                 <h3>تواصل معنا</h3>
                 <div class="contact-item">
-                    <i class="fab fa-whatsapp"></i>
-                    <a href="tel:+966554804857" dir="ltr">+966554804857</a>
+                    <i class="fas fa-phone-alt"></i>
+                    <a href="tel:@siteSettings.ContactPhone" dir="ltr">@siteSettings.ContactPhone</a>
                 </div>
                 <div class="contact-item">
                     <i class="far fa-envelope"></i>
-                    <a href="mailto:support@printnes.co">support@printnes.co</a>
+                    <a href="mailto:@siteSettings.ContactEmail">@siteSettings.ContactEmail</a>
                 </div>
             </div>
         </div>
@@ -241,15 +261,15 @@
                     <span class="tabby-tamara">Tabby | Tamara</span>
                 </div>
                 <div class="tax-info">الرقم الضريبي : <span>310595349100003</span></div>
-                <div class="copyright">الحقوق محفوظة @DateTime.Now.Year | <a href="/">Printnes</a></div>
-                <div class="copyright">تصميم وتطوير <a href="https://gmtweb.online/">GMTWEB</a></div>
+                <div class="copyright">الحقوق محفوظة @DateTime.Now.Year | <a href="/">@siteSettings.StoreName.Split(' ')[0]</a></div>
+                <div class="copyright">تصميم وتطوير <a href="https://gmtweb.online/" style="color:var(--orange);">GMTWEB</a></div>
             </div>
         </div>
     </footer>
 
-    <!-- واتساب العائم -->
+    <!-- واتساب العائم الديناميكي -->
     <div class="whatsapp-fixed">
-        <a href="https://wa.me/966554804857" target="_blank" class="wa-icon"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://wa.me/@(siteSettings.WhatsappNumber?.Replace("+", ""))" target="_blank" class="wa-icon"><i class="fab fa-whatsapp"></i></a>
         <div class="wa-tooltip">راسلنا على الواتساب</div>
     </div>
 
