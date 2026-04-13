@@ -323,6 +323,50 @@ namespace Printnes.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Printnes.Models.CustomDesign", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CanvasJsonData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ColorHex")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("EstimatedPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Height")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Length")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PreviewImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Width")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CustomDesigns");
+                });
+
             modelBuilder.Entity("Printnes.Models.Order", b =>
                 {
                     b.Property<int>("Id")

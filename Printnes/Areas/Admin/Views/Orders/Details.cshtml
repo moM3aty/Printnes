@@ -5,6 +5,273 @@
     ViewData["Title"] = "تفاصيل الطلب " + Model.OrderNumber;
 }
 
+<style>
+    /* ==========================================
+           تنسيقات نافذة استخراج ملفات الطباعة (Premium)
+           ========================================== */
+    .design-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(12px);
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+        .design-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+    .design-modal-box {
+        background: #f8fafc;
+        width: 98%;
+        max-width: 1200px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+        transform: scale(0.95) translateY(20px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        max-height: 95vh;
+    }
+
+    .design-modal-overlay.active .design-modal-box {
+        transform: scale(1) translateY(0);
+    }
+
+    .dm-header {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: #fff;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        flex-shrink: 0;
+    }
+
+        .dm-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+    .dm-header-badge {
+        background: rgba(56, 189, 248, 0.15);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        color: #38bdf8;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .dm-close {
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: #cbd5e1;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .dm-close:hover {
+            background: rgba(239,68,68,0.2);
+            color: #f87171;
+            transform: rotate(90deg);
+        }
+
+    .dm-body {
+        padding: 30px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    /* Stats Row */
+    .dm-stats-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .dm-stat-card {
+        flex: 1;
+        min-width: 200px;
+        background: #fff;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .dm-stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .dm-stat-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .dm-stat-info p {
+        margin: 0;
+        font-size: 16px;
+        color: #0f172a;
+        font-weight: 900;
+    }
+
+    /* Faces Grid for Printing */
+    .dm-section-title {
+        font-size: 18px;
+        font-weight: 900;
+        color: #1e293b;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dm-faces-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+
+    .dm-face-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dm-face-header {
+        padding: 15px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dm-face-title {
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dm-face-dim {
+        font-size: 11px;
+        font-weight: 700;
+        color: #007aff;
+        background: #eff6ff;
+        padding: 4px 10px;
+        border-radius: 20px;
+        border: 1px dashed #007aff;
+    }
+
+    .dm-face-canvas-wrap {
+        padding: 20px;
+        background: repeating-conic-gradient(#f1f5f9 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+        background-color: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 250px;
+    }
+
+    .dm-face-canvas-inner {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+
+    .dm-face-footer {
+        padding: 15px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .dm-btn-download {
+        width: 100%;
+        background: #007aff;
+        color: #fff;
+        border: none;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .dm-btn-download:hover {
+            background: #0062cc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,122,255,0.3);
+        }
+
+    /* Loader */
+    .dm-loader-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px;
+        color: #64748b;
+    }
+
+        .dm-loader-wrap i {
+            font-size: 40px;
+            color: #007aff;
+            margin-bottom: 20px;
+        }
+
+        .dm-loader-wrap h2 {
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+</style>
+
 <div class="page-header">
     <h1 class="page-title">
         <i class="fas fa-file-invoice"></i>
@@ -21,16 +288,8 @@
     </div>
 }
 
-<!-- إعادة توجيه للواتساب إذا تم طلبه -->
-@if (TempData["WhatsAppUrl"] != null)
-{
-    <script>
-        window.open('@Html.Raw(TempData["WhatsAppUrl"])', '_blank');
-    </script>
-}
-
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 28px;">
-    <!-- الجانب الأيمن: عناصر الطلب والتاريخ -->
+    <!-- الجانب الأيمن: عناصر الطلب -->
     <div style="display: flex; flex-direction: column; gap: 28px;">
 
         <!-- كروت ملخص سريع -->
@@ -58,94 +317,67 @@
         <!-- عناصر الطلب -->
         <div class="table-container">
             <div class="table-header">
-                <h3>
-                    <i class="fas fa-box-open" style="color: var(--primary-color);"></i>
-                    عناصر الطلب
-                </h3>
-                <form asp-action="SendToWhatsApp" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                    <button type="submit" class="btn-outline btn-sm" style="color: #25d366; border-color: #25d366;">
-                        <i class="fab fa-whatsapp"></i> إرسال للواتساب
-                    </button>
-                </form>
+                <h3><i class="fas fa-box-open" style="color: var(--primary-color);"></i> عناصر الطلب</h3>
             </div>
             <div class="table-responsive">
                 <table class="premium-table">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>المنتج</th>
                             <th style="min-width: 250px;">الخيارات والمقاسات</th>
                             <th>الكمية</th>
-                            <th>سعر الوحدة</th>
                             <th>الإجمالي</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (Model.OrderItems != null)
                         {
-                            int idx = 1;
                             foreach (var item in Model.OrderItems)
                             {
                                 <tr>
-                                    <td style="color: var(--text-muted);">@idx</td>
                                     <td>
                                         <strong style="color: var(--text-main); font-size: 14px;">@item.ProductName</strong>
-                                        @if (item.Product != null)
-                                        {
-                                            <br>
-                                            <small style="color: var(--text-muted); background: #f8fafc; padding: 2px 6px; border-radius: 4px; font-family: monospace;">SKU: @item.Product.Slug</small>
-                                        }
                                     </td>
                                     <td>
                                         @if (!string.IsNullOrEmpty(item.SelectedOptionsJson))
                                         {
-                                            try
+                                            bool is3DDesign = item.ProductName.Contains("تصميم") || item.ProductName.Contains("3D") || item.ProductName.Contains("مخصص");
+
+                                            if (is3DDesign)
                                             {
-                                                // تحويل الـ JSON إلى Dictionary لعرضه بشكل أنيق
-                                                var details = JsonSerializer.Deserialize<Dictionary<string, string>>(item.SelectedOptionsJson);
-                                                if (details != null && details.Count > 0)
+                                                <button type="button" onclick="openPrintExtractionModal('@Html.Raw(Uri.EscapeDataString(item.SelectedOptionsJson))', '@item.ProductName.Replace("'", "\\'")')" class="btn-premium btn-sm" style="background: linear-gradient(135deg, #007aff, #0052cc); border: none; padding: 12px 15px; border-radius: 10px; width: 100%; justify-content: center; font-size: 13px; box-shadow: 0 4px 15px rgba(0,122,255,0.3);">
+                                                    <i class="fas fa-print" style="font-size: 16px;"></i> استخراج ملفات الطباعة (3D)
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                try
                                                 {
-                                                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
-                                                        @foreach (var kvp in details)
-                                                        {
-                                                            if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
-
-                                                            // ترجمة المفاتيح الإنجليزية إلى مسميات عربية للوحة التحكم
-                                                            string labelName = kvp.Key switch
+                                                    var details = JsonSerializer.Deserialize<Dictionary<string, string>>(item.SelectedOptionsJson);
+                                                    if (details != null && details.Count > 0)
+                                                    {
+                                                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
+                                                            @foreach (var kvp in details)
                                                             {
-                                                                "paperType" => "الورق",
-                                                                "sides" => "الأوجه",
-                                                                "design" => "المقاس",
-                                                                "cover" => "التشطيب",
-                                                                _ => kvp.Key
-                                                            };
-
-                                                            <div style="background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; line-height: 1.5;">
-                                                                <strong style="color: var(--orange);">@labelName:</strong>
-                                                                <span style="color: var(--navy); font-weight: 600;">@kvp.Value</span>
-                                                            </div>
-                                                        }
-                                                    </div>
+                                                                if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
+                                                                <div style="background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; line-height: 1.5;">
+                                                                    <strong style="color: var(--orange);">@kvp.Key:</strong>
+                                                                    <span style="color: var(--navy); font-weight: 600;">@kvp.Value</span>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                }
+                                                catch
+                                                {
+                                                    <span style="font-size: 12px; color: var(--text-secondary);">@item.SelectedOptionsJson</span>
                                                 }
                                             }
-                                            catch
-                                            {
-                                                // في حال فشل التحويل (Fallback)
-                                                <span style="font-size: 12px; color: var(--text-secondary);">@item.SelectedOptionsJson</span>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <span style="color: var(--text-muted); font-size: 13px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">بدون خيارات إضافية</span>
                                         }
                                     </td>
-                                    <td>
-                                        <span class="badge badge-neutral" style="font-size: 14px;">@item.Quantity</span>
-                                    </td>
-                                    <td style="color: var(--text-secondary);">@item.CalculatedUnitPrice.ToString("N2") ر.س</td>
+                                    <td><span class="badge badge-neutral" style="font-size: 14px;">@item.Quantity</span></td>
                                     <td style="font-weight: 900; color: var(--primary-color); font-size: 15px;">@item.ItemTotal.ToString("N2") ر.س</td>
                                 </tr>
-                                idx++;
                             }
                         }
                     </tbody>
@@ -168,67 +400,16 @@
                     <span style="color: var(--text-secondary);">تكلفة الشحن</span>
                     <strong>@Model.ShippingCost.ToString("N2") ر.س</strong>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
-                    <span style="color: var(--text-secondary);">الضريبة المضافة</span>
-                    <strong>@Model.TaxAmount.ToString("N2") ر.س</strong>
-                </div>
                 <div style="display: flex; justify-content: space-between; padding: 16px; background: var(--primary-light); border-radius: var(--radius-sm); border: 1px dashed var(--primary-color);">
                     <span style="font-weight: 900; color: var(--primary-color); font-size: 16px;">الإجمالي النهائي</span>
                     <strong style="color: var(--primary-color); font-size: 22px;">@Model.TotalAmount.ToString("N2") <small style="font-size: 14px;">ر.س</small></strong>
                 </div>
             </div>
         </div>
-
-        <!-- سجل حالة الطلب -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3>
-                    <i class="fas fa-history" style="color: var(--purple);"></i>
-                    سجل تحديثات الحالة
-                </h3>
-            </div>
-            @if (Model.OrderStatusHistories != null && Model.OrderStatusHistories.Any())
-            {
-                <div style="padding: 20px;">
-                    @foreach (var hist in Model.OrderStatusHistories.OrderByDescending(h => h.CreatedAt))
-                    {
-                        <div style="display: flex; gap: 16px; margin-bottom: 20px; position: relative;">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--info-bg); color: var(--info); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px;">
-                                <i class="fas fa-exchange-alt"></i>
-                            </div>
-                            <div style="flex: 1; padding-bottom: 16px; border-bottom: 1px solid var(--border-light);">
-                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                                    <span style="font-weight: 700; color: var(--text-main); font-size: 14px;">
-                                        تم التغيير بواسطة: @hist.ChangedBy
-                                    </span>
-                                    <span style="font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
-                                        @hist.CreatedAt.ToString("yyyy-MM-dd hh:mm tt")
-                                    </span>
-                                </div>
-                                @if (!string.IsNullOrEmpty(hist.Note))
-                                {
-                                    <p style="margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); background: #f8fafc; padding: 10px 14px; border-radius: 8px; border-right: 3px solid var(--info);">
-                                        @hist.Note
-                                    </p>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div style="padding: 40px; text-align: center; color: var(--text-muted);">
-                    <i class="fas fa-history" style="font-size: 32px; margin-bottom: 10px; opacity: 0.3;"></i>
-                    <p>لا توجد تحديثات مسجلة حتى الآن</p>
-                </div>
-            }
-        </div>
     </div>
 
-    <!-- الجانب الأيسر: معلومات العميل وتحديث الحالة -->
+    <!-- الجانب الأيسر: معلومات العميل -->
     <div style="display: flex; flex-direction: column; gap: 28px;">
-        <!-- معلومات العميل -->
         <div class="premium-card" style="padding: 24px;">
             <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
                 <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--primary-light); color: var(--primary-color); display: flex; align-items: center; justify-content: center;">
@@ -239,95 +420,235 @@
 
             <div style="display: flex; flex-direction: column; gap: 14px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-user" style="margin-left: 6px;"></i> الاسم</span>
+                    <span style="color: var(--text-muted); font-size: 13px;">الاسم</span>
                     <strong style="color: var(--text-main);">@Model.CustomerName</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-phone" style="margin-left: 6px;"></i> الجوال</span>
+                    <span style="color: var(--text-muted); font-size: 13px;">الجوال</span>
                     <a href="tel:@Model.CustomerPhone" style="color: var(--info); font-weight: 700;" dir="ltr">@Model.CustomerPhone</a>
                 </div>
-                @if (!string.IsNullOrEmpty(Model.CustomerEmail))
-                {
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: var(--text-muted); font-size: 13px;"><i class="fas fa-envelope" style="margin-left: 6px;"></i> الإيميل</span>
-                        <a href="mailto:@Model.CustomerEmail" style="color: var(--info); font-weight: 700; font-size: 13px;">@Model.CustomerEmail</a>
-                    </div>
-                }
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0;">
-                    <div style="font-size: 12px; color: var(--orange); margin-bottom: 8px; font-weight: bold;"><i class="fas fa-map-marker-alt" style="margin-left: 6px;"></i> عنوان التوصيل</div>
+                    <div style="font-size: 12px; color: var(--orange); margin-bottom: 8px; font-weight: bold;"><i class="fas fa-map-marker-alt"></i> عنوان التوصيل</div>
                     <div style="font-size: 14px; color: var(--navy); line-height: 1.8; font-weight: 600;">
                         @Model.City - @Model.District<br>
                         <span style="color: var(--text-secondary); font-weight: normal;">@Model.Address</span>
                     </div>
                 </div>
-
-                <a href="https://wa.me/@(Model.CustomerPhone?.Replace(" ", "").Replace("+", ""))" target="_blank"
-                   class="btn-premium btn-sm" style="width: 100%; justify-content: center; background: #25d366; color: #fff; border: none; margin-top: 8px;">
-                    <i class="fab fa-whatsapp" style="font-size: 16px;"></i> تواصل عبر الواتساب
-                </a>
             </div>
-        </div>
-
-        <!-- تحديث الحالة -->
-        <div class="premium-card" style="padding: 24px;">
-            <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--warning-bg); color: var(--warning); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-sync-alt"></i>
-                </div>
-                تحديث الحالة
-            </h3>
-
-            <form asp-action="UpdateStatus" method="post" style="display: flex; flex-direction: column; gap: 16px;">
-                <input type="hidden" name="id" value="@Model.Id" />
-
-                <div class="form-group" style="margin: 0;">
-                    <label class="form-label">الحالة الحالية / الجديدة</label>
-                    <select name="newStatus" class="form-control" style="font-weight: bold; color: var(--navy);">
-                        <option value="1" selected="@(Model.OrderStatus == 1)">📋 بانتظار المراجعة (جديد)</option>
-                        <option value="2" selected="@(Model.OrderStatus == 2)">🔍 قيد المراجعة والتصميم</option>
-                        <option value="3" selected="@(Model.OrderStatus == 3)">🖨️ جاري الطباعة والتجهيز</option>
-                        <option value="4" selected="@(Model.OrderStatus == 4)">🚚 تم الشحن / التوصيل</option>
-                        <option value="5" selected="@(Model.OrderStatus == 5)">✅ مكتمل تماماً</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin: 0;">
-                    <label class="form-label">ملاحظة (للإدارة أو للعميل)</label>
-                    <textarea name="note" rows="3" class="form-control" placeholder="اكتب ملاحظة حول سبب التحديث..." style="resize: vertical;"></textarea>
-                </div>
-
-                <label class="form-check" style="padding: 12px; background: #ecfdf5; border-radius: var(--radius-sm); border: 1px solid #a7f3d0; cursor: pointer;">
-                    <input type="checkbox" name="sendWhatsApp" value="true" style="accent-color: #10b981; width: 18px; height: 18px;" />
-                    <span style="font-weight: 700; color: #065f46; font-size: 13px;">
-                        <i class="fab fa-whatsapp" style="margin-left: 6px; color: #25d366;"></i>
-                        إرسال إشعار آلي للعميل عبر الواتساب
-                    </span>
-                </label>
-
-                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center; font-size: 15px; padding: 14px;">
-                    <i class="fas fa-save"></i> حفظ وتحديث الحالة
-                </button>
-            </form>
-        </div>
-
-        <!-- ملاحظات إضافية من العميل -->
-        <div class="premium-card" style="padding: 24px;">
-            <h3 style="margin: 0 0 15px; font-size: 16px; font-weight: 800; color: var(--text-main);">
-                <i class="fas fa-sticky-note" style="color: var(--warning); margin-left: 8px;"></i>
-                ملاحظات من العميل للطباعة
-            </h3>
-            @if (!string.IsNullOrEmpty(Model.Notes))
-            {
-                <div style="font-size: 14px; color: var(--navy); line-height: 1.8; background: #fffbeb; padding: 16px; border-radius: 8px; border-right: 4px solid var(--warning); font-weight: 600;">
-                    @Model.Notes
-                </div>
-            }
-            else
-            {
-                <div style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                    لا توجد ملاحظات مرفقة مع الطلب
-                </div>
-            }
         </div>
     </div>
 </div>
+
+<!-- نافذة استخراج ملفات الطباعة (Premium Modal) -->
+<div id="designExtractModal" class="design-modal-overlay">
+    <div class="design-modal-box">
+        <div class="dm-header">
+            <h3>
+                <div style="width:36px; height:36px; background:#fff; color:#0f172a; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                    <i class="fas fa-print"></i>
+                </div>
+                استخراج ملفات الطباعة
+                <span class="dm-header-badge">Production Ready</span>
+            </h3>
+            <button class="dm-close" onclick="closePrintExtractionModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="dm-body" id="dm-content">
+            <!-- سيتم حقن المحتوى من الجافاسكريبت هنا -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- إضافة مكتبة Fabric.js لرسم الـ JSON الخاص بالتصميم في لوحة الإدارة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+    <script>
+        // تعريف الأوجه المتاحة وأسمائها
+        const FACES_CONFIG = {
+            'top': { label: 'الوجه العلوي', icon: 'fa-arrow-up' },
+            'bottom': { label: 'القاعدة (أسفل)', icon: 'fa-arrow-down' },
+            'front': { label: 'الوجه الأمامي', icon: 'fa-bullseye' },
+            'back': { label: 'الوجه الخلفي', icon: 'fa-reply' },
+            'left': { label: 'الجانب الأيسر', icon: 'fa-caret-left' },
+            'right': { label: 'الجانب الأيمن', icon: 'fa-caret-right' }
+        };
+
+        // كائن لحفظ مراجع الكانفاس لتصدير الصور
+        let printCanvases = {};
+
+        async function openPrintExtractionModal(encodedJson, productName) {
+            const contentDiv = document.getElementById('dm-content');
+            document.getElementById('designExtractModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            contentDiv.innerHTML = `
+                <div class="dm-loader-wrap">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <h2>جاري جلب ملفات التصميم من السيرفر...</h2>
+                    <p>يرجى الانتظار لحين معالجة البيانات عالية الدقة</p>
+                </div>
+            `;
+
+            try {
+                // 1. استخراج الـ ID الخاص بالتصميم من الـ JSON المخزن في الطلب
+                const jsonStr = decodeURIComponent(encodedJson.replace(/\+/g, '%20'));
+                const details = JSON.parse(jsonStr);
+
+                // البحث عن كلمة "مرجع: #رقم"
+                const designRefStr = details.sides || details.Sides || details['معرف التصميم'] || '';
+                const match = designRefStr.match(/#(\d+)/);
+
+                if (!match) {
+                    throw new Error("لم يتم العثور على معرف التصميم (ID). قد يكون الطلب قديماً.");
+                }
+
+                const designId = match[1];
+
+                // 2. جلب التصميم الكامل من الـ API الذي برمجناه في StudioController
+                const response = await fetch(`/Studio/GetDesignData?id=${designId}`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || "فشل جلب البيانات من السيرفر.");
+                }
+
+                const dbDesign = result.data;
+                const canvasJsonData = JSON.parse(dbDesign.canvasJsonData);
+
+                // 3. بناء واجهة العرض (HTML) مع إضافة زر الفتح في الستوديو
+                let html = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <div class="dm-section-title" style="margin:0;">
+                            <i class="fas fa-print" style="color: #007aff;"></i> ملفات الطباعة لكل وجه
+                        </div>
+                        <a href="/Studio?designId=${designId}" target="_blank" class="btn-premium btn-sm" style="background:#161f31; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; display:flex; gap:8px; align-items:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <i class="fas fa-external-link-alt"></i> فتح ومراجعة في الـ Studio
+                        </a>
+                    </div>
+
+                    <div class="dm-stats-row">
+                        <div class="dm-stat-card">
+                            <div class="dm-stat-icon" style="background: #eff6ff; color: #007aff;"><i class="fas fa-box"></i></div>
+                            <div class="dm-stat-info">
+                                <h4>نوع ومقاس الهيكل</h4>
+                                <p dir="ltr">${dbDesign.length}x${dbDesign.width}x${dbDesign.height} cm</p>
+                            </div>
+                        </div>
+                        <div class="dm-stat-card">
+                            <div class="dm-stat-icon" style="background: #fffbeb; color: #d97706;"><i class="fas fa-palette"></i></div>
+                            <div class="dm-stat-info">
+                                <h4>لون الخلفية (Base)</h4>
+                                <p style="display:flex; align-items:center; gap:8px;">
+                                    <span style="width:20px; height:20px; border-radius:4px; border:1px solid #ccc; background:${dbDesign.colorHex};"></span>
+                                    <span dir="ltr">${dbDesign.colorHex}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dm-faces-grid">
+                `;
+
+                // إنشاء الدقة المتطابقة تماماً مع الستوديو (لكي يتم رسم العناصر في مكانها الصحيح)
+                const PPU = 80;
+
+                // إنشاء أماكن للكانفاس بناءً على الأوجه المتاحة في الـ JSON
+                for (const faceKey in FACES_CONFIG) {
+                    if (canvasJsonData[faceKey]) {
+                        // تحديد الأبعاد الحقيقية بناءً على الكرتون
+                        let faceW = 0, faceH = 0;
+                        if (faceKey === 'top' || faceKey === 'bottom') { faceW = dbDesign.length; faceH = dbDesign.width; }
+                        else if (faceKey === 'front' || faceKey === 'back') { faceW = dbDesign.length; faceH = dbDesign.height; }
+                        else { faceW = dbDesign.width; faceH = dbDesign.height; }
+
+                        html += `
+                            <div class="dm-face-card">
+                                <div class="dm-face-header">
+                                    <span class="dm-face-title"><i class="fas ${FACES_CONFIG[faceKey].icon}"></i> ${FACES_CONFIG[faceKey].label}</span>
+                                    <span class="dm-face-dim" dir="ltr">${faceW} x ${faceH} cm</span>
+                                </div>
+                              
+                            </div>
+                        `;
+                    }
+                }
+
+                html += `</div>`;
+                contentDiv.innerHTML = html;
+
+                // 4. حقن بيانات الـ JSON في الـ Canvases وإصلاح الإحداثيات والصور
+                printCanvases = {};
+                for (const faceKey in FACES_CONFIG) {
+                    if (canvasJsonData[faceKey]) {
+                        const canvasEl = document.getElementById(`admin-canvas-${faceKey}`);
+
+                        let faceW = 0, faceH = 0;
+                        if (faceKey === 'top' || faceKey === 'bottom') { faceW = dbDesign.length; faceH = dbDesign.width; }
+                        else if (faceKey === 'front' || faceKey === 'back') { faceW = dbDesign.length; faceH = dbDesign.height; }
+                        else { faceW = dbDesign.width; faceH = dbDesign.height; }
+
+                        // إجبار الكانفاس على استخدام الأبعاد الداخلية العالية الجودة قبل تحميل الـ JSON
+                        const realW = faceW * PPU;
+                        const realH = faceH * PPU;
+
+                        const fCanvas = new fabric.StaticCanvas(canvasEl, {
+                            width: realW,
+                            height: realH
+                        });
+                        printCanvases[faceKey] = fCanvas;
+
+                        // تحميل الـ JSON (سيتم الآن وضع العناصر في أماكنها الحقيقية!)
+                        fCanvas.loadFromJSON(canvasJsonData[faceKey], function() {
+
+                            // تصغير الكانفاس "شكلياً فقط" باستخدام الـ CSS ليتناسب مع الكارت
+                            const maxDisplayW = 280;
+                            const maxDisplayH = 200;
+                            const scale = Math.min(maxDisplayW / realW, maxDisplayH / realH);
+
+                            fCanvas.setDimensions({ width: realW * scale, height: realH * scale }, { cssOnly: true });
+                            fCanvas.renderAll();
+                        });
+                    }
+                }
+
+            } catch (e) {
+                console.error("Error Loading Print Files:", e);
+                contentDiv.innerHTML = `
+                    <div style="background:#fef2f2; color:#ef4444; padding:30px; border-radius:16px; border:1px solid #fecaca; text-align:center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:40px; margin-bottom:15px;"></i>
+                        <h3 style="margin:0 0 10px 0; font-weight:900;">حدث خطأ في استخراج الملفات</h3>
+                        <p style="margin:0; font-weight:600;">${e.message}</p>
+                        <p style="margin:10px 0 0 0; font-size:12px; color:#991b1b;">التصميم القديم المحفوظ قبل هذا التحديث لا يحتوي على الملفات الهندسية.</p>
+                    </div>`;
+            }
+        }
+
+        // دالة تحميل الصورة بدقة عالية للماكينات
+        function downloadFaceImage(faceKey, productName) {
+            const canvas = printCanvases[faceKey];
+            if (!canvas) return;
+
+            // استخراج الصورة بجودتها الداخلية الأصلية والمضاعفة x2 لمزيد من الدقة (Print Quality)
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                multiplier: 2
+            });
+
+            const link = document.createElement('a');
+            link.download = `Printnes_${productName}_${faceKey}_HighRes.png`;
+            link.href = dataURL;
+            link.click();
+        }
+
+        function closePrintExtractionModal() {
+            document.getElementById('designExtractModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            // مسح الذاكرة
+            printCanvases = {};
+        }
+
+        // إغلاق المودال عند الضغط خارجه
+        document.getElementById('designExtractModal').addEventListener('click', function(e) {
+            if (e.target === this) closePrintExtractionModal();
+        });
+    </script>
+}

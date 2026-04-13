@@ -1,0 +1,1748 @@
+﻿<!-- الملف: Views/Studio/Index.cshtml -->
+@{
+    ViewData["Title"] = "ستوديو التصميم الاحترافي | Printnes 3D";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" rel="icon" type="image/x-icon" />
+
+    <style>
+        /* ==========================================
+                   Global Premium Reset & Variables
+                   ========================================== */
+        :root {
+            --pw-bg: #1a202c;
+            --pw-panel: rgba(255, 255, 255, 0.98);
+            --pw-blue: #0066ff;
+            --pw-blue-hover: #0052cc;
+            --pw-gradient: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
+            --pw-text: #1e293b;
+            --pw-text-light: #64748b;
+            --pw-border: #e2e8f0;
+            --pw-light: #f8fafc;
+            --pw-danger: #ef4444;
+            --pw-success: #10b981;
+            --shadow-soft: 0 10px 40px rgba(0,0,0,0.1);
+            --shadow-panel: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Cairo', sans-serif;
+            background: var(--pw-bg);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--pw-text);
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            transition: opacity 0.8s ease;
+        }
+
+        .loader-cube {
+            width: 60px;
+            height: 60px;
+            background: var(--pw-gradient);
+            border-radius: 12px;
+            animation: spinCube 2s infinite ease-in-out;
+            box-shadow: 0 0 40px rgba(0, 102, 255, 0.4);
+        }
+        @@keyframes spinCube {
+            0%
+
+        {
+            transform: perspective(200px) rotateX(0deg) rotateY(0deg);
+        }
+
+        50% {
+            transform: perspective(200px) rotateX(-180deg) rotateY(0deg);
+        }
+
+        100% {
+            transform: perspective(200px) rotateX(-180deg) rotateY(-180deg);
+        }
+
+        }
+
+        /* --- Top Bar --- */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 20;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .logo-area:hover {
+                opacity: 0.8;
+            }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #fff;
+            border-radius: 10px;
+            color: var(--pw-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .logo-text {
+            color: #fff;
+            font-weight: 900;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .top-actions {
+            pointer-events: auto;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .top-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: 0.2s;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+            .top-link:hover {
+                background: rgba(255,255,255,0.2);
+                transform: translateY(-1px);
+            }
+
+        /* --- Workspace --- */
+        .workspace {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #three-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* --- Floating Panels --- */
+        .floating-panel {
+            position: absolute;
+            top: 80px;
+            background: var(--pw-panel);
+            border-radius: 16px;
+            box-shadow: var(--shadow-panel);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            max-height: calc(100vh - 100px);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .panel-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--pw-border);
+            font-weight: 800;
+            color: var(--pw-text);
+            font-size: 15px;
+            text-align: center;
+            background: #fdfdfd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+            .panel-header i {
+                color: var(--pw-blue);
+                font-size: 16px;
+            }
+
+        .panel-body {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+
+            .panel-body::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .panel-body::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+        /* --- Right Panel (Settings) --- */
+        .right-panel {
+            right: 20px;
+            width: 320px;
+        }
+
+        .dims-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .dim-box {
+            border: 1px solid var(--pw-border);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+            .dim-box:hover {
+                border-color: var(--pw-blue);
+            }
+
+            .dim-box .pw-label {
+                margin-bottom: 4px;
+                font-size: 10px;
+                text-align: center;
+            }
+
+            .dim-box input {
+                width: 100%;
+                border: none;
+                background: transparent;
+                text-align: center;
+                font-size: 15px;
+                font-weight: 800;
+                color: var(--pw-text);
+                padding: 0;
+            }
+
+        .qty-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--pw-border);
+        }
+
+            .qty-box input {
+                width: 80px;
+                text-align: center;
+                border: 1px solid var(--pw-border);
+                border-radius: 8px;
+                padding: 8px;
+                font-weight: bold;
+                transition: 0.2s;
+            }
+
+                .qty-box input:focus {
+                    border-color: var(--pw-blue);
+                    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+                }
+
+        .price-box {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid var(--pw-border);
+            background: var(--pw-light);
+            margin: 0 -20px -20px;
+            padding: 20px;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .unit-price {
+            font-size: 12px;
+            color: var(--pw-text-light);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .total-price {
+            font-size: 32px;
+            font-weight: 900;
+            background: var(--pw-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* --- Left Panel (Design Editor) --- */
+        .left-panel {
+            left: 20px;
+            width: 420px;
+        }
+
+        .face-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .face-btn {
+            background: #fff;
+            border: 1px solid var(--pw-border);
+            border-radius: 8px;
+            padding: 10px 0;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--pw-text-light);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .face-btn i {
+                font-size: 14px;
+                transition: 0.2s;
+            }
+
+            .face-btn:hover {
+                border-color: var(--pw-blue);
+                color: var(--pw-blue);
+                transform: translateY(-2px);
+            }
+
+            .face-btn.active {
+                background: var(--pw-blue);
+                color: #fff;
+                border-color: var(--pw-blue);
+                box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+            }
+
+        .modern-color-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--pw-border);
+        }
+
+            .modern-color-row span {
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--pw-text);
+            }
+
+        .color-picker-wrap {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            position: relative;
+        }
+
+            .color-picker-wrap input[type="color"] {
+                border: none;
+                padding: 0;
+                width: 150%;
+                height: 150%;
+                transform: translate(-20%, -20%);
+                cursor: pointer;
+                outline: none;
+                background: transparent;
+            }
+
+        /* --- The Artboard --- */
+        .canvas-artboard {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 15px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--pw-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 260px;
+            padding: 15px;
+            position: relative;
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .canvas-wrapper {
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .safe-zone-overlay {
+            position: absolute;
+            border: 2px dashed rgba(0, 102, 255, 0.4);
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+            border-radius: 4px;
+        }
+
+        /* --- Tools & Actions --- */
+        .btn-primary-action {
+            width: 100%;
+            background: var(--pw-gradient);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.2);
+        }
+
+            .btn-primary-action:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 15px 30px rgba(0, 102, 255, 0.3);
+                filter: brightness(1.1);
+            }
+
+        .tools-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-tool {
+            flex: 1;
+            background: #fff;
+            color: var(--pw-text);
+            border: 1px solid var(--pw-border);
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+            .btn-tool:hover {
+                background: var(--pw-light);
+                border-color: var(--pw-blue);
+                color: var(--pw-blue);
+                transform: translateY(-1px);
+            }
+
+            .btn-tool i {
+                color: var(--pw-blue);
+                opacity: 0.7;
+            }
+
+        .elem-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .btn-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: #fff;
+            border: 1px solid var(--pw-border);
+            color: var(--pw-text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+
+            .btn-icon:hover {
+                background: var(--pw-light);
+                color: var(--pw-text);
+                border-color: #cbd5e1;
+                transform: translateY(-1px);
+            }
+
+            .btn-icon.active {
+                background: #e0f2fe;
+                color: var(--pw-blue);
+                border-color: var(--pw-blue);
+            }
+
+            .btn-icon.danger:hover {
+                background: #fef2f2;
+                color: var(--pw-danger);
+                border-color: #fecaca;
+            }
+
+        .properties-panel {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--pw-border);
+            margin-top: 15px;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* --- Bottom Action Bar --- */
+        .bottom-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .pill-btn {
+            background: rgba(255,255,255,0.95);
+            color: var(--pw-text);
+            border: none;
+            padding: 16px 30px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+            .pill-btn:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            }
+
+            .pill-btn.primary {
+                background: var(--pw-gradient);
+                color: #fff;
+                padding: 16px 45px;
+                box-shadow: 0 15px 35px rgba(0, 102, 255, 0.35);
+            }
+
+                .pill-btn.primary:hover {
+                    box-shadow: 0 20px 40px rgba(0, 102, 255, 0.4);
+                }
+
+        /* Box Open/Close Toggle */
+        .box-toggle-btn {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--pw-blue);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 20;
+            transition: 0.3s;
+        }
+
+            .box-toggle-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            }
+
+        /* General UI Classes */
+        .pw-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--pw-text-light);
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .pw-select, .pw-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--pw-border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--pw-text);
+            outline: none;
+            transition: 0.2s;
+            background: #fff;
+        }
+
+        .pw-select {
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            background-size: 14px;
+        }
+
+            .pw-select:focus, .pw-input:focus {
+                border-color: var(--pw-blue);
+                box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+            }
+
+        @@media (max-width: 1000px) {
+            .workspace
+
+        {
+            flex-direction: column;
+            overflow-y: auto;
+            padding-top: 60px;
+            pointer-events: auto;
+        }
+
+        #three-container {
+            position: relative;
+            height: 400px;
+            flex-shrink: 0;
+        }
+
+        .floating-panel {
+            position: relative;
+            top: 0;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100%;
+            max-height: none;
+            border-radius: 0;
+            box-shadow: none;
+            margin-bottom: 0;
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+
+        .bottom-bar {
+            position: relative;
+            bottom: 0;
+            transform: none;
+            padding: 20px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            justify-content: center;
+        }
+
+        .box-toggle-btn {
+            display: none;
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-cube"></div>
+        <h2 style="font-weight: 900; margin: 25px 0 10px; letter-spacing: -0.5px;">جاري إعداد بيئة العمل</h2>
+        <p style="color: #94a3b8; font-size: 14px;">نجهز لك ستوديو التصميم بأعلى دقة...</p>
+    </div>
+
+    <!-- Top Bar -->
+    <header class="top-bar" dir="ltr">
+        <div class="logo-area" onclick="window.location.href='/'">
+            <div class="logo-icon"><i class="fas fa-cube"></i></div>
+            <div class="logo-text">Printnes Studio</div>
+        </div>
+        <div class="top-actions">
+            <a href="/Cart" class="top-link"><i class="fas fa-shopping-cart"></i> Cart</a>
+            <a href="/" class="top-link"><i class="fas fa-times"></i> Exit</a>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <!-- 3D Environment -->
+        <div id="three-container"></div>
+
+        <!-- Right Panel: Box Settings & Pricing -->
+        <aside class="floating-panel right-panel">
+            <div class="panel-header"><i class="fas fa-sliders-h"></i> إعدادات المنتج والتسعير</div>
+            <div class="panel-body">
+                <div>
+                    <label class="pw-label">نوع الهيكل</label>
+                    <select id="box-type" class="pw-select" onchange="changeBoxType()">
+                        <option value="mailer">كرتون شحن مطبوع (Mailer Box)</option>
+                        <option value="shipping">كرتون شحن عادي (Shipping Box)</option>
+                        <option value="folding">بوكس ورقي خفيف (Folding Carton)</option>
+                        <option value="rigid">بوكس هدايا صلب (Rigid Box)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="pw-label">الأبعاد الداخلية (سم)</label>
+                    <div class="dims-grid">
+                        <div class="dim-box">
+                            <span class="pw-label">الطول L</span>
+                            <input type="number" id="dim-l" value="20" min="5" onchange="updateGeometry()">
+                        </div>
+                        <div class="dim-box">
+                            <span class="pw-label">العرض W</span>
+                            <input type="number" id="dim-w" value="15" min="5" onchange="updateGeometry()">
+                        </div>
+                        <div class="dim-box">
+                            <span class="pw-label">العمق D</span>
+                            <input type="number" id="dim-d" value="8" min="2" onchange="updateGeometry()">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="pw-label">خامة الورق والطباعة</label>
+                    <select id="box-material" class="pw-select" onchange="updateMaterial()">
+                        <option value="white">ورق مقوى أبيض (White Board)</option>
+                        <option value="kraft">ورق كرافت بني (Kraft Brown)</option>
+                        <option value="premium">ورق كوشيه فاخر (Premium Coated)</option>
+                    </select>
+                </div>
+
+                <div class="qty-box">
+                    <span class="pw-label" style="margin:0; font-size: 13px;">الكمية المطلوبة</span>
+                    <input type="number" id="box-qty" value="250" min="50" onchange="calculatePrice()">
+                </div>
+
+                <div class="price-box">
+                    <span class="unit-price" id="unit-price">السعر التقديري للحبة: 0.00 ر.س</span>
+                    <div class="total-price"><span id="price-display">0.00</span> <small style="font-size: 16px; color: #64748b;">ر.س</small></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Left Panel: Design Editor (Advanced Artboard) -->
+        <aside class="floating-panel left-panel">
+            <div class="panel-header"><i class="fas fa-pencil-ruler"></i> محرر التصميم التفاعلي</div>
+            <div class="panel-body" style="padding: 18px;">
+
+                <div class="face-grid">
+                    <button class="face-btn active" data-face="top" onclick="selectFace('top', this)"><i class="fas fa-arrow-up"></i> أعلى</button>
+                    <!-- الوجه الداخلي للغطاء -->
+                    <button class="face-btn" data-face="inside-top" onclick="selectFace('inside-top', this)"><i class="fas fa-box-open" style="color:var(--pw-blue);"></i> داخل الغطاء</button>
+                    <button class="face-btn" data-face="front" onclick="selectFace('front', this)"><i class="fas fa-bullseye"></i> أمام</button>
+                    <button class="face-btn" data-face="bottom" onclick="selectFace('bottom', this)"><i class="fas fa-arrow-down"></i> أسفل</button>
+                    <button class="face-btn" data-face="left" onclick="selectFace('left', this)"><i class="fas fa-caret-left"></i> يسار</button>
+                    <button class="face-btn" data-face="back" onclick="selectFace('back', this)"><i class="fas fa-reply"></i> خلف</button>
+                    <button class="face-btn" data-face="right" onclick="selectFace('right', this)"><i class="fas fa-caret-right"></i> يمين</button>
+                </div>
+
+                <div class="modern-color-row">
+                    <span>لون خلفية الوجه المحدد</span>
+                    <div class="color-picker-wrap">
+                        <input type="color" id="face-bg-color" value="#ffffff" oninput="changeFaceBg()">
+                    </div>
+                </div>
+
+                <!-- Professional Artboard Area -->
+                <div class="canvas-artboard">
+                    <div id="safe-zone" class="safe-zone-overlay"></div>
+                    <!-- Hidden internal canvases -->
+                    <div class="canvas-wrapper" id="wrap-top"><canvas id="canvas-top"></canvas></div>
+                    <div class="canvas-wrapper" id="wrap-inside-top" style="display:none;"><canvas id="canvas-inside-top"></canvas></div>
+                    <div class="canvas-wrapper" id="wrap-bottom" style="display:none;"><canvas id="canvas-bottom"></canvas></div>
+                    <div class="canvas-wrapper" id="wrap-front" style="display:none;"><canvas id="canvas-front"></canvas></div>
+                    <div class="canvas-wrapper" id="wrap-back" style="display:none;"><canvas id="canvas-back"></canvas></div>
+                    <div class="canvas-wrapper" id="wrap-left" style="display:none;"><canvas id="canvas-left"></canvas></div>
+                    <div class="canvas-wrapper" id="wrap-right" style="display:none;"><canvas id="canvas-right"></canvas></div>
+                </div>
+
+                <!-- Properties Panel (Dynamic) -->
+                <div id="obj-props" class="properties-panel" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span class="pw-label" style="margin: 0;">إعدادات العنصر</span>
+                        <span id="opacity-val" style="font-size: 11px; font-weight: bold; color: var(--pw-blue);">100%</span>
+                    </div>
+                    <input type="range" id="obj-opacity" min="0.1" max="1" step="0.05" value="1" oninput="updateObjOpacity()" style="width: 100%; accent-color: var(--pw-blue); margin-bottom: 15px;">
+
+                    <!-- Text Settings -->
+                    <div id="text-props" style="display: none; flex-direction: column; gap: 10px;">
+                        <input type="text" id="obj-text" class="pw-input" placeholder="تعديل النص..." oninput="updateObjText()" style="border: 1px solid var(--pw-border); padding: 8px 12px; border-radius: 8px;">
+                        <div style="display: flex; gap: 8px;">
+                            <select id="obj-font" class="pw-select" style="flex: 2;" onchange="updateObjFont()">
+                                <option value="Cairo">Cairo</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Tahoma">Tahoma</option>
+                            </select>
+                            <div class="color-picker-wrap" style="flex: 1; height: 36px; border-radius: 8px; border: 1px solid var(--pw-border);">
+                                <input type="color" id="obj-color" oninput="updateObjColor()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shape Settings -->
+                    <div id="shape-props" style="display: none;">
+                        <div class="modern-color-row" style="padding: 8px 12px; margin: 0; border-radius: 8px; border: 1px solid var(--pw-border);">
+                            <span>تغيير لون الشكل</span>
+                            <div class="color-picker-wrap" style="width: 28px; height: 28px;">
+                                <input type="color" id="shape-color" oninput="updateShapeColor()">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="elem-controls">
+                    <button class="btn-icon danger" onclick="deleteElement()" title="حذف العنصر"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn-icon" onclick="duplicateElement()" title="تكرار (نسخ)"><i class="fas fa-copy"></i></button>
+                    <button class="btn-icon" onclick="bringToFront()" title="إحضار للأمام"><i class="fas fa-layer-group"></i></button>
+                    <button class="btn-icon" onclick="centerElement()" title="توسيط"><i class="fas fa-compress-arrows-alt"></i></button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                    <button class="btn-primary-action" onclick="document.getElementById('file-upload').click()">
+                        <i class="fas fa-cloud-upload-alt"></i> رفع شعار / صورة
+                    </button>
+                    <input type="file" id="file-upload" style="display: none;" accept="image/*" onchange="uploadImage(event)">
+
+                    <div class="tools-row">
+                        <button class="btn-tool" onclick="addText()"><i class="fas fa-font"></i> نص</button>
+                        <button class="btn-tool" onclick="addShape('rect')"><i class="fas fa-square"></i> مربع</button>
+                        <button class="btn-tool" onclick="addShape('circle')"><i class="fas fa-circle"></i> دائرة</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Box Toggle -->
+        <button class="box-toggle-btn" onclick="toggleBoxOpen()" title="فتح/إغلاق المجسم">
+            <i class="fas fa-box-open" id="toggle-icon"></i>
+        </button>
+
+        <!-- Bottom Actions -->
+        <div class="bottom-bar">
+            <button class="pill-btn" onclick="resetDesign()"><i class="fas fa-sync-alt"></i> إعادة تصميم</button>
+            <button class="pill-btn primary" onclick="addToCart()" id="btn-cart">
+                <i class="fas fa-check-circle"></i> اعتماد التصميم للسلة
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+    <script>
+        /* ==========================================
+           Core State & Variables
+           ========================================== */
+        const FACES = ['top', 'inside-top', 'bottom', 'front', 'back', 'left', 'right']; // أضفنا الوجه الداخلي
+        let activeFace = 'top';
+        let fCanvases = {};
+        let textures = {};
+        let activeObj = null;
+
+        let scene, camera, renderer, controls;
+        let boxGroup, lidGroup, baseGroup;
+        let isBoxOpen = true;
+        const PPU = 80; // دقة اللوحة الداخلية العالية للطباعة والـ 3D
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initFabric();
+            initThree();
+            updateGeometry();
+
+            // Load Existing Design from URL if Present (For Admin Review)
+            const urlParams = new URLSearchParams(window.location.search);
+            const designId = urlParams.get('designId');
+            if (designId) {
+                loadDesignFromDb(designId);
+            }
+
+            // Keyboard support for deletion
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    deleteElement();
+                }
+            });
+
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 800);
+                }
+            }, 1000);
+        });
+
+        /* ==========================================
+           1. Fabric.js (Professional Setup)
+           ========================================== */
+        function initFabric() {
+            // إعدادات احترافية لإطار تحديد العناصر
+            fabric.Object.prototype.transparentCorners = false;
+            fabric.Object.prototype.cornerColor = '#0066ff';
+            fabric.Object.prototype.cornerStrokeColor = '#ffffff';
+            fabric.Object.prototype.borderColor = '#0066ff';
+            fabric.Object.prototype.cornerSize = 14;
+            fabric.Object.prototype.padding = 10;
+            fabric.Object.prototype.cornerStyle = 'circle';
+            fabric.Object.prototype.borderDashArray = [4, 4];
+
+            FACES.forEach(face => {
+                fCanvases[face] = new fabric.Canvas(`canvas-${face}`, {
+                    backgroundColor: '#ffffff',
+                    preserveObjectStacking: true,
+                    selection: false
+                });
+
+                fCanvases[face].on('after:render', () => {
+                    if (textures[face]) textures[face].needsUpdate = true;
+                });
+
+                fCanvases[face].on('selection:created', onObjectSelected);
+                fCanvases[face].on('selection:updated', onObjectSelected);
+                fCanvases[face].on('selection:cleared', () => {
+                    activeObj = null;
+                    document.getElementById('obj-props').style.display = 'none';
+                });
+            });
+        }
+
+        function resizeCanvases() {
+            const dimL = document.getElementById('dim-l');
+            const dimW = document.getElementById('dim-w');
+            const dimD = document.getElementById('dim-d');
+
+            const l = dimL ? parseFloat(dimL.value) || 20 : 20;
+            const w = dimW ? parseFloat(dimW.value) || 15 : 15;
+            const d = dimD ? parseFloat(dimD.value) || 8 : 8;
+
+            const dimensionsMap = {
+                'top': { w: l, h: w }, 'inside-top': { w: l, h: w }, 'bottom': { w: l, h: w },
+                'front': { w: l, h: d }, 'back': { w: l, h: d },
+                'left': { w: w, h: d }, 'right': { w: w, h: d }
+            };
+
+            const maxDisplayW = 320;
+            const maxDisplayH = 240;
+
+            FACES.forEach(face => {
+                if (!fCanvases[face]) return;
+
+                const cvs = fCanvases[face];
+
+                const realW = dimensionsMap[face].w * PPU;
+                const realH = dimensionsMap[face].h * PPU;
+
+                const scale = Math.min(maxDisplayW / realW, maxDisplayH / realH);
+                const cssW = realW * scale;
+                const cssH = realH * scale;
+
+                cvs.setDimensions({ width: realW, height: realH }, { backstoreOnly: true });
+                cvs.setDimensions({ width: cssW, height: cssH }, { cssOnly: true });
+
+                cvs.setZoom(scale);
+
+                const wrapper = document.getElementById(`wrap-${face}`);
+                if (wrapper) {
+                    wrapper.style.width = `${cssW}px`;
+                    wrapper.style.height = `${cssH}px`;
+
+                    const canvasEl = document.querySelector(`#wrap-${face} .canvas-container`);
+                    if(canvasEl) {
+                        canvasEl.style.transform = 'none';
+                    }
+
+                    if (face === activeFace) {
+                        const safeZone = document.getElementById('safe-zone');
+                        if (safeZone) {
+                            safeZone.style.display = 'block';
+                            safeZone.style.width = `${cssW * 0.9}px`;
+                            safeZone.style.height = `${cssH * 0.9}px`;
+                        }
+                    }
+                }
+                cvs.renderAll();
+            });
+        }
+
+        // --- 2D Tools ---
+        function selectFace(face, btnElement) {
+            activeFace = face;
+            document.querySelectorAll('.face-btn').forEach(b => b.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
+
+            FACES.forEach(f => {
+                const wrap = document.getElementById(`wrap-${f}`);
+                if (wrap) wrap.style.display = (f === face) ? 'block' : 'none';
+            });
+
+            const bgColorInput = document.getElementById('face-bg-color');
+            if (bgColorInput && fCanvases[activeFace]) {
+                let bg = fCanvases[activeFace].backgroundColor || '#ffffff';
+                if(bg.length === 4) bg = '#' + bg[1]+bg[1]+bg[2]+bg[2]+bg[3]+bg[3];
+                bgColorInput.value = bg;
+            }
+
+            fCanvases[activeFace].discardActiveObject();
+            fCanvases[activeFace].renderAll();
+            document.getElementById('obj-props').style.display = 'none';
+
+            resizeCanvases();
+        }
+
+        function onObjectSelected(e) {
+            activeObj = e.selected[0];
+            if(!activeObj) return;
+
+            const canvas = fCanvases[activeFace];
+            activeObj.set({
+                cornerSize: 14 / canvas.getZoom(),
+                transparentCorners: false
+            });
+
+            document.getElementById('obj-props').style.display = 'block';
+            document.getElementById('obj-opacity').value = activeObj.opacity || 1;
+            document.getElementById('opacity-val').innerText = Math.round((activeObj.opacity || 1) * 100) + '%';
+
+            const textProps = document.getElementById('text-props');
+            const shapeProps = document.getElementById('shape-props');
+
+            if (activeObj.type === 'i-text' || activeObj.type === 'text') {
+                textProps.style.display = 'flex';
+                shapeProps.style.display = 'none';
+
+                document.getElementById('obj-text').value = activeObj.text;
+                document.getElementById('obj-font').value = activeObj.fontFamily;
+
+                let color = activeObj.fill;
+                if(color && color.length === 4) color = '#' + color[1]+color[1]+color[2]+color[2]+color[3]+color[3];
+                document.getElementById('obj-color').value = color || '#000000';
+            } else if (activeObj.type === 'rect' || activeObj.type === 'circle') {
+                textProps.style.display = 'none';
+                shapeProps.style.display = 'flex';
+
+                let color = activeObj.fill;
+                if(color && color.length === 4) color = '#' + color[1]+color[1]+color[2]+color[2]+color[3]+color[3];
+                document.getElementById('shape-color').value = color || '#000000';
+            } else {
+                textProps.style.display = 'none';
+                shapeProps.style.display = 'none';
+            }
+        }
+
+        function uploadImage(e) {
+            const file = e.target.files[0];
+            if (!file || !fCanvases[activeFace]) return;
+            const reader = new FileReader();
+            reader.onload = function (f) {
+                fabric.Image.fromURL(f.target.result, (img) => {
+                    const canvas = fCanvases[activeFace];
+                    const trueW = canvas.width / canvas.getZoom();
+                    const trueH = canvas.height / canvas.getZoom();
+
+                    const maxDisplayDimension = trueW * 0.5;
+                    if (img.width > maxDisplayDimension || img.height > maxDisplayDimension) {
+                         img.scaleToWidth(maxDisplayDimension);
+                    }
+
+                    img.set({
+                        left: trueW / 2,
+                        top: trueH / 2,
+                        originX: 'center',
+                        originY: 'center',
+                        cornerSize: 14 / canvas.getZoom()
+                    });
+
+                    // الحفاظ على أبعاد الصورة عند التكبير
+                    img.setControlsVisibility({ mt: false, mb: false, ml: false, mr: false });
+
+                    canvas.add(img);
+                    canvas.setActiveObject(img);
+                    canvas.renderAll();
+                });
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        }
+
+        function addText() {
+            const canvas = fCanvases[activeFace];
+            if (!canvas) return;
+            const trueW = canvas.width / canvas.getZoom();
+            const trueH = canvas.height / canvas.getZoom();
+
+            const text = new fabric.IText('نص جديد', {
+                left: trueW / 2, top: trueH / 2,
+                originX: 'center', originY: 'center',
+                fontFamily: 'Cairo', fill: '#1e293b',
+                fontSize: trueW / 6,
+                fontWeight: 'bold',
+                cornerSize: 14 / canvas.getZoom()
+            });
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            canvas.renderAll();
+        }
+
+        function addShape(type) {
+            const canvas = fCanvases[activeFace];
+            if (!canvas) return;
+            const trueW = canvas.width / canvas.getZoom();
+            const trueH = canvas.height / canvas.getZoom();
+
+            let shape;
+            const sz = trueW / 4;
+
+            if (type === 'rect') {
+                shape = new fabric.Rect({
+                    left: trueW / 2, top: trueH / 2, originX: 'center', originY: 'center',
+                    fill: '#0066ff', width: sz, height: sz, rx: 15, ry: 15,
+                    cornerSize: 14 / canvas.getZoom()
+                });
+            } else if (type === 'circle') {
+                shape = new fabric.Circle({
+                    left: trueW / 2, top: trueH / 2, originX: 'center', originY: 'center',
+                    fill: '#00ccff', radius: sz / 2,
+                    cornerSize: 14 / canvas.getZoom()
+                });
+            }
+            canvas.add(shape);
+            canvas.setActiveObject(shape);
+            canvas.renderAll();
+        }
+
+        function changeFaceBg() {
+            const colorInput = document.getElementById('face-bg-color');
+            if (colorInput && fCanvases[activeFace]) {
+                fCanvases[activeFace].backgroundColor = colorInput.value;
+                fCanvases[activeFace].renderAll();
+                updateGeometry(); // لتحديث لون اللسان (Flap)
+            }
+        }
+
+        // Updating Object Properties
+        function updateObjText() { if(activeObj && activeObj.text !== undefined) { activeObj.set('text', document.getElementById('obj-text').value); fCanvases[activeFace].renderAll(); } }
+        function updateObjFont() { if(activeObj && activeObj.fontFamily !== undefined) { activeObj.set('fontFamily', document.getElementById('obj-font').value); fCanvases[activeFace].renderAll(); } }
+        function updateObjColor() { if(activeObj) { activeObj.set('fill', document.getElementById('obj-color').value); fCanvases[activeFace].renderAll(); } }
+        function updateShapeColor() { if(activeObj) { activeObj.set('fill', document.getElementById('shape-color').value); fCanvases[activeFace].renderAll(); } }
+        function updateObjOpacity() {
+            if(activeObj) {
+                const val = document.getElementById('obj-opacity').value;
+                activeObj.set('opacity', parseFloat(val));
+                document.getElementById('opacity-val').innerText = Math.round(val * 100) + '%';
+                fCanvases[activeFace].renderAll();
+            }
+        }
+
+        function deleteElement() {
+            const canvas = fCanvases[activeFace];
+            if (!canvas) return;
+            const active = canvas.getActiveObjects();
+            if (active.length) {
+                active.forEach(obj => canvas.remove(obj));
+                canvas.discardActiveObject();
+                document.getElementById('obj-props').style.display = 'none';
+            }
+        }
+
+        function duplicateElement() {
+            const canvas = fCanvases[activeFace];
+            if (!canvas || !activeObj) return;
+            activeObj.clone(function(clonedObj) {
+                clonedObj.set({
+                    left: activeObj.left + 30,
+                    top: activeObj.top + 30,
+                    evented: true
+                });
+                canvas.add(clonedObj);
+                canvas.setActiveObject(clonedObj);
+                canvas.renderAll();
+            });
+        }
+
+        function centerElement() {
+            const canvas = fCanvases[activeFace];
+            if (canvas && activeObj) {
+                const trueW = canvas.width / canvas.getZoom();
+                const trueH = canvas.height / canvas.getZoom();
+                activeObj.set({ left: trueW / 2, top: trueH / 2 });
+                activeObj.setCoords();
+                canvas.renderAll();
+            }
+        }
+
+        function bringToFront() { const canvas = fCanvases[activeFace]; if (canvas && activeObj) { canvas.bringToFront(activeObj); canvas.renderAll(); } }
+
+        /* ==========================================
+           2. Three.js (3D Engine - Ultra HD Textures Fix)
+           ========================================== */
+        function initThree() {
+            const container = document.getElementById('three-container');
+            if (!container) return;
+
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(35, 28, 45);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // إصلاح بهتان الألوان وتصحيح الإضاءة
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.NoToneMapping;
+
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+            scene.add(ambientLight);
+
+            const mainLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            mainLight.position.set(20, 50, 30);
+            mainLight.castShadow = true;
+            mainLight.shadow.mapSize.set(2048, 2048);
+            mainLight.shadow.bias = -0.0005;
+            scene.add(mainLight);
+
+            const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.3);
+            fillLight.position.set(-20, 10, -20);
+            scene.add(fillLight);
+
+            const floorGeo = new THREE.PlaneGeometry(500, 500);
+            const floorMat = new THREE.ShadowMaterial({ opacity: 0.1 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = -10;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05;
+            controls.minDistance = 15;
+            controls.maxDistance = 100;
+
+            FACES.forEach(face => {
+                if (fCanvases[face]) {
+                    textures[face] = new THREE.CanvasTexture(fCanvases[face].getElement());
+
+                    textures[face].anisotropy = renderer.capabilities.getMaxAnisotropy();
+                    textures[face].encoding = THREE.sRGBEncoding;
+                    textures[face].minFilter = THREE.LinearFilter;
+                    textures[face].magFilter = THREE.LinearFilter;
+                    textures[face].generateMipmaps = false;
+
+                    textures[face].wrapS = THREE.ClampToEdgeWrapping;
+                    textures[face].wrapT = THREE.ClampToEdgeWrapping;
+
+                    // تعديل إتجاهات بعض الأوجه في الـ 3D
+                    if(face === 'back' || face === 'bottom') {
+                        textures[face].center.set(0.5, 0.5);
+                        textures[face].rotation = Math.PI;
+                    }
+                }
+            });
+
+            const animate = (time) => {
+                requestAnimationFrame(animate);
+                if (typeof TWEEN !== 'undefined') TWEEN.update(time);
+                controls.update();
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function changeBoxType() { updateGeometry(); }
+
+        function updateGeometry() {
+            resizeCanvases();
+            calculatePrice();
+
+            if (!scene) return;
+
+            if (boxGroup) {
+                scene.remove(boxGroup);
+                boxGroup.traverse(child => { if(child.geometry) child.geometry.dispose(); });
+            }
+
+            boxGroup = new THREE.Group();
+            baseGroup = new THREE.Group();
+            lidGroup = new THREE.Group();
+
+            const type = document.getElementById('box-type').value;
+            const l = parseFloat(document.getElementById('dim-l').value) || 20;
+            const w = parseFloat(document.getElementById('dim-w').value) || 15;
+            const d = parseFloat(document.getElementById('dim-d').value) || 8;
+
+            let t = 0.2;
+            if(type === 'shipping') t = 0.4;
+            if(type === 'folding') t = 0.05;
+            if(type === 'rigid') t = 0.3;
+
+            const matType = document.getElementById('box-material').value;
+            // تقليل الـ Roughness لتعزيز وضوح الألوان
+            let rough = 0.3, metal = 0.0, color = 0xffffff;
+            if(matType === 'kraft') { color = 0xc68e58; rough = 0.6; }
+            if(matType === 'premium') { rough = 0.1; metal = 0.1; }
+
+            const createPanel = (width, height, depth, faceName, insideFaceName = null) => {
+                const geo = new THREE.BoxGeometry(width, height, depth);
+                const insideColor = matType === 'kraft' ? 0xb07d4b : 0xe2e8f0;
+                const insideMat = new THREE.MeshStandardMaterial({ color: insideColor, roughness: rough, metalness: metal });
+
+                let mats = [insideMat, insideMat, insideMat, insideMat, insideMat, insideMat];
+
+                // الماتيريال الخارجية
+                if (textures[faceName]) {
+                    const printedMat = new THREE.MeshStandardMaterial({ map: textures[faceName], roughness: rough, metalness: metal, transparent: true });
+                    if (faceName === 'front') { mats[4] = printedMat; mats[5] = insideMat; }
+                    else if (faceName === 'back') { mats[5] = printedMat; mats[4] = insideMat; }
+                    else if (faceName === 'right') { mats[0] = printedMat; mats[1] = insideMat; }
+                    else if (faceName === 'left') { mats[1] = printedMat; mats[0] = insideMat; }
+                    else if (faceName === 'top') { mats[2] = printedMat; }
+                    else if (faceName === 'bottom') { mats[3] = printedMat; mats[2] = insideMat; }
+                }
+
+                // الماتيريال الداخلية (مخصصة للغطاء حالياً)
+                if (insideFaceName && textures[insideFaceName]) {
+                    const innerPrintedMat = new THREE.MeshStandardMaterial({ map: textures[insideFaceName], roughness: rough, metalness: metal, transparent: true });
+                    if (faceName === 'top') { mats[3] = innerPrintedMat; }
+                }
+
+                const mesh = new THREE.Mesh(geo, mats);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                return mesh;
+            };
+
+            // Base Panels
+            const bottomPanel = createPanel(l, t, w, 'bottom');
+            bottomPanel.position.y = -d/2 + t/2;
+            baseGroup.add(bottomPanel);
+
+            const frontPanel = createPanel(l, d, t, 'front');
+            frontPanel.position.z = w/2 - t/2;
+            baseGroup.add(frontPanel);
+
+            const backPanel = createPanel(l, d, t, 'back');
+            backPanel.position.z = -w/2 + t/2;
+            baseGroup.add(backPanel);
+
+            const rightPanel = createPanel(t, d, w, 'right');
+            rightPanel.position.x = l/2 - t/2;
+            baseGroup.add(rightPanel);
+
+            const leftPanel = createPanel(t, d, w, 'left');
+            leftPanel.position.x = -l/2 + t/2;
+            baseGroup.add(leftPanel);
+
+            boxGroup.add(baseGroup);
+
+            // Lids & Flaps
+            if (type === 'rigid') {
+                const gap = 0.2;
+                const lidD = d * 0.5;
+                lidGroup.position.set(0, (d - lidD)/2, 0);
+
+                const topPanel = createPanel(l + gap*2, t, w + gap*2, 'top', 'inside-top');
+                topPanel.position.y = lidD/2 - t/2;
+                lidGroup.add(topPanel);
+
+                const plainMat = new THREE.MeshStandardMaterial({ color: color, roughness: rough, metalness: metal });
+
+                const lFront = new THREE.Mesh(new THREE.BoxGeometry(l + gap*2, lidD, t), plainMat);
+                lFront.position.set(0, 0, w/2 + gap - t/2);
+                lidGroup.add(lFront);
+
+                const lBack = new THREE.Mesh(new THREE.BoxGeometry(l + gap*2, lidD, t), plainMat);
+                lBack.position.set(0, 0, -w/2 - gap + t/2);
+                lidGroup.add(lBack);
+
+                const lRight = new THREE.Mesh(new THREE.BoxGeometry(t, lidD, w + gap*2), plainMat);
+                lRight.position.set(l/2 + gap - t/2, 0, 0);
+                lidGroup.add(lRight);
+
+                const lLeft = new THREE.Mesh(new THREE.BoxGeometry(t, lidD, w + gap*2), plainMat);
+                lLeft.position.set(-l/2 - gap + t/2, 0, 0);
+                lidGroup.add(lLeft);
+
+                boxGroup.add(lidGroup);
+            } else {
+                lidGroup.position.set(0, d/2, -w/2 + t/2);
+
+                const topPanel = createPanel(l, t, w, 'top', 'inside-top');
+                topPanel.position.set(0, 0, w/2 - t/2);
+                lidGroup.add(topPanel);
+
+                const flapGeo = new THREE.BoxGeometry(l - 0.4, d/3, t);
+
+                // حساب لون اللسان بناءً على الوجه العلوي والداخلي لدمجه مع التصميم بسلاسة
+                const insideColor = matType === 'kraft' ? 0xb07d4b : 0xe2e8f0;
+                let flapOuterColor = color;
+                let flapInnerColor = insideColor;
+
+                if(fCanvases['top'] && fCanvases['top'].backgroundColor) {
+                    flapOuterColor = new THREE.Color(fCanvases['top'].backgroundColor);
+                }
+                if(fCanvases['inside-top'] && fCanvases['inside-top'].backgroundColor) {
+                    flapInnerColor = new THREE.Color(fCanvases['inside-top'].backgroundColor);
+                }
+
+                const flapOuterMat = new THREE.MeshStandardMaterial({ color: flapOuterColor, roughness: rough, metalness: metal });
+                const flapInnerMat = new THREE.MeshStandardMaterial({ color: flapInnerColor, roughness: rough, metalness: metal });
+                const insideMat = new THREE.MeshStandardMaterial({ color: insideColor, roughness: rough, metalness: metal });
+
+                let flapMats = [insideMat, insideMat, insideMat, insideMat, flapInnerMat, flapOuterMat];
+
+                const frontFlap = new THREE.Mesh(flapGeo, flapMats);
+                frontFlap.position.set(0, -d/6, w - t * 2.5);
+                lidGroup.add(frontFlap);
+
+                boxGroup.add(lidGroup);
+            }
+
+            scene.add(boxGroup);
+
+            if (isBoxOpen) {
+                if (type === 'rigid') { lidGroup.position.y += d * 0.8; }
+                else { lidGroup.rotation.x = Math.PI / 1.5; }
+            }
+        }
+
+        function updateMaterial() {
+            const matType = document.getElementById('box-material').value;
+            const color = matType === 'kraft' ? '#c68e58' : '#ffffff';
+
+            FACES.forEach(face => {
+                if (fCanvases[face]) {
+                    fCanvases[face].backgroundColor = color;
+                    fCanvases[face].renderAll();
+                }
+            });
+
+            const bgColorInput = document.getElementById('face-bg-color');
+            if (bgColorInput) bgColorInput.value = color;
+
+            updateGeometry();
+        }
+
+        /* ==========================================
+           3. Box Animation
+           ========================================== */
+        function toggleBoxOpen() {
+            if (!lidGroup || typeof TWEEN === 'undefined') return;
+            const type = document.getElementById('box-type').value;
+            const d = parseFloat(document.getElementById('dim-d').value) || 8;
+
+            isBoxOpen = !isBoxOpen;
+
+            const icon = document.getElementById('toggle-icon');
+            if (icon) {
+                if(isBoxOpen) {
+                    icon.classList.replace('fa-box', 'fa-box-open');
+                } else {
+                    icon.classList.replace('fa-box-open', 'fa-box');
+                }
+            }
+
+            if (type === 'rigid') {
+                const targetY = isBoxOpen ? ((d * 0.5) / 2 + d * 0.8) : ((d * 0.5) / 2);
+                new TWEEN.Tween(lidGroup.position).to({ y: targetY }, 800).easing(TWEEN.Easing.Cubic.InOut).start();
+            } else {
+                const targetRotation = isBoxOpen ? (Math.PI / 1.5) : 0;
+                new TWEEN.Tween(lidGroup.rotation).to({ x: targetRotation }, 1000).easing(TWEEN.Easing.Bounce.Out).start();
+            }
+        }
+
+        /* ==========================================
+           4. Data Loading (From Admin Request)
+           ========================================== */
+        async function loadDesignFromDb(id) {
+            try {
+                const response = await fetch(`/Studio/GetDesignData?id=${id}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const dbDesign = result.data;
+
+                    document.getElementById('dim-l').value = dbDesign.length;
+                    document.getElementById('dim-w').value = dbDesign.width;
+                    document.getElementById('dim-d').value = dbDesign.height;
+
+                    const typeSelect = document.getElementById('box-type');
+                    Array.from(typeSelect.options).forEach(opt => {
+                        if (dbDesign.productType.includes(opt.text)) typeSelect.value = opt.value;
+                    });
+
+                    const canvasData = JSON.parse(dbDesign.canvasJsonData);
+
+                    resizeCanvases();
+
+                    let loadedCount = 0;
+                    const facesToLoad = Object.keys(canvasData);
+
+                    facesToLoad.forEach(face => {
+                        if (fCanvases[face]) {
+                            fCanvases[face].loadFromJSON(canvasData[face], () => {
+                                fCanvases[face].renderAll();
+                                if (textures[face]) textures[face].needsUpdate = true;
+                                loadedCount++;
+                                if (loadedCount === facesToLoad.length) {
+                                    updateGeometry();
+                                    calculatePrice();
+                                }
+                            });
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load design:", e);
+                alert("لم نتمكن من جلب التصميم المطلوب.");
+            }
+        }
+
+        /* ==========================================
+           5. Pricing & Save
+           ========================================== */
+        function calculatePrice() {
+            const l = parseFloat(document.getElementById('dim-l').value) || 0;
+            const w = parseFloat(document.getElementById('dim-w').value) || 0;
+            const d = parseFloat(document.getElementById('dim-d').value) || 0;
+            const qty = parseInt(document.getElementById('box-qty').value) || 1;
+            const mat = document.getElementById('box-material').value;
+
+            const area = 2 * ((l * w) + (l * d) + (w * d));
+            let materialMultiplier = mat === 'kraft' ? 0.004 : (mat === 'white' ? 0.005 : 0.008);
+            let unitPrice = (area * materialMultiplier) + 1.5;
+
+            if(qty >= 1000) unitPrice *= 0.8;
+            else if (qty >= 500) unitPrice *= 0.9;
+
+            const unitPriceEl = document.getElementById('unit-price');
+            const priceDisplayEl = document.getElementById('price-display');
+
+            if (unitPriceEl) unitPriceEl.innerText = `السعر التقديري للحبة: ${unitPrice.toFixed(2)} ر.س`;
+            if (priceDisplayEl) priceDisplayEl.innerText = (unitPrice * qty).toFixed(2);
+        }
+
+        function resetDesign() {
+            if(confirm("هل أنت متأكد من مسح كافة عناصر التصميم؟")) {
+                const matType = document.getElementById('box-material').value;
+                const defaultColor = matType === 'kraft' ? '#c68e58' : '#ffffff';
+
+                FACES.forEach(face => {
+                    if (fCanvases[face]) {
+                        fCanvases[face].clear();
+                        fCanvases[face].backgroundColor = defaultColor;
+                        fCanvases[face].renderAll();
+                    }
+                });
+                document.getElementById('face-bg-color').value = defaultColor;
+                document.getElementById('obj-props').style.display = 'none';
+            }
+        }
+
+        async function addToCart() {
+            const btn = document.getElementById('btn-cart');
+            if (!btn) return;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحضير الطلب...';
+            btn.disabled = true;
+            btn.style.opacity = '0.8';
+
+            let designData = {};
+            FACES.forEach(face => {
+                if (fCanvases[face]) {
+                    fCanvases[face].discardActiveObject();
+                    designData[face] = fCanvases[face].toJSON();
+                }
+            });
+
+            if(!isBoxOpen) toggleBoxOpen();
+
+            setTimeout(async () => {
+                if(renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+                const previewBase64 = renderer ? renderer.domElement.toDataURL("image/png") : "";
+
+                const typeSelect = document.getElementById('box-type');
+                const typeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text : "Custom Box";
+                const matSelect = document.getElementById('box-material');
+                const matText = matSelect ? matSelect.options[matSelect.selectedIndex].text : "White";
+
+                const l = parseFloat(document.getElementById('dim-l').value) || 0;
+                const w = parseFloat(document.getElementById('dim-w').value) || 0;
+                const d = parseFloat(document.getElementById('dim-d').value) || 0;
+                const qty = parseInt(document.getElementById('box-qty').value) || 1;
+                const price = parseFloat(document.getElementById('price-display').innerText) || 0;
+
+                const unitStr = document.getElementById('unit-price').innerText.replace(/[^0-9.]/g, '');
+                const unit = parseFloat(unitStr) || 0;
+
+                const payload = {
+                    ProductType: typeText,
+                    Length: l, Width: w, Height: d,
+                    ColorHex: matText,
+                    CanvasJsonData: JSON.stringify(designData),
+                    PreviewImageBase64: previewBase64,
+                    Price: price
+                };
+
+                try {
+                    const response = await fetch('/Studio/SaveDesign', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const cartItem = {
+                            id: 0, name: `تصميم 3D مخصص (${payload.ProductType})`, price: unit,
+                            img: data.imageUrl || previewBase64, quantity: qty,
+                            details: {
+                                "design": `${l}x${w}x${d} سم`,
+                                "paperType": payload.ColorHex,
+                                "sides": "مرجع: #" + data.designId,
+                                "cover": data.imageUrl || previewBase64
+                            }
+                        };
+
+                        let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
+                        cart.push(cartItem);
+                        localStorage.setItem('printnesCart', JSON.stringify(cart));
+                        window.location.href = '/Cart';
+                    } else {
+                        alert("حدث خطأ أثناء الحفظ.");
+                        resetBtn();
+                    }
+                } catch (error) {
+                    const cartItem = {
+                        id: 0, name: `تصميم 3D مخصص (${payload.ProductType})`, price: unit, img: previewBase64, quantity: qty,
+                        details: {
+                            "design": `${l}x${w}x${d} سم`,
+                            "paperType": payload.ColorHex,
+                            "sides": "خطأ في الاتصال بالسيرفر",
+                            "cover": previewBase64
+                        }
+                    };
+                    let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
+                    cart.push(cartItem);
+                    localStorage.setItem('printnesCart', JSON.stringify(cart));
+                    window.location.href = '/Cart';
+                }
+
+            }, 800);
+
+            function resetBtn() {
+                if (btn) { btn.innerHTML = '<i class="fas fa-check-circle"></i> اعتماد التصميم للسلة'; btn.disabled = false; btn.style.opacity = '1'; }
+            }
+        }
+    </script>
+</body>
+</html>
