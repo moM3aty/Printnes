@@ -82,7 +82,7 @@
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label asp-for="PaymentMethod" style="display: block; font-weight: bold; margin-bottom: 5px;">طريقة الدفع *</label>
                     <select asp-for="PaymentMethod" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
-                        <option value="1">بطاقة مدى (Mada)</option>
+                        <option value="1">بطاقة مدى</option>
                         <option value="2">البطاقة الائتمانية (Visa/Mastercard)</option>
                         <option value="3">Apple Pay</option>
                         <option value="4">تحويل بنكي</option>
@@ -100,7 +100,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // سحب بيانات السلة من LocalStorage ووضعها في الحقل المخفي ليتم إرسالها للـ Backend
         document.addEventListener("DOMContentLoaded", function() {
             const cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
             if(cart.length === 0) {
@@ -112,17 +111,35 @@
             // تخزين الـ JSON في الحقل المخفي
             document.getElementById('CartItemsJson').value = JSON.stringify(cart);
 
-            // عرض ملخص مبسط
+            // عرض ملخص الطلب
             const summaryContainer = document.getElementById('checkout-summary-items');
             let total = 0;
             let html = "";
 
             cart.forEach(item => {
-                html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
-                            <span>${item.name} (x${item.quantity || 1})</span>
-                            <strong>${parseFloat(item.price * (item.quantity || 1)).toFixed(2)} ر.س</strong>
+                // === التعديل: دعم السعر الجديد (unitPrice) والقديم (price) ===
+                let pricePerUnit = parseFloat(item.unitPrice || item.price || 0);
+                let quantity = parseInt(item.quantity || 1);
+                let itemTotal = parseFloat(item.totalPrice || (pricePerUnit * quantity));
+                total += itemTotal;
+
+                // تجهيز التفاصيل
+                let detailsText = "";
+                if (item.SelectedOptionsJson) {
+                    try {
+                        let opts = JSON.parse(item.SelectedOptionsJson);
+                        if (opts["المقاس"]) detailsText += ` | ${opts["المقاس"]}`;
+                        if (opts["الخامة"]) detailsText += ` | ${opts["الخامة"]}`;
+                    } catch(e) {}
+                }
+
+                html += `<div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                            <div>
+                                <strong>${item.name}</strong>
+                                <div style="font-size:12px; color:#888; font-weight:normal;">الكمية: ${quantity} ${detailsText}</div>
+                            </div>
+                            <strong style="white-space:nowrap;">${itemTotal.toFixed(2)} ر.س</strong>
                          </div>`;
-                total += parseFloat(item.price) * (item.quantity || 1);
             });
 
             summaryContainer.innerHTML = html;

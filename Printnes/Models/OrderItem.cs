@@ -28,8 +28,7 @@ namespace Printnes.Models
 
         // الخيارات المختارة كـ JSON (لتسهيل القراءة والعرض)
         // مثال: {"design":"رفع تصميمي","paperType":"كوشيه 350","sides":"وجهين"}
-        [Required]
-        public string SelectedOptionsJson { get; set; }
+        public string? SelectedOptionsJson { get; set; }
 
         // الإضافات المختارة كـ JSON
         // مثال: [{"id":1,"name":"تصميم خاص","price":250}]

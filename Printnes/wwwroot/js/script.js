@@ -162,7 +162,6 @@ function hideToast() {
     if (toast) toast.classList.add('hidden');
 }
 
-// 8. عرض محتويات صفحة السلة (Cart Page)
 function renderCartPage() {
     let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
     const emptyView = document.getElementById('empty-cart-view');
@@ -179,24 +178,55 @@ function renderCartPage() {
         emptyView.classList.add('hidden');
         fullView.classList.remove('hidden');
 
-        tableBody.innerHTML = cart.map((item, index) => `
-            <tr>
-                <td>
-                    <strong>${item.name}</strong><br>
-                    <small style="color:#888;">الكمية: ${item.quantity || 1}</small>
-                </td>
-                <td><img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;"></td>
-                <td style="color:var(--orange); font-weight:bold;">${(parseFloat(item.price) * (item.quantity || 1)).toFixed(2)} ر.س</td>
-                <td>
-                    <button class="btn-remove" type="button" onclick="removeItem(${index})">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        tableBody.innerHTML = cart.map((item, index) => {
+            // === التعديل هنا: دعم السعر الجديد والقديم ===
+            // نفضل استخدام unitPrice إن وجد، وإلا نستخدم price
+            let pricePerUnit = parseFloat(item.unitPrice || item.price || 0);
+            let quantity = parseInt(item.quantity || 1);
+            let itemTotal = parseFloat(item.totalPrice || (pricePerUnit * quantity));
 
-        let total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * (item.quantity || 1)), 0);
-        if (totalDisplay) totalDisplay.innerText = total.toFixed(2);
+            // تجهيز التفاصيل النصية
+            let detailsHtml = '';
+            if (item.SelectedOptionsJson) {
+                try {
+                    let opts = JSON.parse(item.SelectedOptionsJson);
+                    // عرض المقاس
+                    if (opts["المقاس"]) detailsHtml += `<small style="display:block; color:#888;">المقاس: ${opts["المقاس"]}</small>`;
+                    // عرض الخامة
+                    if (opts["الخامة"]) detailsHtml += `<small style="display:block; color:#888;">الخامة: ${opts["الخامة"]}</small>`;
+                    // عرض معرف التصميم
+                    if (opts["معرف التصميم"]) detailsHtml += `<small style="display:block; color:#888;">التصميم: ${opts["معرف التصميم"]}</small>`;
+                } catch (e) { }
+            } else if (item.details) {
+                // للمنتجات القديمة
+                if (item.details.Design) detailsHtml += `<small style="display:block; color:#888;">التصميم: ${item.details.Design}</small>`;
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong>${item.name}</strong><br>
+                        <small style="color:#888;">الكمية: ${quantity}</small>
+                        ${detailsHtml}
+                    </td>
+                    <td><img src="${item.image || item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;"></td>
+                    <td style="color:var(--orange); font-weight:bold;">${itemTotal.toFixed(2)} ر.س</td>
+                    <td>
+                        <button class="btn-remove" type="button" onclick="removeItem(${index})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        // حساب الإجمالي الكلي
+        let grandTotal = cart.reduce((sum, item) => {
+            let price = parseFloat(item.totalPrice || (item.unitPrice || item.price || 0) * (item.quantity || 1));
+            return sum + price;
+        }, 0);
+
+        if (totalDisplay) totalDisplay.innerText = grandTotal.toFixed(2);
     }
     updateBadges();
 }

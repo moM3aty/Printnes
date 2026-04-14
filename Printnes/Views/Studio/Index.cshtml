@@ -1,6 +1,5 @@
-﻿<!-- الملف: Views/Studio/Index.cshtml -->
-@{
-    ViewData["Title"] = "ستوديو التصميم الاحترافي | Printnes 3D";
+﻿@{
+    ViewData["Title"] = "استوديو التصميم | علب مخصصة";
     Layout = null;
 }
 
@@ -10,1739 +9,2137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" rel="icon" type="image/x-icon" />
 
     <style>
         /* ==========================================
-                   Global Premium Reset & Variables
-                   ========================================== */
+                           1. ROOT VARIABLES & GLOBAL RESET
+                           ========================================== */
         :root {
-            --pw-bg: #1a202c;
-            --pw-panel: rgba(255, 255, 255, 0.98);
-            --pw-blue: #0066ff;
-            --pw-blue-hover: #0052cc;
-            --pw-gradient: linear-gradient(135deg, #0066ff 0%, #00ccff 100%);
-            --pw-text: #1e293b;
-            --pw-text-light: #64748b;
-            --pw-border: #e2e8f0;
-            --pw-light: #f8fafc;
-            --pw-danger: #ef4444;
-            --pw-success: #10b981;
-            --shadow-soft: 0 10px 40px rgba(0,0,0,0.1);
-            --shadow-panel: 0 20px 60px rgba(0,0,0,0.15);
+            --primary: #0f62fe; /* Premium Blue */
+            --primary-hover: #0353e9;
+            --bg-panel: rgba(255, 255, 255, 0.95);
+            --text-main: #1f2937;
+            --text-light: #64748b;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+            --radius: 12px;
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             outline: none;
+            font-family: 'Cairo', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            margin: 0;
-            font-family: 'Cairo', sans-serif;
-            background: var(--pw-bg);
             overflow: hidden;
+            width: 100vw;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: var(--pw-text);
+            background-color: #e2e8f0;
         }
 
-        #loader {
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+
+        /* ==========================================
+                           2. PREMIUM WELCOME SCREEN
+                           ========================================== */
+        #premium-welcome {
             position: fixed;
             inset: 0;
-            background: #0f172a;
             z-index: 99999;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            overflow-y: auto;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .pw-nav {
+            width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pw-logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
             color: #fff;
-            transition: opacity 0.8s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .loader-cube {
-            width: 60px;
-            height: 60px;
-            background: var(--pw-gradient);
-            border-radius: 12px;
-            animation: spinCube 2s infinite ease-in-out;
-            box-shadow: 0 0 40px rgba(0, 102, 255, 0.4);
-        }
-        @@keyframes spinCube {
-            0%
+            .pw-logo i {
+                color: var(--primary);
+                background: #fff;
+                padding: 6px;
+                border-radius: 8px;
+                font-size: 22px;
+            }
 
-        {
-            transform: perspective(200px) rotateX(0deg) rotateY(0deg);
-        }
-
-        50% {
-            transform: perspective(200px) rotateX(-180deg) rotateY(0deg);
+        .pw-hero {
+            text-align: center;
+            margin-top: 6vh;
+            max-width: 1200px;
+            padding: 0 20px;
         }
 
-        100% {
-            transform: perspective(200px) rotateX(-180deg) rotateY(-180deg);
+        .pw-title {
+            font-size: 50px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(to left, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
+        .pw-subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 60px;
+            font-weight: 500;
         }
 
-        /* --- Top Bar --- */
-        .top-bar {
+        .pw-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 50px;
+            direction: rtl;
+        }
+
+        .pw-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+            .pw-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+                opacity: 0;
+                transition: opacity 0.4s;
+            }
+
+            .pw-card:hover {
+                transform: translateY(-10px);
+                background: rgba(255,255,255,0.08);
+                border-color: rgba(255,255,255,0.3);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            }
+
+                .pw-card:hover::before {
+                    opacity: 1;
+                }
+
+        .pw-card-icon {
+            font-size: 60px;
+            color: #60a5fa;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 4px 15px rgba(96, 165, 250, 0.4));
+            transition: transform 0.3s;
+        }
+
+        .pw-card:hover .pw-card-icon {
+            transform: scale(1.1);
+            color: #fff;
+        }
+
+        .pw-card h2 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+
+        .pw-card p {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* ==========================================
+                           3. STUDIO WORKSPACE UI
+                           ========================================== */
+        #studio-workspace {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%);
+            transition: background 0.3s ease;
+        }
+
+        #three-canvas {
+            position: absolute;
+            inset: 0;
+            cursor: grab;
+        }
+
+            #three-canvas:active {
+                cursor: grabbing;
+            }
+
+        /* Top Header */
+        .studio-header {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            height: 65px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 30px;
-            z-index: 20;
+            padding: 20px 30px;
+            z-index: 10;
             pointer-events: none;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            pointer-events: auto;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-            .logo-area:hover {
-                opacity: 0.8;
+            .studio-header > * {
+                pointer-events: auto;
             }
 
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: #fff;
-            border-radius: 10px;
-            color: var(--pw-blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .logo-text {
-            color: #fff;
-            font-weight: 900;
+        .studio-logo {
+            color: var(--text-main);
             font-size: 22px;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .top-actions {
-            pointer-events: auto;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .top-link {
-            color: #fff;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
+            font-weight: 900;
             display: flex;
             align-items: center;
             gap: 8px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            transition: 0.2s;
-            padding: 8px 16px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
+            cursor: pointer;
+            text-shadow: 0 2px 4px rgba(255,255,255,0.5);
         }
 
-            .top-link:hover {
-                background: rgba(255,255,255,0.2);
-                transform: translateY(-1px);
+            .studio-logo i {
+                color: var(--primary);
             }
 
-        /* --- Workspace --- */
-        .workspace {
-            position: relative;
-            width: 100%;
-            height: 100vh;
+        .top-nav {
+            display: flex;
+            gap: 15px;
         }
 
-        #three-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+        .btn-cart-top {
+            background: #fff;
+            color: var(--text-main);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
         }
 
-        /* --- Floating Panels --- */
-        .floating-panel {
+            .btn-cart-top:hover {
+                box-shadow: var(--shadow-lg);
+                transform: translateY(-2px);
+                color: var(--primary);
+            }
+
+        /* Panels Shared */
+        .panel {
             position: absolute;
-            top: 80px;
-            background: var(--pw-panel);
-            border-radius: 16px;
-            box-shadow: var(--shadow-panel);
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
             display: flex;
             flex-direction: column;
             z-index: 10;
-            max-height: calc(100vh - 100px);
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.5);
-            backdrop-filter: blur(20px);
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.6);
         }
 
         .panel-header {
-            padding: 18px 24px;
-            border-bottom: 1px solid var(--pw-border);
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
             font-weight: 800;
-            color: var(--pw-text);
             font-size: 15px;
+            color: var(--text-main);
             text-align: center;
-            background: #fdfdfd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
-            .panel-header i {
-                color: var(--pw-blue);
-                font-size: 16px;
-            }
+        /* --- Right Panel (Was Left) - Box Settings --- */
+        .panel-settings {
+            top: 80px;
+            right: 25px;
+            width: 280px;
+            max-height: calc(100vh - 100px);
+        }
 
-        .panel-body {
-            padding: 20px;
-            overflow-y: auto;
+        .panel-content {
+            padding: 15px;
+            overflow-y: visible;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            flex: 1;
+            gap: 12px;
         }
 
-            .panel-body::-webkit-scrollbar {
-                width: 6px;
+        .custom-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8fafc;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: left 1em top 50%;
+            background-size: .65em auto;
+            transition: all 0.2s;
+        }
+
+            .custom-select:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.1);
+                background: #fff;
             }
-
-            .panel-body::-webkit-scrollbar-thumb {
-                background: #cbd5e1;
-                border-radius: 10px;
-            }
-
-        /* --- Right Panel (Settings) --- */
-        .right-panel {
-            right: 20px;
-            width: 320px;
-        }
-
-        .dims-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
 
         .dim-box {
-            border: 1px solid var(--pw-border);
-            border-radius: 10px;
-            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+            display: none;
+        }
+
+            .dim-box.active {
+                display: block;
+                animation: fadeIn 0.3s;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .dim-box label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .dim-input {
             text-align: center;
-            background: #fff;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 700;
+            width: 100%;
+            font-size: 14px;
+            margin-bottom: 8px;
             transition: 0.2s;
         }
 
-            .dim-box:hover {
-                border-color: var(--pw-blue);
+            .dim-input:focus {
+                border-color: var(--primary);
+                background: #fff;
             }
 
-            .dim-box .pw-label {
-                margin-bottom: 4px;
-                font-size: 10px;
-                text-align: center;
+        .dim-apply {
+            width: 100%;
+            padding: 10px;
+            background: var(--text-main);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .dim-apply:hover {
+                background: #000;
+                box-shadow: var(--shadow-sm);
             }
 
-            .dim-box input {
-                width: 100%;
-                border: none;
-                background: transparent;
-                text-align: center;
-                font-size: 15px;
-                font-weight: 800;
-                color: var(--pw-text);
-                padding: 0;
-            }
+        .qty-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+            background: #f8fafc;
+        }
 
-        .qty-box {
+        .qty-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 12px 18px;
-            border-radius: 10px;
-            background: #fff;
-            border: 1px solid var(--pw-border);
+            gap: 5px;
         }
 
-            .qty-box input {
-                width: 80px;
-                text-align: center;
-                border: 1px solid var(--pw-border);
-                border-radius: 8px;
-                padding: 8px;
-                font-weight: bold;
-                transition: 0.2s;
+        .qty-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .qty-slider {
+            flex: 1;
+            accent-color: var(--primary);
+            cursor: pointer;
+            height: 4px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+            border-radius: 2px;
+        }
+
+            .qty-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--primary);
+                cursor: pointer;
+                border: 3px solid #fff;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             }
 
-                .qty-box input:focus {
-                    border-color: var(--pw-blue);
-                    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
-                }
+        .qty-input {
+            width: 70px;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
 
         .price-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 5px;
+            border-right: 4px solid #22c55e;
+        }
+
+            .price-box span {
+                font-size: 13px;
+                font-weight: 700;
+                color: #166534;
+            }
+
+            .price-box strong {
+                font-size: 24px;
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+        /* Price Table Dropdown */
+        .price-table-wrapper {
+            position: relative;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .pt-header {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #f8fafc;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+            .pt-header:hover {
+                border-color: var(--primary);
+                background: #fff;
+            }
+
+        .pt-list {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            z-index: 1000;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: none;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 5px;
+        }
+
+            .pt-list.show {
+                display: block;
+                animation: slideUp 0.2s ease forwards;
+            }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pt-list li {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            .pt-list li:last-child {
+                border-bottom: none;
+            }
+
+            .pt-list li:hover {
+                background: #eff6ff;
+                color: var(--primary);
+                padding-right: 20px;
+            }
+
+            .pt-list li span:first-child {
+                font-weight: 700;
+            }
+
+            .pt-list li span:last-child {
+                font-weight: 800;
+                color: #10b981;
+            }
+
+        .custom-quote-link {
             text-align: center;
-            padding-top: 20px;
-            margin-top: 20px;
-            border-top: 1px solid var(--pw-border);
-            background: var(--pw-light);
-            margin: 0 -20px -20px;
-            padding: 20px;
-            border-radius: 0 0 16px 16px;
-        }
-
-        .unit-price {
             font-size: 12px;
-            color: var(--pw-text-light);
             font-weight: 600;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .total-price {
-            font-size: 32px;
-            font-weight: 900;
-            background: var(--pw-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-light);
+            text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 5px;
-        }
-
-        /* --- Left Panel (Design Editor) --- */
-        .left-panel {
-            left: 20px;
-            width: 420px;
-        }
-
-        .face-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        .face-btn {
-            background: #fff;
-            border: 1px solid var(--pw-border);
-            border-radius: 8px;
-            padding: 10px 0;
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--pw-text-light);
-            cursor: pointer;
+            margin-top: 10px;
             transition: 0.2s;
+        }
+
+            .custom-quote-link:hover {
+                color: var(--primary);
+            }
+
+        /* --- Left Panel (Was Right) - Design Wrapper --- */
+        .design-wrapper {
+            position: absolute;
+            top: 80px;
+            left: 25px;
+            display: flex;
+            gap: 0;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius);
+            background: var(--bg-panel);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px);
+        }
+
+        /* Face Selector Column */
+        .face-selector-col {
+            width: 85px;
+            background: #f8fafc;
+            border-left: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            padding-top: 10px;
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .face-btn {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--text-light);
+            cursor: pointer;
+            border-right: 3px solid transparent;
+            transition: 0.2s;
         }
 
             .face-btn i {
-                font-size: 14px;
+                font-size: 20px;
+                color: #94a3b8;
                 transition: 0.2s;
             }
 
             .face-btn:hover {
-                border-color: var(--pw-blue);
-                color: var(--pw-blue);
-                transform: translateY(-2px);
+                background: #f1f5f9;
+                color: var(--text-main);
             }
+
+                .face-btn:hover i {
+                    color: var(--text-main);
+                    transform: scale(1.1);
+                }
 
             .face-btn.active {
-                background: var(--pw-blue);
-                color: #fff;
-                border-color: var(--pw-blue);
-                box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+                color: var(--primary);
+                background: #fff;
+                border-right-color: var(--primary);
+                box-shadow: -2px 0 10px rgba(0,0,0,0.02);
             }
 
-        .modern-color-row {
+                .face-btn.active i {
+                    color: var(--primary);
+                }
+
+            .face-btn.action-btn {
+                color: #f59e0b;
+                background: #fffbeb;
+                border-bottom: 1px solid #fde68a;
+                margin-bottom: 5px;
+            }
+
+                .face-btn.action-btn i {
+                    color: #f59e0b;
+                }
+
+                .face-btn.action-btn:hover {
+                    background: #fef3c7;
+                }
+
+        .zoom-controls {
+            margin-top: auto;
+            padding: 15px 0;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            gap: 8px;
+            width: 100%;
+            border-top: 1px solid var(--border-color);
             background: #fff;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--pw-border);
         }
 
-            .modern-color-row span {
-                font-size: 12px;
-                font-weight: 700;
-                color: var(--pw-text);
-            }
-
-        .color-picker-wrap {
-            width: 40px;
-            height: 40px;
+        .zoom-btn {
+            background: #f1f5f9;
+            border: none;
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #e2e8f0;
             cursor: pointer;
-            position: relative;
-        }
-
-            .color-picker-wrap input[type="color"] {
-                border: none;
-                padding: 0;
-                width: 150%;
-                height: 150%;
-                transform: translate(-20%, -20%);
-                cursor: pointer;
-                outline: none;
-                background: transparent;
-            }
-
-        /* --- The Artboard --- */
-        .canvas-artboard {
-            background-color: #f8fafc;
-            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-            background-size: 15px 15px;
-            border-radius: 12px;
-            border: 1px solid var(--pw-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 260px;
-            padding: 15px;
-            position: relative;
-            box-shadow: inset 0 4px 20px rgba(0,0,0,0.03);
+            transition: 0.2s;
+            font-size: 14px;
         }
 
+            .zoom-btn:hover {
+                background: #e2e8f0;
+                color: var(--primary);
+                transform: scale(1.05);
+            }
+
+        /* Design Board Column */
+        .design-board-col {
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .db-tools-top {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(15, 98, 254, 0.3);
+        }
+
+            .btn-upload:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(15, 98, 254, 0.4);
+            }
+
+        .formats-txt {
+            font-size: 10px;
+            color: var(--text-light);
+            text-align: center;
+            margin-top: -5px;
+            font-weight: 600;
+        }
+
+        .bg-fill-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+            .bg-fill-row span {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--text-main);
+            }
+
+        .color-picker-box {
+            width: 36px;
+            height: 24px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+            .color-picker-box input[type="color"] {
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                width: 60px;
+                height: 60px;
+                cursor: pointer;
+                border: none;
+                padding: 0;
+            }
+
+        /* Canvas Area */
         .canvas-wrapper {
-            background: #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #f1f5f9;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 270px;
             position: relative;
         }
 
-        .safe-zone-overlay {
-            position: absolute;
-            border: 2px dashed rgba(0, 102, 255, 0.4);
-            pointer-events: none;
-            z-index: 10;
-            display: none;
+        .canvas-container-outer {
+            position: relative;
+            border: 1px dashed #94a3b8;
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             border-radius: 4px;
         }
 
-        /* --- Tools & Actions --- */
-        .btn-primary-action {
-            width: 100%;
-            background: var(--pw-gradient);
-            color: #fff;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.2);
-        }
-
-            .btn-primary-action:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 15px 30px rgba(0, 102, 255, 0.3);
-                filter: brightness(1.1);
-            }
-
-        .tools-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-tool {
-            flex: 1;
-            background: #fff;
-            color: var(--pw-text);
-            border: 1px solid var(--pw-border);
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 800;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-            .btn-tool:hover {
-                background: var(--pw-light);
-                border-color: var(--pw-blue);
-                color: var(--pw-blue);
-                transform: translateY(-1px);
-            }
-
-            .btn-tool i {
-                color: var(--pw-blue);
-                opacity: 0.7;
-            }
-
-        .elem-controls {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .btn-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            background: #fff;
-            border: 1px solid var(--pw-border);
-            color: var(--pw-text-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 15px;
-        }
-
-            .btn-icon:hover {
-                background: var(--pw-light);
-                color: var(--pw-text);
-                border-color: #cbd5e1;
-                transform: translateY(-1px);
-            }
-
-            .btn-icon.active {
-                background: #e0f2fe;
-                color: var(--pw-blue);
-                border-color: var(--pw-blue);
-            }
-
-            .btn-icon.danger:hover {
-                background: #fef2f2;
-                color: var(--pw-danger);
-                border-color: #fecaca;
-            }
-
-        .properties-panel {
-            background: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--pw-border);
-            margin-top: 15px;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        }
-        @@keyframes fadeIn {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(-5px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
-        /* --- Bottom Action Bar --- */
-        .bottom-bar {
+        .btn-trash {
             position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            z-index: 20;
-        }
-
-        .pill-btn {
-            background: rgba(255,255,255,0.95);
-            color: var(--pw-text);
+            bottom: -12px;
+            left: -12px;
+            background: #ef4444;
+            color: white;
             border: none;
-            padding: 16px 30px;
-            border-radius: 50px;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-            .pill-btn:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-            }
-
-            .pill-btn.primary {
-                background: var(--pw-gradient);
-                color: #fff;
-                padding: 16px 45px;
-                box-shadow: 0 15px 35px rgba(0, 102, 255, 0.35);
-            }
-
-                .pill-btn.primary:hover {
-                    box-shadow: 0 20px 40px rgba(0, 102, 255, 0.4);
-                }
-
-        /* Box Open/Close Toggle */
-        .box-toggle-btn {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: var(--pw-blue);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 20;
-            transition: 0.3s;
-        }
-
-            .box-toggle-btn:hover {
-                transform: scale(1.1);
-                box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-            }
-
-        /* General UI Classes */
-        .pw-label {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--pw-text-light);
-            margin-bottom: 6px;
-            display: block;
-            text-transform: uppercase;
-        }
-
-        .pw-select, .pw-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--pw-border);
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--pw-text);
-            outline: none;
-            transition: 0.2s;
-            background: #fff;
-        }
-
-        .pw-select {
-            appearance: none;
             cursor: pointer;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: left 12px center;
-            background-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+            transition: 0.2s;
         }
 
-            .pw-select:focus, .pw-input:focus {
-                border-color: var(--pw-blue);
-                box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+            .btn-trash:hover {
+                background: #dc2626;
+                transform: scale(1.1);
             }
 
-        @@media (max-width: 1000px) {
-            .workspace
-
-        {
-            flex-direction: column;
-            overflow-y: auto;
-            padding-top: 60px;
-            pointer-events: auto;
+        .canvas-container-outer:hover .btn-trash {
+            display: flex;
         }
 
-        #three-container {
-            position: relative;
-            height: 400px;
-            flex-shrink: 0;
-        }
-
-        .floating-panel {
-            position: relative;
-            top: 0;
-            left: 0 !important;
-            right: 0 !important;
-            width: 100%;
-            max-height: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin-bottom: 0;
-            border: none;
-            border-bottom: 1px solid #eee;
-        }
-
-        .bottom-bar {
-            position: relative;
-            bottom: 0;
-            transform: none;
-            padding: 20px;
-            background: #fff;
-            border-top: 1px solid #eee;
+        /* Align Buttons Bottom */
+        .align-row {
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
             justify-content: center;
+            border-top: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 0 0 12px 12px;
         }
 
-        .box-toggle-btn {
+        .btn-align {
+            flex: 1;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+
+            .btn-align:hover {
+                background: #e2e8f0;
+                color: var(--primary);
+                border-color: #cbd5e1;
+            }
+
+        /* Scene Background Picker */
+        .scene-bg-picker {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
+            background: var(--bg-panel);
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+        }
+
+            .scene-bg-picker label {
+                font-size: 13px;
+                font-weight: 800;
+                color: var(--text-main);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                margin-bottom: 0;
+            }
+
+            .scene-bg-picker i {
+                color: var(--text-light);
+            }
+
+        /* Bottom Actions */
+        .bottom-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 20%;
+            transform: translateX(50%);
+            display: flex;
+            gap: 15px;
+            z-index: 20;
+        }
+
+        .btn-bottom {
+            background: #fff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .btn-bottom:hover {
+                transform: translateY(-3px);
+                box-shadow: var(--shadow-lg);
+                border-color: #cbd5e1;
+            }
+
+        .btn-cart {
+            background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            box-shadow: 0 4px 15px rgba(15, 98, 254, 0.3);
+        }
+
+            .btn-cart:hover {
+                background: linear-gradient(135deg, var(--primary-hover) 0%, #2563eb 100%);
+                color: white;
+                box-shadow: 0 6px 20px rgba(15, 98, 254, 0.4);
+            }
+
+        /* Loader & Toast */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 9999;
             display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            backdrop-filter: blur(5px);
         }
 
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translate(50%, -100px);
+            background: #1f2937;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+            .toast.show {
+                transform: translate(50%, 0);
+                opacity: 1;
+            }
+
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-cube"></div>
-        <h2 style="font-weight: 900; margin: 25px 0 10px; letter-spacing: -0.5px;">جاري إعداد بيئة العمل</h2>
-        <p style="color: #94a3b8; font-size: 14px;">نجهز لك ستوديو التصميم بأعلى دقة...</p>
+    <div id="toast" class="toast"><i class="fas fa-check-circle" style="color:#34d399; font-size: 18px;"></i> <span id="toast-msg">تمت العملية بنجاح</span></div>
+    <div id="loading-overlay"><div class="spinner"></div><h3 style="font-weight: 800; font-size: 20px;">جاري المعالجة...</h3></div>
+
+    <!-- PREMIUM WELCOME SCREEN -->
+    <div id="premium-welcome">
+        <nav class="pw-nav">
+            <div class="pw-logo"><i class="fas fa-cube"></i> Printnes</div>
+        </nav>
+        <div class="pw-hero">
+            <h1 class="pw-title">صمم عبوتك باحترافية</h1>
+            <p class="pw-subtitle">اختر نوع العلبة المفضل وابدأ تجربة التصميم ثلاثي الأبعاد بكل سهولة وفخامة.</p>
+
+            <div class="pw-grid">
+                <div class="pw-card" onclick="enterStudio('mailer')">
+                    <div class="pw-card-icon"><i class="fas fa-box-open"></i></div>
+                    <h2>علبة بريدية</h2>
+                    <p>التجربة الأمثل لفتح منتجات المتاجر الإلكترونية. متينة، أنيقة، وآمنة.</p>
+                </div>
+                <div class="pw-card" onclick="enterStudio('folding')">
+                    <div class="pw-card-icon"><i class="fas fa-box"></i></div>
+                    <h2>كرتون مطوي</h2>
+                    <p>علب نحيفة وخفيفة الوزن مثالية للأرفف التجارية ومستحضرات التجميل.</p>
+                </div>
+                <div class="pw-card" onclick="enterStudio('rigid')">
+                    <div class="pw-card-icon"><i class="fas fa-gift"></i></div>
+                    <h2>علبة هدايا صلبة</h2>
+                    <p>علب فاخرة وسميكة تضفي طابعاً من الأناقة والرقي على منتجاتك.</p>
+                </div>
+                <div class="pw-card" onclick="enterStudio('shipping')">
+                    <div class="pw-card-icon"><i class="fas fa-truck-loading"></i></div>
+                    <h2>كرتون شحن</h2>
+                    <p>صناديق مموجة شديدة التحمل مصممة لحماية بضائعك أثناء النقل.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Top Bar -->
-    <header class="top-bar" dir="ltr">
-        <div class="logo-area" onclick="window.location.href='/'">
-            <div class="logo-icon"><i class="fas fa-cube"></i></div>
-            <div class="logo-text">Printnes Studio</div>
+    <!-- STUDIO WORKSPACE -->
+    <div id="studio-workspace">
+        <div class="studio-header">
+            <div class="studio-logo" onclick="window.location.reload()">
+                <i class="fas fa-cube" style="font-size:26px;"></i> برينتنس<sup>®</sup>
+            </div>
+            <div class="top-nav">
+                <button class="btn-cart-top" onclick="window.location.href='/Cart'"><i class="fas fa-shopping-cart"></i> السلة</button>
+            </div>
         </div>
-        <div class="top-actions">
-            <a href="/Cart" class="top-link"><i class="fas fa-shopping-cart"></i> Cart</a>
-            <a href="/" class="top-link"><i class="fas fa-times"></i> Exit</a>
-        </div>
-    </header>
 
-    <div class="workspace">
-        <!-- 3D Environment -->
-        <div id="three-container"></div>
+        <div id="three-canvas"></div>
 
-        <!-- Right Panel: Box Settings & Pricing -->
-        <aside class="floating-panel right-panel">
-            <div class="panel-header"><i class="fas fa-sliders-h"></i> إعدادات المنتج والتسعير</div>
-            <div class="panel-body">
-                <div>
-                    <label class="pw-label">نوع الهيكل</label>
-                    <select id="box-type" class="pw-select" onchange="changeBoxType()">
-                        <option value="mailer">كرتون شحن مطبوع (Mailer Box)</option>
-                        <option value="shipping">كرتون شحن عادي (Shipping Box)</option>
-                        <option value="folding">بوكس ورقي خفيف (Folding Carton)</option>
-                        <option value="rigid">بوكس هدايا صلب (Rigid Box)</option>
-                    </select>
+        <!-- Right Panel -->
+        <aside class="panel panel-settings">
+            <div class="panel-header">إعدادات العلبة</div>
+            <div class="panel-content">
+                <select id="box-type" class="custom-select" onchange="changeBoxType()">
+                    <option value="mailer">علبة بريدية</option>
+                    <option value="folding">كرتون مطوي</option>
+                    <option value="rigid">علبة صلبة</option>
+                    <option value="shipping">كرتون شحن</option>
+                </select>
+
+                <select id="size-preset" class="custom-select" onchange="handleSizeChange()">
+                    <optgroup label="مقاسات جاهزة">
+                        <option value="15x10x5">15 × 10 × 5 سم</option>
+                        <option value="20x15x8">20 × 15 × 8 سم</option>
+                        <option value="25x20x10">25 × 20 × 10 سم</option>
+                        <option value="30x25x15">30 × 25 × 15 سم</option>
+                    </optgroup>
+                    <option value="custom">أبعاد مخصصة <i class="fas fa-sliders-h"></i></option>
+                </select>
+
+                <div class="dim-box" id="custom-dim-box">
+                    <label>الطول (سم)</label>
+                    <input type="number" id="dim-l" class="dim-input" value="15">
+                    <label>العرض (سم)</label>
+                    <input type="number" id="dim-w" class="dim-input" value="10">
+                    <label>الارتفاع (سم)</label>
+                    <input type="number" id="dim-d" class="dim-input" value="5">
+                    <button class="dim-apply" onclick="applyCustomDims()">تطبيق الأبعاد</button>
                 </div>
 
-                <div>
-                    <label class="pw-label">الأبعاد الداخلية (سم)</label>
-                    <div class="dims-grid">
-                        <div class="dim-box">
-                            <span class="pw-label">الطول L</span>
-                            <input type="number" id="dim-l" value="20" min="5" onchange="updateGeometry()">
-                        </div>
-                        <div class="dim-box">
-                            <span class="pw-label">العرض W</span>
-                            <input type="number" id="dim-w" value="15" min="5" onchange="updateGeometry()">
-                        </div>
-                        <div class="dim-box">
-                            <span class="pw-label">العمق D</span>
-                            <input type="number" id="dim-d" value="8" min="2" onchange="updateGeometry()">
-                        </div>
+                <select id="box-material" class="custom-select" onchange="onMaterialChange()">
+                    <option value="white">ورق مقوى أبيض</option>
+                    <option value="kraft">ورق كرافت بني</option>
+                    <option value="supergloss">ورق لامع (سوبر جلوس)</option>
+                </select>
+
+                <div class="qty-container">
+                    <div class="qty-label">الكمية المطلوبة <i class="fas fa-boxes" style="color:var(--primary); margin-right: 5px;"></i></div>
+                    <div class="qty-row">
+                        <input type="range" class="qty-slider" id="qty-slider" min="50" max="5000" step="50" value="100" oninput="syncQty('slider')">
+                        <input type="number" class="qty-input" id="box-qty" value="100" min="50" step="50" onchange="syncQty('input')">
                     </div>
-                </div>
-
-                <div>
-                    <label class="pw-label">خامة الورق والطباعة</label>
-                    <select id="box-material" class="pw-select" onchange="updateMaterial()">
-                        <option value="white">ورق مقوى أبيض (White Board)</option>
-                        <option value="kraft">ورق كرافت بني (Kraft Brown)</option>
-                        <option value="premium">ورق كوشيه فاخر (Premium Coated)</option>
-                    </select>
-                </div>
-
-                <div class="qty-box">
-                    <span class="pw-label" style="margin:0; font-size: 13px;">الكمية المطلوبة</span>
-                    <input type="number" id="box-qty" value="250" min="50" onchange="calculatePrice()">
                 </div>
 
                 <div class="price-box">
-                    <span class="unit-price" id="unit-price">السعر التقديري للحبة: 0.00 ر.س</span>
-                    <div class="total-price"><span id="price-display">0.00</span> <small style="font-size: 16px; color: #64748b;">ر.س</small></div>
+                    <span>سعر الوحدة</span>
+                    <strong id="unit-price">1.76 ر.س</strong>
                 </div>
+
+                <div class="price-table-wrapper">
+                    <div class="pt-header" onclick="togglePriceTable()">جدول الأسعار <i class="fas fa-caret-up" id="pt-caret" style="color: #888;"></i></div>
+                    <ul class="pt-list" id="price-table-list">
+                        <!-- Populated dynamically via JS -->
+                    </ul>
+                </div>
+
+                <a href="#" class="custom-quote-link">تحتاج إلى تسعيرة خاصة؟ <i class="fas fa-external-link-alt"></i></a>
             </div>
         </aside>
 
-        <!-- Left Panel: Design Editor (Advanced Artboard) -->
-        <aside class="floating-panel left-panel">
-            <div class="panel-header"><i class="fas fa-pencil-ruler"></i> محرر التصميم التفاعلي</div>
-            <div class="panel-body" style="padding: 18px;">
+        <!-- Left Design Wrapper -->
+        <aside class="design-wrapper">
+            <div class="face-selector-col" id="face-selector">
+                <!-- Buttons injected via JS -->
+            </div>
 
-                <div class="face-grid">
-                    <button class="face-btn active" data-face="top" onclick="selectFace('top', this)"><i class="fas fa-arrow-up"></i> أعلى</button>
-                    <!-- الوجه الداخلي للغطاء -->
-                    <button class="face-btn" data-face="inside-top" onclick="selectFace('inside-top', this)"><i class="fas fa-box-open" style="color:var(--pw-blue);"></i> داخل الغطاء</button>
-                    <button class="face-btn" data-face="front" onclick="selectFace('front', this)"><i class="fas fa-bullseye"></i> أمام</button>
-                    <button class="face-btn" data-face="bottom" onclick="selectFace('bottom', this)"><i class="fas fa-arrow-down"></i> أسفل</button>
-                    <button class="face-btn" data-face="left" onclick="selectFace('left', this)"><i class="fas fa-caret-left"></i> يسار</button>
-                    <button class="face-btn" data-face="back" onclick="selectFace('back', this)"><i class="fas fa-reply"></i> خلف</button>
-                    <button class="face-btn" data-face="right" onclick="selectFace('right', this)"><i class="fas fa-caret-right"></i> يمين</button>
-                </div>
+            <div class="design-board-col">
+                <div class="panel-header">تصميم العلبة</div>
 
-                <div class="modern-color-row">
-                    <span>لون خلفية الوجه المحدد</span>
-                    <div class="color-picker-wrap">
-                        <input type="color" id="face-bg-color" value="#ffffff" oninput="changeFaceBg()">
-                    </div>
-                </div>
+                <div class="db-tools-top">
+                    <button class="btn-upload" onclick="document.getElementById('img-upload').click()"><i class="fas fa-cloud-upload-alt"></i> إضافة صورة/تصميم</button>
+                    <div class="formats-txt">الصيغ المدعومة: JPG, PNG, WebP, PDF (حد أقصى 10MB)</div>
+                    <input type="file" id="img-upload" hidden accept="image/*" onchange="uploadImage(event)">
 
-                <!-- Professional Artboard Area -->
-                <div class="canvas-artboard">
-                    <div id="safe-zone" class="safe-zone-overlay"></div>
-                    <!-- Hidden internal canvases -->
-                    <div class="canvas-wrapper" id="wrap-top"><canvas id="canvas-top"></canvas></div>
-                    <div class="canvas-wrapper" id="wrap-inside-top" style="display:none;"><canvas id="canvas-inside-top"></canvas></div>
-                    <div class="canvas-wrapper" id="wrap-bottom" style="display:none;"><canvas id="canvas-bottom"></canvas></div>
-                    <div class="canvas-wrapper" id="wrap-front" style="display:none;"><canvas id="canvas-front"></canvas></div>
-                    <div class="canvas-wrapper" id="wrap-back" style="display:none;"><canvas id="canvas-back"></canvas></div>
-                    <div class="canvas-wrapper" id="wrap-left" style="display:none;"><canvas id="canvas-left"></canvas></div>
-                    <div class="canvas-wrapper" id="wrap-right" style="display:none;"><canvas id="canvas-right"></canvas></div>
-                </div>
+                    <select class="custom-select" id="text-dropdown" onchange="if(this.value==='text'){addText(); this.value='';}">
+                        <option value="">إضافة نص...</option>
+                        <option value="text">نص جديد</option>
+                    </select>
 
-                <!-- Properties Panel (Dynamic) -->
-                <div id="obj-props" class="properties-panel" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span class="pw-label" style="margin: 0;">إعدادات العنصر</span>
-                        <span id="opacity-val" style="font-size: 11px; font-weight: bold; color: var(--pw-blue);">100%</span>
-                    </div>
-                    <input type="range" id="obj-opacity" min="0.1" max="1" step="0.05" value="1" oninput="updateObjOpacity()" style="width: 100%; accent-color: var(--pw-blue); margin-bottom: 15px;">
-
-                    <!-- Text Settings -->
-                    <div id="text-props" style="display: none; flex-direction: column; gap: 10px;">
-                        <input type="text" id="obj-text" class="pw-input" placeholder="تعديل النص..." oninput="updateObjText()" style="border: 1px solid var(--pw-border); padding: 8px 12px; border-radius: 8px;">
-                        <div style="display: flex; gap: 8px;">
-                            <select id="obj-font" class="pw-select" style="flex: 2;" onchange="updateObjFont()">
-                                <option value="Cairo">Cairo</option>
-                                <option value="Arial">Arial</option>
-                                <option value="Tahoma">Tahoma</option>
-                            </select>
-                            <div class="color-picker-wrap" style="flex: 1; height: 36px; border-radius: 8px; border: 1px solid var(--pw-border);">
-                                <input type="color" id="obj-color" oninput="updateObjColor()">
-                            </div>
+                    <div class="bg-fill-row">
+                        <span>لون خلفية الواجهة</span>
+                        <div class="color-picker-box">
+                            <input type="color" id="face-bg-color" value="#ffffff" oninput="changeBackgroundColor()">
                         </div>
                     </div>
-
-                    <!-- Shape Settings -->
-                    <div id="shape-props" style="display: none;">
-                        <div class="modern-color-row" style="padding: 8px 12px; margin: 0; border-radius: 8px; border: 1px solid var(--pw-border);">
-                            <span>تغيير لون الشكل</span>
-                            <div class="color-picker-wrap" style="width: 28px; height: 28px;">
-                                <input type="color" id="shape-color" oninput="updateShapeColor()">
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                <div class="elem-controls">
-                    <button class="btn-icon danger" onclick="deleteElement()" title="حذف العنصر"><i class="fas fa-trash-alt"></i></button>
-                    <button class="btn-icon" onclick="duplicateElement()" title="تكرار (نسخ)"><i class="fas fa-copy"></i></button>
-                    <button class="btn-icon" onclick="bringToFront()" title="إحضار للأمام"><i class="fas fa-layer-group"></i></button>
-                    <button class="btn-icon" onclick="centerElement()" title="توسيط"><i class="fas fa-compress-arrows-alt"></i></button>
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
-                    <button class="btn-primary-action" onclick="document.getElementById('file-upload').click()">
-                        <i class="fas fa-cloud-upload-alt"></i> رفع شعار / صورة
-                    </button>
-                    <input type="file" id="file-upload" style="display: none;" accept="image/*" onchange="uploadImage(event)">
-
-                    <div class="tools-row">
-                        <button class="btn-tool" onclick="addText()"><i class="fas fa-font"></i> نص</button>
-                        <button class="btn-tool" onclick="addShape('rect')"><i class="fas fa-square"></i> مربع</button>
-                        <button class="btn-tool" onclick="addShape('circle')"><i class="fas fa-circle"></i> دائرة</button>
+                <div class="canvas-wrapper">
+                    <div class="canvas-container-outer" id="canvas-wrapper-inner">
+                        <button class="btn-trash" id="btn-delete-obj" onclick="deleteObject()"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
+
+                <div class="align-row">
+                    <button class="btn-align" onclick="alignObject('fit')"><i class="fas fa-compress"></i> ملائمة</button>
+                    <button class="btn-align" onclick="alignObject('center')"><i class="fas fa-align-center"></i> توسيط</button>
+                    <button class="btn-align" onclick="alignObject('stretch')"><i class="fas fa-expand"></i> تمدد</button>
+                </div>
+
             </div>
         </aside>
 
-        <!-- Box Toggle -->
-        <button class="box-toggle-btn" onclick="toggleBoxOpen()" title="فتح/إغلاق المجسم">
-            <i class="fas fa-box-open" id="toggle-icon"></i>
-        </button>
-
-        <!-- Bottom Actions -->
-        <div class="bottom-bar">
-            <button class="pill-btn" onclick="resetDesign()"><i class="fas fa-sync-alt"></i> إعادة تصميم</button>
-            <button class="pill-btn primary" onclick="addToCart()" id="btn-cart">
-                <i class="fas fa-check-circle"></i> اعتماد التصميم للسلة
-            </button>
+        <div class="scene-bg-picker">
+            <label for="scene-bg-color"><i class="fas fa-palette"></i> لون الإضاءة / الخلفية</label>
+            <div class="color-picker-box" style="border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); width: 28px; height: 28px;">
+                <input type="color" id="scene-bg-color" value="#cbd5e1" oninput="changeSceneBackground()">
+            </div>
         </div>
 
+        <div class="bottom-bar">
+            <button class="btn-bottom" onclick="resetDesign()"><i class="fas fa-sync-alt"></i> إعادة ضبط</button>
+            <button class="btn-bottom"><i class="fas fa-save"></i> حفظ مؤقت</button>
+            <button class="btn-cart" onclick="saveDesignData()"><i class="fas fa-shopping-bag"></i> اعتمـاد وأضف للسلة</button>
+        </div>
     </div>
 
-    <!-- Libraries -->
+    <!-- Core Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
     <script>
-        /* ==========================================
-           Core State & Variables
-           ========================================== */
-        const FACES = ['top', 'inside-top', 'bottom', 'front', 'back', 'left', 'right']; // أضفنا الوجه الداخلي
+        /**
+         * ==========================================
+         * PRINTNES 3D STUDIO CORE (PREMIUM ARABIC)
+         * ==========================================
+         */
+
+        // --- Configuration Models (Arabic Translation) ---
+        const BOX_CONFIGS = {
+            'mailer': [
+                { id: 'top', name: 'أعلى', icon: 'fa-cube' },
+                { id: 'front', name: 'الأمام', icon: 'fa-box' },
+                { id: 'right', name: 'يمين', icon: 'fa-box' },
+                { id: 'back', name: 'الخلف', icon: 'fa-box' },
+                { id: 'left', name: 'يسار', icon: 'fa-box' },
+                { id: 'bottom', name: 'أسفل', icon: 'fa-cube' },
+                { id: 'inside', name: 'الداخل', icon: 'fa-box-open' }
+            ],
+            'rigid': [
+                { id: 'top', name: 'الغطاء', icon: 'fa-cube' },
+                { id: 'bottom', name: 'القاعدة', icon: 'fa-cube' },
+                { id: 'front', name: 'الأمام', icon: 'fa-box' },
+                { id: 'right', name: 'يمين', icon: 'fa-box' },
+                { id: 'back', name: 'الخلف', icon: 'fa-box' },
+                { id: 'left', name: 'يسار', icon: 'fa-box' }
+            ],
+            'folding': [
+                { id: 'front', name: 'الأمام', icon: 'fa-box' },
+                { id: 'right', name: 'يمين', icon: 'fa-box' },
+                { id: 'back', name: 'الخلف', icon: 'fa-box' },
+                { id: 'left', name: 'يسار', icon: 'fa-box' },
+                { id: 'top', name: 'أعلى', icon: 'fa-cube' },
+                { id: 'bottom', name: 'أسفل', icon: 'fa-cube' }
+            ],
+            'shipping': [
+                { id: 'top', name: 'أعلى', icon: 'fa-cube' },
+                { id: 'front', name: 'الأمام', icon: 'fa-box' },
+                { id: 'right', name: 'يمين', icon: 'fa-box' },
+                { id: 'back', name: 'الخلف', icon: 'fa-box' },
+                { id: 'left', name: 'يسار', icon: 'fa-box' },
+                { id: 'bottom', name: 'أسفل', icon: 'fa-cube' }
+            ]
+        };
+
+        const ALL_POSSIBLE_FACES = ['top', 'bottom', 'front', 'back', 'left', 'right', 'inside'];
+
+        let currentType = 'mailer';
         let activeFace = 'top';
-        let fCanvases = {};
+        let isBoxOpen = false;
+
+        // Track which faces the user has explicitly changed the background color for
+        let userCustomizedColors = {};
+
+        const PIXELS_PER_CM = 40;
+        let canvases = {};
         let textures = {};
-        let activeObj = null;
+        let activeFabricObj = null;
 
         let scene, camera, renderer, controls;
-        let boxGroup, lidGroup, baseGroup;
-        let isBoxOpen = true;
-        const PPU = 80; // دقة اللوحة الداخلية العالية للطباعة والـ 3D
+        let mainBoxGroup;
+        let animatedParts = [];
 
-        document.addEventListener("DOMContentLoaded", () => {
-            initFabric();
-            initThree();
-            updateGeometry();
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup engines in the background
+            setupFabricEngine();
+            setupThreeEngine();
 
-            // Load Existing Design from URL if Present (For Admin Review)
+            // Check if opened from Admin panel with a specific design
             const urlParams = new URLSearchParams(window.location.search);
             const designId = urlParams.get('designId');
+
             if (designId) {
-                loadDesignFromDb(designId);
+                loadDesignFromServer(designId);
             }
-
-            // Keyboard support for deletion
-            document.addEventListener('keydown', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-                if (e.key === 'Delete' || e.key === 'Backspace') {
-                    deleteElement();
-                }
-            });
-
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                if (loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.style.display = 'none', 800);
-                }
-            }, 1000);
         });
 
-        /* ==========================================
-           1. Fabric.js (Professional Setup)
-           ========================================== */
-        function initFabric() {
-            // إعدادات احترافية لإطار تحديد العناصر
-            fabric.Object.prototype.transparentCorners = false;
-            fabric.Object.prototype.cornerColor = '#0066ff';
-            fabric.Object.prototype.cornerStrokeColor = '#ffffff';
-            fabric.Object.prototype.borderColor = '#0066ff';
-            fabric.Object.prototype.cornerSize = 14;
-            fabric.Object.prototype.padding = 10;
-            fabric.Object.prototype.cornerStyle = 'circle';
-            fabric.Object.prototype.borderDashArray = [4, 4];
+        // --- Premium Welcome Screen Entry ---
+        function enterStudio(type) {
+            document.getElementById('box-type').value = type;
 
-            FACES.forEach(face => {
-                fCanvases[face] = new fabric.Canvas(`canvas-${face}`, {
-                    backgroundColor: '#ffffff',
-                    preserveObjectStacking: true,
-                    selection: false
-                });
+            const welcome = document.getElementById('premium-welcome');
+            welcome.style.opacity = '0';
+            welcome.style.transform = 'scale(1.05)';
 
-                fCanvases[face].on('after:render', () => {
-                    if (textures[face]) textures[face].needsUpdate = true;
-                });
+            setTimeout(() => {
+                welcome.style.display = 'none';
+                changeBoxType();
+                handleSizeChange();
 
-                fCanvases[face].on('selection:created', onObjectSelected);
-                fCanvases[face].on('selection:updated', onObjectSelected);
-                fCanvases[face].on('selection:cleared', () => {
-                    activeObj = null;
-                    document.getElementById('obj-props').style.display = 'none';
-                });
-            });
-        }
-
-        function resizeCanvases() {
-            const dimL = document.getElementById('dim-l');
-            const dimW = document.getElementById('dim-w');
-            const dimD = document.getElementById('dim-d');
-
-            const l = dimL ? parseFloat(dimL.value) || 20 : 20;
-            const w = dimW ? parseFloat(dimW.value) || 15 : 15;
-            const d = dimD ? parseFloat(dimD.value) || 8 : 8;
-
-            const dimensionsMap = {
-                'top': { w: l, h: w }, 'inside-top': { w: l, h: w }, 'bottom': { w: l, h: w },
-                'front': { w: l, h: d }, 'back': { w: l, h: d },
-                'left': { w: w, h: d }, 'right': { w: w, h: d }
-            };
-
-            const maxDisplayW = 320;
-            const maxDisplayH = 240;
-
-            FACES.forEach(face => {
-                if (!fCanvases[face]) return;
-
-                const cvs = fCanvases[face];
-
-                const realW = dimensionsMap[face].w * PPU;
-                const realH = dimensionsMap[face].h * PPU;
-
-                const scale = Math.min(maxDisplayW / realW, maxDisplayH / realH);
-                const cssW = realW * scale;
-                const cssH = realH * scale;
-
-                cvs.setDimensions({ width: realW, height: realH }, { backstoreOnly: true });
-                cvs.setDimensions({ width: cssW, height: cssH }, { cssOnly: true });
-
-                cvs.setZoom(scale);
-
-                const wrapper = document.getElementById(`wrap-${face}`);
-                if (wrapper) {
-                    wrapper.style.width = `${cssW}px`;
-                    wrapper.style.height = `${cssH}px`;
-
-                    const canvasEl = document.querySelector(`#wrap-${face} .canvas-container`);
-                    if(canvasEl) {
-                        canvasEl.style.transform = 'none';
-                    }
-
-                    if (face === activeFace) {
-                        const safeZone = document.getElementById('safe-zone');
-                        if (safeZone) {
-                            safeZone.style.display = 'block';
-                            safeZone.style.width = `${cssW * 0.9}px`;
-                            safeZone.style.height = `${cssH * 0.9}px`;
-                        }
-                    }
+                // Add a cool entrance swoop animation for the 3D box
+                if(mainBoxGroup) {
+                    mainBoxGroup.position.y += 10;
+                    mainBoxGroup.rotation.y = Math.PI;
+                    new TWEEN.Tween(mainBoxGroup.position).to({y: mainBoxGroup.position.y - 10}, 1500).easing(TWEEN.Easing.Cubic.Out).start();
+                    new TWEEN.Tween(mainBoxGroup.rotation).to({y: 0}, 1500).easing(TWEEN.Easing.Cubic.Out).start();
                 }
-                cvs.renderAll();
-            });
+            }, 600);
         }
 
-        // --- 2D Tools ---
-        function selectFace(face, btnElement) {
-            activeFace = face;
-            document.querySelectorAll('.face-btn').forEach(b => b.classList.remove('active'));
-            if (btnElement) btnElement.classList.add('active');
+        // --- Load Design for Admin ---
+        async function loadDesignFromServer(id) {
+            const welcome = document.getElementById('premium-welcome');
+            const overlay = document.getElementById('loading-overlay');
+            welcome.style.display = 'none';
+            overlay.style.display = 'flex';
 
-            FACES.forEach(f => {
-                const wrap = document.getElementById(`wrap-${f}`);
-                if (wrap) wrap.style.display = (f === face) ? 'block' : 'none';
-            });
-
-            const bgColorInput = document.getElementById('face-bg-color');
-            if (bgColorInput && fCanvases[activeFace]) {
-                let bg = fCanvases[activeFace].backgroundColor || '#ffffff';
-                if(bg.length === 4) bg = '#' + bg[1]+bg[1]+bg[2]+bg[2]+bg[3]+bg[3];
-                bgColorInput.value = bg;
-            }
-
-            fCanvases[activeFace].discardActiveObject();
-            fCanvases[activeFace].renderAll();
-            document.getElementById('obj-props').style.display = 'none';
-
-            resizeCanvases();
-        }
-
-        function onObjectSelected(e) {
-            activeObj = e.selected[0];
-            if(!activeObj) return;
-
-            const canvas = fCanvases[activeFace];
-            activeObj.set({
-                cornerSize: 14 / canvas.getZoom(),
-                transparentCorners: false
-            });
-
-            document.getElementById('obj-props').style.display = 'block';
-            document.getElementById('obj-opacity').value = activeObj.opacity || 1;
-            document.getElementById('opacity-val').innerText = Math.round((activeObj.opacity || 1) * 100) + '%';
-
-            const textProps = document.getElementById('text-props');
-            const shapeProps = document.getElementById('shape-props');
-
-            if (activeObj.type === 'i-text' || activeObj.type === 'text') {
-                textProps.style.display = 'flex';
-                shapeProps.style.display = 'none';
-
-                document.getElementById('obj-text').value = activeObj.text;
-                document.getElementById('obj-font').value = activeObj.fontFamily;
-
-                let color = activeObj.fill;
-                if(color && color.length === 4) color = '#' + color[1]+color[1]+color[2]+color[2]+color[3]+color[3];
-                document.getElementById('obj-color').value = color || '#000000';
-            } else if (activeObj.type === 'rect' || activeObj.type === 'circle') {
-                textProps.style.display = 'none';
-                shapeProps.style.display = 'flex';
-
-                let color = activeObj.fill;
-                if(color && color.length === 4) color = '#' + color[1]+color[1]+color[2]+color[2]+color[3]+color[3];
-                document.getElementById('shape-color').value = color || '#000000';
-            } else {
-                textProps.style.display = 'none';
-                shapeProps.style.display = 'none';
-            }
-        }
-
-        function uploadImage(e) {
-            const file = e.target.files[0];
-            if (!file || !fCanvases[activeFace]) return;
-            const reader = new FileReader();
-            reader.onload = function (f) {
-                fabric.Image.fromURL(f.target.result, (img) => {
-                    const canvas = fCanvases[activeFace];
-                    const trueW = canvas.width / canvas.getZoom();
-                    const trueH = canvas.height / canvas.getZoom();
-
-                    const maxDisplayDimension = trueW * 0.5;
-                    if (img.width > maxDisplayDimension || img.height > maxDisplayDimension) {
-                         img.scaleToWidth(maxDisplayDimension);
-                    }
-
-                    img.set({
-                        left: trueW / 2,
-                        top: trueH / 2,
-                        originX: 'center',
-                        originY: 'center',
-                        cornerSize: 14 / canvas.getZoom()
-                    });
-
-                    // الحفاظ على أبعاد الصورة عند التكبير
-                    img.setControlsVisibility({ mt: false, mb: false, ml: false, mr: false });
-
-                    canvas.add(img);
-                    canvas.setActiveObject(img);
-                    canvas.renderAll();
-                });
-            };
-            reader.readAsDataURL(file);
-            e.target.value = '';
-        }
-
-        function addText() {
-            const canvas = fCanvases[activeFace];
-            if (!canvas) return;
-            const trueW = canvas.width / canvas.getZoom();
-            const trueH = canvas.height / canvas.getZoom();
-
-            const text = new fabric.IText('نص جديد', {
-                left: trueW / 2, top: trueH / 2,
-                originX: 'center', originY: 'center',
-                fontFamily: 'Cairo', fill: '#1e293b',
-                fontSize: trueW / 6,
-                fontWeight: 'bold',
-                cornerSize: 14 / canvas.getZoom()
-            });
-            canvas.add(text);
-            canvas.setActiveObject(text);
-            canvas.renderAll();
-        }
-
-        function addShape(type) {
-            const canvas = fCanvases[activeFace];
-            if (!canvas) return;
-            const trueW = canvas.width / canvas.getZoom();
-            const trueH = canvas.height / canvas.getZoom();
-
-            let shape;
-            const sz = trueW / 4;
-
-            if (type === 'rect') {
-                shape = new fabric.Rect({
-                    left: trueW / 2, top: trueH / 2, originX: 'center', originY: 'center',
-                    fill: '#0066ff', width: sz, height: sz, rx: 15, ry: 15,
-                    cornerSize: 14 / canvas.getZoom()
-                });
-            } else if (type === 'circle') {
-                shape = new fabric.Circle({
-                    left: trueW / 2, top: trueH / 2, originX: 'center', originY: 'center',
-                    fill: '#00ccff', radius: sz / 2,
-                    cornerSize: 14 / canvas.getZoom()
-                });
-            }
-            canvas.add(shape);
-            canvas.setActiveObject(shape);
-            canvas.renderAll();
-        }
-
-        function changeFaceBg() {
-            const colorInput = document.getElementById('face-bg-color');
-            if (colorInput && fCanvases[activeFace]) {
-                fCanvases[activeFace].backgroundColor = colorInput.value;
-                fCanvases[activeFace].renderAll();
-                updateGeometry(); // لتحديث لون اللسان (Flap)
-            }
-        }
-
-        // Updating Object Properties
-        function updateObjText() { if(activeObj && activeObj.text !== undefined) { activeObj.set('text', document.getElementById('obj-text').value); fCanvases[activeFace].renderAll(); } }
-        function updateObjFont() { if(activeObj && activeObj.fontFamily !== undefined) { activeObj.set('fontFamily', document.getElementById('obj-font').value); fCanvases[activeFace].renderAll(); } }
-        function updateObjColor() { if(activeObj) { activeObj.set('fill', document.getElementById('obj-color').value); fCanvases[activeFace].renderAll(); } }
-        function updateShapeColor() { if(activeObj) { activeObj.set('fill', document.getElementById('shape-color').value); fCanvases[activeFace].renderAll(); } }
-        function updateObjOpacity() {
-            if(activeObj) {
-                const val = document.getElementById('obj-opacity').value;
-                activeObj.set('opacity', parseFloat(val));
-                document.getElementById('opacity-val').innerText = Math.round(val * 100) + '%';
-                fCanvases[activeFace].renderAll();
-            }
-        }
-
-        function deleteElement() {
-            const canvas = fCanvases[activeFace];
-            if (!canvas) return;
-            const active = canvas.getActiveObjects();
-            if (active.length) {
-                active.forEach(obj => canvas.remove(obj));
-                canvas.discardActiveObject();
-                document.getElementById('obj-props').style.display = 'none';
-            }
-        }
-
-        function duplicateElement() {
-            const canvas = fCanvases[activeFace];
-            if (!canvas || !activeObj) return;
-            activeObj.clone(function(clonedObj) {
-                clonedObj.set({
-                    left: activeObj.left + 30,
-                    top: activeObj.top + 30,
-                    evented: true
-                });
-                canvas.add(clonedObj);
-                canvas.setActiveObject(clonedObj);
-                canvas.renderAll();
-            });
-        }
-
-        function centerElement() {
-            const canvas = fCanvases[activeFace];
-            if (canvas && activeObj) {
-                const trueW = canvas.width / canvas.getZoom();
-                const trueH = canvas.height / canvas.getZoom();
-                activeObj.set({ left: trueW / 2, top: trueH / 2 });
-                activeObj.setCoords();
-                canvas.renderAll();
-            }
-        }
-
-        function bringToFront() { const canvas = fCanvases[activeFace]; if (canvas && activeObj) { canvas.bringToFront(activeObj); canvas.renderAll(); } }
-
-        /* ==========================================
-           2. Three.js (3D Engine - Ultra HD Textures Fix)
-           ========================================== */
-        function initThree() {
-            const container = document.getElementById('three-container');
-            if (!container) return;
-
-            scene = new THREE.Scene();
-
-            camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(35, 28, 45);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-            // إصلاح بهتان الألوان وتصحيح الإضاءة
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.toneMapping = THREE.NoToneMapping;
-
-            container.appendChild(renderer.domElement);
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-            scene.add(ambientLight);
-
-            const mainLight = new THREE.DirectionalLight(0xffffff, 0.4);
-            mainLight.position.set(20, 50, 30);
-            mainLight.castShadow = true;
-            mainLight.shadow.mapSize.set(2048, 2048);
-            mainLight.shadow.bias = -0.0005;
-            scene.add(mainLight);
-
-            const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.3);
-            fillLight.position.set(-20, 10, -20);
-            scene.add(fillLight);
-
-            const floorGeo = new THREE.PlaneGeometry(500, 500);
-            const floorMat = new THREE.ShadowMaterial({ opacity: 0.1 });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI / 2;
-            floor.position.y = -10;
-            floor.receiveShadow = true;
-            scene.add(floor);
-
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2 - 0.05;
-            controls.minDistance = 15;
-            controls.maxDistance = 100;
-
-            FACES.forEach(face => {
-                if (fCanvases[face]) {
-                    textures[face] = new THREE.CanvasTexture(fCanvases[face].getElement());
-
-                    textures[face].anisotropy = renderer.capabilities.getMaxAnisotropy();
-                    textures[face].encoding = THREE.sRGBEncoding;
-                    textures[face].minFilter = THREE.LinearFilter;
-                    textures[face].magFilter = THREE.LinearFilter;
-                    textures[face].generateMipmaps = false;
-
-                    textures[face].wrapS = THREE.ClampToEdgeWrapping;
-                    textures[face].wrapT = THREE.ClampToEdgeWrapping;
-
-                    // تعديل إتجاهات بعض الأوجه في الـ 3D
-                    if(face === 'back' || face === 'bottom') {
-                        textures[face].center.set(0.5, 0.5);
-                        textures[face].rotation = Math.PI;
-                    }
-                }
-            });
-
-            const animate = (time) => {
-                requestAnimationFrame(animate);
-                if (typeof TWEEN !== 'undefined') TWEEN.update(time);
-                controls.update();
-                renderer.render(scene, camera);
-            };
-            animate();
-
-            window.addEventListener('resize', () => {
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
-            });
-        }
-
-        function changeBoxType() { updateGeometry(); }
-
-        function updateGeometry() {
-            resizeCanvases();
-            calculatePrice();
-
-            if (!scene) return;
-
-            if (boxGroup) {
-                scene.remove(boxGroup);
-                boxGroup.traverse(child => { if(child.geometry) child.geometry.dispose(); });
-            }
-
-            boxGroup = new THREE.Group();
-            baseGroup = new THREE.Group();
-            lidGroup = new THREE.Group();
-
-            const type = document.getElementById('box-type').value;
-            const l = parseFloat(document.getElementById('dim-l').value) || 20;
-            const w = parseFloat(document.getElementById('dim-w').value) || 15;
-            const d = parseFloat(document.getElementById('dim-d').value) || 8;
-
-            let t = 0.2;
-            if(type === 'shipping') t = 0.4;
-            if(type === 'folding') t = 0.05;
-            if(type === 'rigid') t = 0.3;
-
-            const matType = document.getElementById('box-material').value;
-            // تقليل الـ Roughness لتعزيز وضوح الألوان
-            let rough = 0.3, metal = 0.0, color = 0xffffff;
-            if(matType === 'kraft') { color = 0xc68e58; rough = 0.6; }
-            if(matType === 'premium') { rough = 0.1; metal = 0.1; }
-
-            const createPanel = (width, height, depth, faceName, insideFaceName = null) => {
-                const geo = new THREE.BoxGeometry(width, height, depth);
-                const insideColor = matType === 'kraft' ? 0xb07d4b : 0xe2e8f0;
-                const insideMat = new THREE.MeshStandardMaterial({ color: insideColor, roughness: rough, metalness: metal });
-
-                let mats = [insideMat, insideMat, insideMat, insideMat, insideMat, insideMat];
-
-                // الماتيريال الخارجية
-                if (textures[faceName]) {
-                    const printedMat = new THREE.MeshStandardMaterial({ map: textures[faceName], roughness: rough, metalness: metal, transparent: true });
-                    if (faceName === 'front') { mats[4] = printedMat; mats[5] = insideMat; }
-                    else if (faceName === 'back') { mats[5] = printedMat; mats[4] = insideMat; }
-                    else if (faceName === 'right') { mats[0] = printedMat; mats[1] = insideMat; }
-                    else if (faceName === 'left') { mats[1] = printedMat; mats[0] = insideMat; }
-                    else if (faceName === 'top') { mats[2] = printedMat; }
-                    else if (faceName === 'bottom') { mats[3] = printedMat; mats[2] = insideMat; }
-                }
-
-                // الماتيريال الداخلية (مخصصة للغطاء حالياً)
-                if (insideFaceName && textures[insideFaceName]) {
-                    const innerPrintedMat = new THREE.MeshStandardMaterial({ map: textures[insideFaceName], roughness: rough, metalness: metal, transparent: true });
-                    if (faceName === 'top') { mats[3] = innerPrintedMat; }
-                }
-
-                const mesh = new THREE.Mesh(geo, mats);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                return mesh;
-            };
-
-            // Base Panels
-            const bottomPanel = createPanel(l, t, w, 'bottom');
-            bottomPanel.position.y = -d/2 + t/2;
-            baseGroup.add(bottomPanel);
-
-            const frontPanel = createPanel(l, d, t, 'front');
-            frontPanel.position.z = w/2 - t/2;
-            baseGroup.add(frontPanel);
-
-            const backPanel = createPanel(l, d, t, 'back');
-            backPanel.position.z = -w/2 + t/2;
-            baseGroup.add(backPanel);
-
-            const rightPanel = createPanel(t, d, w, 'right');
-            rightPanel.position.x = l/2 - t/2;
-            baseGroup.add(rightPanel);
-
-            const leftPanel = createPanel(t, d, w, 'left');
-            leftPanel.position.x = -l/2 + t/2;
-            baseGroup.add(leftPanel);
-
-            boxGroup.add(baseGroup);
-
-            // Lids & Flaps
-            if (type === 'rigid') {
-                const gap = 0.2;
-                const lidD = d * 0.5;
-                lidGroup.position.set(0, (d - lidD)/2, 0);
-
-                const topPanel = createPanel(l + gap*2, t, w + gap*2, 'top', 'inside-top');
-                topPanel.position.y = lidD/2 - t/2;
-                lidGroup.add(topPanel);
-
-                const plainMat = new THREE.MeshStandardMaterial({ color: color, roughness: rough, metalness: metal });
-
-                const lFront = new THREE.Mesh(new THREE.BoxGeometry(l + gap*2, lidD, t), plainMat);
-                lFront.position.set(0, 0, w/2 + gap - t/2);
-                lidGroup.add(lFront);
-
-                const lBack = new THREE.Mesh(new THREE.BoxGeometry(l + gap*2, lidD, t), plainMat);
-                lBack.position.set(0, 0, -w/2 - gap + t/2);
-                lidGroup.add(lBack);
-
-                const lRight = new THREE.Mesh(new THREE.BoxGeometry(t, lidD, w + gap*2), plainMat);
-                lRight.position.set(l/2 + gap - t/2, 0, 0);
-                lidGroup.add(lRight);
-
-                const lLeft = new THREE.Mesh(new THREE.BoxGeometry(t, lidD, w + gap*2), plainMat);
-                lLeft.position.set(-l/2 - gap + t/2, 0, 0);
-                lidGroup.add(lLeft);
-
-                boxGroup.add(lidGroup);
-            } else {
-                lidGroup.position.set(0, d/2, -w/2 + t/2);
-
-                const topPanel = createPanel(l, t, w, 'top', 'inside-top');
-                topPanel.position.set(0, 0, w/2 - t/2);
-                lidGroup.add(topPanel);
-
-                const flapGeo = new THREE.BoxGeometry(l - 0.4, d/3, t);
-
-                // حساب لون اللسان بناءً على الوجه العلوي والداخلي لدمجه مع التصميم بسلاسة
-                const insideColor = matType === 'kraft' ? 0xb07d4b : 0xe2e8f0;
-                let flapOuterColor = color;
-                let flapInnerColor = insideColor;
-
-                if(fCanvases['top'] && fCanvases['top'].backgroundColor) {
-                    flapOuterColor = new THREE.Color(fCanvases['top'].backgroundColor);
-                }
-                if(fCanvases['inside-top'] && fCanvases['inside-top'].backgroundColor) {
-                    flapInnerColor = new THREE.Color(fCanvases['inside-top'].backgroundColor);
-                }
-
-                const flapOuterMat = new THREE.MeshStandardMaterial({ color: flapOuterColor, roughness: rough, metalness: metal });
-                const flapInnerMat = new THREE.MeshStandardMaterial({ color: flapInnerColor, roughness: rough, metalness: metal });
-                const insideMat = new THREE.MeshStandardMaterial({ color: insideColor, roughness: rough, metalness: metal });
-
-                let flapMats = [insideMat, insideMat, insideMat, insideMat, flapInnerMat, flapOuterMat];
-
-                const frontFlap = new THREE.Mesh(flapGeo, flapMats);
-                frontFlap.position.set(0, -d/6, w - t * 2.5);
-                lidGroup.add(frontFlap);
-
-                boxGroup.add(lidGroup);
-            }
-
-            scene.add(boxGroup);
-
-            if (isBoxOpen) {
-                if (type === 'rigid') { lidGroup.position.y += d * 0.8; }
-                else { lidGroup.rotation.x = Math.PI / 1.5; }
-            }
-        }
-
-        function updateMaterial() {
-            const matType = document.getElementById('box-material').value;
-            const color = matType === 'kraft' ? '#c68e58' : '#ffffff';
-
-            FACES.forEach(face => {
-                if (fCanvases[face]) {
-                    fCanvases[face].backgroundColor = color;
-                    fCanvases[face].renderAll();
-                }
-            });
-
-            const bgColorInput = document.getElementById('face-bg-color');
-            if (bgColorInput) bgColorInput.value = color;
-
-            updateGeometry();
-        }
-
-        /* ==========================================
-           3. Box Animation
-           ========================================== */
-        function toggleBoxOpen() {
-            if (!lidGroup || typeof TWEEN === 'undefined') return;
-            const type = document.getElementById('box-type').value;
-            const d = parseFloat(document.getElementById('dim-d').value) || 8;
-
-            isBoxOpen = !isBoxOpen;
-
-            const icon = document.getElementById('toggle-icon');
-            if (icon) {
-                if(isBoxOpen) {
-                    icon.classList.replace('fa-box', 'fa-box-open');
-                } else {
-                    icon.classList.replace('fa-box-open', 'fa-box');
-                }
-            }
-
-            if (type === 'rigid') {
-                const targetY = isBoxOpen ? ((d * 0.5) / 2 + d * 0.8) : ((d * 0.5) / 2);
-                new TWEEN.Tween(lidGroup.position).to({ y: targetY }, 800).easing(TWEEN.Easing.Cubic.InOut).start();
-            } else {
-                const targetRotation = isBoxOpen ? (Math.PI / 1.5) : 0;
-                new TWEEN.Tween(lidGroup.rotation).to({ x: targetRotation }, 1000).easing(TWEEN.Easing.Bounce.Out).start();
-            }
-        }
-
-        /* ==========================================
-           4. Data Loading (From Admin Request)
-           ========================================== */
-        async function loadDesignFromDb(id) {
             try {
                 const response = await fetch(`/Studio/GetDesignData?id=${id}`);
                 const result = await response.json();
 
-                if (result.success) {
-                    const dbDesign = result.data;
+                if (result.success && result.data) {
+                    const data = result.data;
 
-                    document.getElementById('dim-l').value = dbDesign.length;
-                    document.getElementById('dim-w').value = dbDesign.width;
-                    document.getElementById('dim-d').value = dbDesign.height;
+                    // Map Arabic text back to values
+                    let typeVal = 'mailer';
+                    if(data.productType.includes('طوي') || data.productType.includes('Folding')) typeVal = 'folding';
+                    else if(data.productType.includes('صلب') || data.productType.includes('Rigid')) typeVal = 'rigid';
+                    else if(data.productType.includes('شحن') || data.productType.includes('Shipping')) typeVal = 'shipping';
 
-                    const typeSelect = document.getElementById('box-type');
-                    Array.from(typeSelect.options).forEach(opt => {
-                        if (dbDesign.productType.includes(opt.text)) typeSelect.value = opt.value;
-                    });
+                    document.getElementById('box-type').value = typeVal;
 
-                    const canvasData = JSON.parse(dbDesign.canvasJsonData);
+                    document.getElementById('dim-l').value = data.length;
+                    document.getElementById('dim-w').value = data.width;
+                    document.getElementById('dim-d').value = data.height;
 
-                    resizeCanvases();
+                    let matVal = 'white';
+                    if(data.colorHex.includes('كرافت') || data.colorHex.includes('Kraft')) matVal = 'kraft';
+                    else if(data.colorHex.includes('لامع') || data.colorHex.includes('Gloss')) matVal = 'supergloss';
+                    document.getElementById('box-material').value = matVal;
 
+                    changeBoxType(); // Rebuild UI based on type
+                    document.getElementById('size-preset').value = 'custom';
+                    document.getElementById('custom-dim-box').classList.add('active');
+
+                    // Load JSON to Fabric
+                    const parsedJson = JSON.parse(data.canvasJsonData);
                     let loadedCount = 0;
-                    const facesToLoad = Object.keys(canvasData);
+                    const facesToLoad = Object.keys(parsedJson).filter(k => canvases[k]);
+
+                    if (facesToLoad.length === 0) {
+                        updateGeometry();
+                        overlay.style.display = 'none';
+                        return;
+                    }
 
                     facesToLoad.forEach(face => {
-                        if (fCanvases[face]) {
-                            fCanvases[face].loadFromJSON(canvasData[face], () => {
-                                fCanvases[face].renderAll();
-                                if (textures[face]) textures[face].needsUpdate = true;
-                                loadedCount++;
-                                if (loadedCount === facesToLoad.length) {
-                                    updateGeometry();
-                                    calculatePrice();
-                                }
-                            });
-                        }
+                        canvases[face].loadFromJSON(parsedJson[face], () => {
+                            canvases[face].renderAll();
+                            textures[face].needsUpdate = true;
+                            loadedCount++;
+                            if(loadedCount === facesToLoad.length) {
+                                updateGeometry();
+                                overlay.style.display = 'none';
+                                showToast('تم جلب بيانات التصميم بنجاح');
+                            }
+                        });
                     });
+                } else {
+                    throw new Error(result.message || 'بيانات غير صالحة');
                 }
             } catch (e) {
-                console.error("Failed to load design:", e);
-                alert("لم نتمكن من جلب التصميم المطلوب.");
+                console.error(e);
+                showToast('حدث خطأ أثناء جلب التصميم');
+                overlay.style.display = 'none';
             }
         }
 
-        /* ==========================================
-           5. Pricing & Save
-           ========================================== */
-        function calculatePrice() {
-            const l = parseFloat(document.getElementById('dim-l').value) || 0;
-            const w = parseFloat(document.getElementById('dim-w').value) || 0;
-            const d = parseFloat(document.getElementById('dim-d').value) || 0;
-            const qty = parseInt(document.getElementById('box-qty').value) || 1;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // --- Background Color Changer ---
+        function changeSceneBackground() {
+            const color = document.getElementById('scene-bg-color').value;
+            // Create a premium radial gradient using the selected color
+            document.getElementById('studio-workspace').style.background = `radial-gradient(circle at 50% 50%, #ffffff 0%, ${color} 100%)`;
+        }
+
+        // --- Material & Canvas Color Logic ---
+        function getDefaultColor(faceId, mat) {
+            if (mat === 'kraft') {
+                return (faceId === 'inside') ? '#a8835a' : '#c29b70';
+            }
+            return (faceId === 'inside') ? '#f1f5f9' : '#ffffff';
+        }
+
+        function onMaterialChange() {
             const mat = document.getElementById('box-material').value;
 
-            const area = 2 * ((l * w) + (l * d) + (w * d));
-            let materialMultiplier = mat === 'kraft' ? 0.004 : (mat === 'white' ? 0.005 : 0.008);
-            let unitPrice = (area * materialMultiplier) + 1.5;
-
-            if(qty >= 1000) unitPrice *= 0.8;
-            else if (qty >= 500) unitPrice *= 0.9;
-
-            const unitPriceEl = document.getElementById('unit-price');
-            const priceDisplayEl = document.getElementById('price-display');
-
-            if (unitPriceEl) unitPriceEl.innerText = `السعر التقديري للحبة: ${unitPrice.toFixed(2)} ر.س`;
-            if (priceDisplayEl) priceDisplayEl.innerText = (unitPrice * qty).toFixed(2);
-        }
-
-        function resetDesign() {
-            if(confirm("هل أنت متأكد من مسح كافة عناصر التصميم؟")) {
-                const matType = document.getElementById('box-material').value;
-                const defaultColor = matType === 'kraft' ? '#c68e58' : '#ffffff';
-
-                FACES.forEach(face => {
-                    if (fCanvases[face]) {
-                        fCanvases[face].clear();
-                        fCanvases[face].backgroundColor = defaultColor;
-                        fCanvases[face].renderAll();
-                    }
-                });
-                document.getElementById('face-bg-color').value = defaultColor;
-                document.getElementById('obj-props').style.display = 'none';
-            }
-        }
-
-        async function addToCart() {
-            const btn = document.getElementById('btn-cart');
-            if (!btn) return;
-
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تحضير الطلب...';
-            btn.disabled = true;
-            btn.style.opacity = '0.8';
-
-            let designData = {};
-            FACES.forEach(face => {
-                if (fCanvases[face]) {
-                    fCanvases[face].discardActiveObject();
-                    designData[face] = fCanvases[face].toJSON();
+            // Update canvas backgrounds if user hasn't customized them
+            ALL_POSSIBLE_FACES.forEach(face => {
+                if (canvases[face] && !userCustomizedColors[face]) {
+                    canvases[face].backgroundColor = getDefaultColor(face, mat);
+                    canvases[face].renderAll();
                 }
             });
 
-            if(!isBoxOpen) toggleBoxOpen();
+            // Sync Color Picker UI
+            if(!userCustomizedColors[activeFace]) {
+                document.getElementById('face-bg-color').value = getDefaultColor(activeFace, mat);
+            }
 
-            setTimeout(async () => {
-                if(renderer && scene && camera) {
-                    renderer.render(scene, camera);
+            updateGeometry();
+        }
+
+        // --- Left Panel Logic ---
+        function syncQty(source) {
+            const slider = document.getElementById('qty-slider');
+            const input = document.getElementById('box-qty');
+            if (source === 'slider') {
+                input.value = slider.value;
+            } else {
+                slider.value = input.value;
+            }
+            calculatePrice();
+        }
+
+        function handleSizeChange() {
+            const preset = document.getElementById('size-preset').value;
+            const customBox = document.getElementById('custom-dim-box');
+
+            if (preset === 'custom') {
+                customBox.classList.add('active');
+            } else {
+                customBox.classList.remove('active');
+                const dims = preset.split('x');
+                document.getElementById('dim-l').value = dims[0];
+                document.getElementById('dim-w').value = dims[1];
+                document.getElementById('dim-d').value = dims[2];
+                updateGeometry();
+            }
+        }
+
+        function applyCustomDims() {
+            document.getElementById('size-preset').value = 'custom';
+            updateGeometry();
+        }
+
+        // --- UI & Face Selection Logic ---
+        function changeBoxType() {
+            currentType = document.getElementById('box-type').value;
+            const config = BOX_CONFIGS[currentType];
+            isBoxOpen = false;
+
+            const selector = document.getElementById('face-selector');
+            selector.innerHTML = '';
+
+            // Only Mailer and Rigid have "Open" feature
+            if (currentType === 'mailer' || currentType === 'rigid') {
+                const btnOpen = document.createElement('button');
+                btnOpen.className = 'face-btn action-btn';
+                btnOpen.id = 'btn-anim-toggle';
+                btnOpen.innerHTML = `<i class="fas fa-box-open"></i> <span>فتح</span>`;
+                btnOpen.onclick = toggle3DAnimation;
+                selector.appendChild(btnOpen);
+            }
+
+            config.forEach((f, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `face-btn ${idx === 0 ? 'active' : ''}`;
+                btn.id = `btn-face-${f.id}`;
+                btn.innerHTML = `<i class="fas ${f.icon}"></i> <span>${f.name}</span>`;
+                btn.onclick = () => switchActiveFace(f.id);
+                selector.appendChild(btn);
+            });
+
+            // 3D Zoom Controls
+            const zoomHtml = `
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoom3D(true)" title="تقريب المشهد"><i class="fas fa-plus"></i></button>
+                    <button class="zoom-btn" onclick="zoom3D(false)" title="إبعاد المشهد"><i class="fas fa-minus"></i></button>
+                </div>
+            `;
+            selector.insertAdjacentHTML('beforeend', zoomHtml);
+
+            switchActiveFace(config[0].id);
+            updateGeometry();
+        }
+
+        function switchActiveFace(faceId) {
+            activeFace = faceId;
+
+            document.querySelectorAll('.face-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`btn-face-${faceId}`);
+            if(btn) btn.classList.add('active');
+
+            ALL_POSSIBLE_FACES.forEach(f => {
+                const wrapper = document.getElementById(`wrap-${f}`);
+                if (wrapper) wrapper.style.display = (f === faceId) ? 'block' : 'none';
+            });
+
+            if(canvases[faceId]) {
+                const bg = canvases[faceId].backgroundColor || getDefaultColor(faceId, document.getElementById('box-material').value);
+                document.getElementById('face-bg-color').value = bg;
+                canvases[faceId].discardActiveObject();
+                canvases[faceId].renderAll();
+            }
+
+            resizeCanvasesToFitUI();
+            toggleTrashBtn(false);
+
+            moveCameraToFace(faceId);
+        }
+
+        function moveCameraToFace(faceId) {
+            if(!camera || !controls) return;
+            const L = parseFloat(document.getElementById('dim-l').value) || 15;
+            const W = parseFloat(document.getElementById('dim-w').value) || 10;
+            const D = parseFloat(document.getElementById('dim-d').value) || 5;
+
+            const maxDim = Math.max(L, W, D);
+            const dist = maxDim * 2 + 10;
+
+            let targetPos = new THREE.Vector3();
+            let targetLook = new THREE.Vector3(0,0,0);
+
+            switch(faceId) {
+                case 'top': targetPos.set(0, dist, 0.1); break;
+                case 'bottom': targetPos.set(0, -dist, 0.1); break;
+                case 'front': targetPos.set(0, 0, dist); break;
+                case 'back': targetPos.set(0, 0, -dist); break;
+                case 'left': targetPos.set(-dist, 0, 0); break;
+                case 'right': targetPos.set(dist, 0, 0); break;
+                case 'inside':
+                    if(!isBoxOpen && document.getElementById('btn-anim-toggle')) toggle3DAnimation();
+                    targetPos.set(0, dist * 1.2, dist * 0.5);
+                    break;
+            }
+
+            new TWEEN.Tween(camera.position).to({x: targetPos.x, y: targetPos.y, z: targetPos.z}, 1000).easing(TWEEN.Easing.Cubic.Out).start();
+            new TWEEN.Tween(controls.target).to({x: targetLook.x, y: targetLook.y, z: targetLook.z}, 1000).easing(TWEEN.Easing.Cubic.Out).start();
+        }
+
+        function zoom3D(zoomIn) {
+            if(!camera || !controls) return;
+            const zoomSpeed = 5;
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            camera.position.addScaledVector(dir, zoomIn ? zoomSpeed : -zoomSpeed);
+            controls.update();
+        }
+
+        // --- Fabric.js (2D Texture Engine) ---
+        function setupFabricEngine() {
+            fabric.Object.prototype.transparentCorners = false;
+            fabric.Object.prototype.cornerColor = 'var(--primary)';
+            fabric.Object.prototype.borderColor = 'var(--primary)';
+            fabric.Object.prototype.cornerSize = 10;
+
+            const container = document.getElementById('canvas-wrapper-inner');
+            const trashBtnHtml = '<button class="btn-trash" id="btn-delete-obj" onclick="deleteObject()"><i class="fas fa-trash"></i></button>';
+            container.innerHTML = trashBtnHtml;
+
+            const mat = document.getElementById('box-material').value || 'white';
+
+            ALL_POSSIBLE_FACES.forEach(face => {
+                const div = document.createElement('div');
+                div.id = `wrap-${face}`; div.style.display = 'none';
+                div.innerHTML = `<canvas id="cvs-${face}"></canvas>`;
+                container.prepend(div);
+
+                const cvs = new fabric.Canvas(`cvs-${face}`, {
+                    backgroundColor: getDefaultColor(face, mat),
+                    preserveObjectStacking: true
+                });
+                canvases[face] = cvs;
+
+                cvs.on('after:render', () => { if (textures[face]) textures[face].needsUpdate = true; });
+                cvs.on('selection:created', onObjectSelected);
+                cvs.on('selection:updated', onObjectSelected);
+                cvs.on('selection:cleared', () => toggleTrashBtn(false));
+            });
+        }
+
+        function resizeCanvasesToFitUI() {
+            const L = parseFloat(document.getElementById('dim-l').value) || 15;
+            const W = parseFloat(document.getElementById('dim-w').value) || 10;
+            const D = parseFloat(document.getElementById('dim-d').value) || 5;
+
+            let dimMap = {
+                'top': { w: L, h: W }, 'bottom': { w: L, h: W }, 'inside': { w: L, h: W },
+                'front': { w: L, h: D }, 'back': { w: L, h: D },
+                'left': { w: W, h: D }, 'right': { w: W, h: D }
+            };
+
+            if (currentType === 'folding') {
+                dimMap = {
+                    'front': { w: L, h: D }, 'back': { w: L, h: D },
+                    'left': { w: W, h: D }, 'right': { w: W, h: D },
+                    'top': { w: L, h: W }, 'bottom': { w: L, h: W }
+                };
+            }
+
+            const maxUiSizeW = 300;
+            const maxUiSizeH = 240;
+
+            ALL_POSSIBLE_FACES.forEach(face => {
+                if(!canvases[face] || !dimMap[face]) return;
+                const cvs = canvases[face];
+
+                const internalW = dimMap[face].w * PIXELS_PER_CM;
+                const internalH = dimMap[face].h * PIXELS_PER_CM;
+
+                const scale = Math.min(maxUiSizeW / internalW, maxUiSizeH / internalH);
+                const cssW = internalW * scale;
+                const cssH = internalH * scale;
+
+                cvs.setDimensions({ width: internalW, height: internalH }, { backstoreOnly: true });
+                cvs.setDimensions({ width: cssW, height: cssH }, { cssOnly: true });
+                cvs.setZoom(scale);
+
+                const wrap = document.getElementById(`wrap-${face}`);
+                if(wrap) { wrap.style.width = `${cssW}px`; wrap.style.height = `${cssH}px`; }
+                cvs.renderAll();
+            });
+        }
+
+        // --- 2D Tools Actions ---
+        function changeBackgroundColor() {
+            const color = document.getElementById('face-bg-color').value;
+            userCustomizedColors[activeFace] = true; // Mark as user customized
+            if(canvases[activeFace]) { canvases[activeFace].backgroundColor = color; canvases[activeFace].renderAll(); }
+        }
+
+        function addText() {
+            const cvs = canvases[activeFace];
+            const text = new fabric.IText('نص جديد', {
+                originX: 'center', originY: 'center',
+                left: cvs.width / (2 * cvs.getZoom()), top: cvs.height / (2 * cvs.getZoom()),
+                fontFamily: 'Cairo', fill: '#1f2937', fontSize: 60, fontWeight: 'bold'
+            });
+            cvs.add(text); cvs.setActiveObject(text);
+        }
+
+        function uploadImage(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (f) {
+                fabric.Image.fromURL(f.target.result, (img) => {
+                    const cvs = canvases[activeFace];
+                    const centerW = cvs.width / (2 * cvs.getZoom()); const centerH = cvs.height / (2 * cvs.getZoom());
+                    const scale = Math.min((centerW * 1.5) / img.width, (centerH * 1.5) / img.height);
+                    img.set({ originX: 'center', originY: 'center', left: centerW, top: centerH, scaleX: scale, scaleY: scale });
+                    cvs.add(img); cvs.setActiveObject(img);
+                });
+            };
+            reader.readAsDataURL(file); e.target.value = '';
+        }
+
+        function onObjectSelected(e) {
+            activeFabricObj = e.selected[0]; if(!activeFabricObj) return;
+            activeFabricObj.set({ cornerSize: 12 / canvases[activeFace].getZoom() });
+            toggleTrashBtn(true);
+        }
+
+        function toggleTrashBtn(show) {
+            const btn = document.getElementById('btn-delete-obj');
+            if(btn) btn.style.display = show ? 'flex' : 'none';
+        }
+
+        function alignObject(pos) {
+            if(!activeFabricObj) return;
+            const cvs = canvases[activeFace];
+            const cw = cvs.width / cvs.getZoom(); const ch = cvs.height / cvs.getZoom();
+            if (pos === 'center') { activeFabricObj.set({ left: cw/2, top: ch/2 }); }
+            else if (pos === 'fit') { const s = Math.min(cw/activeFabricObj.width, ch/activeFabricObj.height); activeFabricObj.set({ scaleX: s, scaleY: s, left: cw/2, top: ch/2 }); }
+            else if (pos === 'stretch') { activeFabricObj.set({ scaleX: cw/activeFabricObj.width, scaleY: ch/activeFabricObj.height, left: cw/2, top: ch/2 }); }
+            activeFabricObj.setCoords(); cvs.renderAll();
+        }
+
+        function deleteObject() { if(activeFabricObj) { canvases[activeFace].remove(activeFabricObj); toggleTrashBtn(false); } }
+        document.addEventListener('keydown', (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && e.target.tagName !== 'INPUT') deleteObject(); });
+
+        function resetDesign() {
+            if(confirm("هل أنت متأكد من مسح جميع التصاميم؟")) {
+                userCustomizedColors = {}; // Reset customization tracker
+                const mat = document.getElementById('box-material').value;
+                ALL_POSSIBLE_FACES.forEach(f => {
+                    if(canvases[f]){
+                        canvases[f].clear();
+                        canvases[f].backgroundColor = getDefaultColor(f, mat);
+                        canvases[f].renderAll();
+                    }
+                });
+                document.getElementById('face-bg-color').value = getDefaultColor(activeFace, mat);
+                updateGeometry();
+                showToast('تمت إعادة الضبط بنجاح');
+            }
+        }
+
+        // --- Three.js (3D Renderer Engine) ---
+        function setupThreeEngine() {
+            const container = document.getElementById('three-canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(30, 40, 50); // Set further back for bigger sizes
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; controls.dampingFactor = 0.05;
+
+            // Premium Lighting Setup
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const dl = new THREE.DirectionalLight(0xffffff, 0.5); dl.position.set(30, 60, 30); scene.add(dl);
+            const fl = new THREE.DirectionalLight(0xffffff, 0.2); fl.position.set(-30, 30, -30); scene.add(fl);
+
+            ALL_POSSIBLE_FACES.forEach(face => {
+                if(canvases[face]) {
+                    const tex = new THREE.CanvasTexture(canvases[face].getElement());
+                    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+                    tex.encoding = THREE.sRGBEncoding;
+                    textures[face] = tex;
                 }
-                const previewBase64 = renderer ? renderer.domElement.toDataURL("image/png") : "";
+            });
 
-                const typeSelect = document.getElementById('box-type');
-                const typeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text : "Custom Box";
-                const matSelect = document.getElementById('box-material');
-                const matText = matSelect ? matSelect.options[matSelect.selectedIndex].text : "White";
+            const animate = (time) => { requestAnimationFrame(animate); TWEEN.update(time); controls.update(); renderer.render(scene, camera); };
+            animate();
+            window.addEventListener('resize', () => { camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); });
+        }
 
-                const l = parseFloat(document.getElementById('dim-l').value) || 0;
-                const w = parseFloat(document.getElementById('dim-w').value) || 0;
-                const d = parseFloat(document.getElementById('dim-d').value) || 0;
-                const qty = parseInt(document.getElementById('box-qty').value) || 1;
-                const price = parseFloat(document.getElementById('price-display').innerText) || 0;
+        // --- PERFECTED FLAT-TO-3D GEOMETRIES ---
+        function createHingedPanel(w, h, d, px, py, pz, outFace, inFace, matType, rotFix = 0) {
+            const isKraft = matType === 'kraft';
+            const isGloss = matType === 'supergloss';
+            const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
+            const mtl = isGloss ? 0.3 : 0;
 
-                const unitStr = document.getElementById('unit-price').innerText.replace(/[^0-9.]/g, '');
-                const unit = parseFloat(unitStr) || 0;
+            const edgeM = new THREE.MeshStandardMaterial({ color: isKraft? 0xa8835a : 0xe2e8f0, roughness: 0.8 });
+            let fM = edgeM, bM = edgeM;
 
-                const payload = {
-                    ProductType: typeText,
-                    Length: l, Width: w, Height: d,
-                    ColorHex: matText,
-                    CanvasJsonData: JSON.stringify(designData),
-                    PreviewImageBase64: previewBase64,
-                    Price: price
+            if(outFace) {
+                if(textures[outFace]) {
+                    textures[outFace].center.set(0.5, 0.5);
+                    textures[outFace].rotation = rotFix;
+                    fM = new THREE.MeshStandardMaterial({map: textures[outFace], roughness: rgh, metalness: mtl, color: 0xffffff});
+                } else fM = new THREE.MeshStandardMaterial({color: isKraft ? 0xc29b70 : 0xffffff, roughness: rgh, metalness: mtl});
+            }
+            if(inFace) {
+                if(textures[inFace]) {
+                    textures[inFace].center.set(0.5, 0.5);
+                    bM = new THREE.MeshStandardMaterial({map: textures[inFace], roughness: rgh, metalness: mtl, color: 0xffffff});
+                } else bM = new THREE.MeshStandardMaterial({color: isKraft ? 0xa8835a : 0xf1f5f9, roughness: rgh, metalness: mtl});
+            }
+
+            const geo = new THREE.BoxGeometry(w, h, d);
+            geo.translate(px, py, pz);
+            // FIXED MAPPING: Swapped index 4 and 5 so that fM (outFace) correctly maps to the physical outside (-Z) of the folded panel
+            const mesh = new THREE.Mesh(geo, [edgeM, edgeM, edgeM, edgeM, bM, fM]);
+
+            const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity: 0.05 }));
+            mesh.add(line);
+
+            const hinge = new THREE.Group();
+            hinge.add(mesh);
+            return { mesh, hinge };
+        }
+
+        function updateGeometry() {
+            resizeCanvasesToFitUI();
+            calculatePrice();
+
+            if (!scene) return;
+            if (mainBoxGroup) {
+                scene.remove(mainBoxGroup);
+                mainBoxGroup.traverse(c => { if(c.isMesh){ c.geometry.dispose(); if(Array.isArray(c.material)) c.material.forEach(m=>m.dispose()); else c.material.dispose();} });
+            }
+
+            mainBoxGroup = new THREE.Group();
+            animatedParts = [];
+
+            const L = parseFloat(document.getElementById('dim-l').value) || 15;
+            const W = parseFloat(document.getElementById('dim-w').value) || 10;
+            const D = parseFloat(document.getElementById('dim-d').value) || 5;
+            const mat = document.getElementById('box-material').value;
+            const T = 0.1; // Base thickness adjusted for larger default sizes
+
+            if (currentType === 'mailer') {
+                const bot = createHingedPanel(L, W, T, 0,0,0, 'bottom', 'inside', mat, 0).mesh;
+                mainBoxGroup.add(bot);
+
+                const back = createHingedPanel(L, D, T, 0, D/2, 0, 'back', null, mat, 0);
+                back.hinge.position.set(0, W/2, 0);
+                mainBoxGroup.add(back.hinge);
+
+                // Note: rotFix=Math.PI applied to 'front' so the texture renders upright on the folded front face
+                const front = createHingedPanel(L, D, T, 0, -D/2, 0, 'front', null, mat, Math.PI);
+                front.hinge.position.set(0, -W/2, 0);
+                mainBoxGroup.add(front.hinge);
+
+                const left = createHingedPanel(D, W-T*2, T, -D/2, 0, 0, 'left', null, mat, Math.PI/2);
+                left.hinge.position.set(-L/2, 0, 0);
+                mainBoxGroup.add(left.hinge);
+
+                const right = createHingedPanel(D, W-T*2, T, D/2, 0, 0, 'right', null, mat, -Math.PI/2);
+                right.hinge.position.set(L/2, 0, 0);
+                mainBoxGroup.add(right.hinge);
+
+                // Note: rotFix=Math.PI applied to 'top' so the texture renders upright on the folded lid
+                const top = createHingedPanel(L, W, T, 0, W/2, 0, 'top', 'inside', mat, Math.PI);
+                top.hinge.position.set(0, D, 0);
+                back.mesh.add(top.hinge);
+
+                const flap = createHingedPanel(L-0.6, D*0.8, T, 0, D*0.4, 0, null, 'inside', mat, 0);
+                flap.hinge.position.set(0, W - T * 1.5, -T);
+                top.mesh.add(flap.hinge);
+
+                back.hinge.rotation.x = Math.PI/2;
+                front.hinge.rotation.x = -Math.PI/2;
+                left.hinge.rotation.y = Math.PI/2;
+                right.hinge.rotation.y = -Math.PI/2;
+
+                animatedParts.push({ obj: top.hinge, closedRot: { x: Math.PI/2 }, openRot: { x: 0 } });
+                animatedParts.push({ obj: flap.hinge, closedRot: { x: Math.PI/2 + 0.05 }, openRot: { x: 0.1 } });
+
+                if(isBoxOpen) { top.hinge.rotation.x = 0; flap.hinge.rotation.x = 0.1; }
+                else { top.hinge.rotation.x = Math.PI/2; flap.hinge.rotation.x = Math.PI/2 + 0.05; }
+
+                mainBoxGroup.rotation.x = -Math.PI/2;
+                mainBoxGroup.position.y = -D/2;
+            }
+            else if (currentType === 'rigid') {
+                const getMat = (faceId) => {
+                    const isKraft = mat === 'kraft';
+                    const isGloss = mat === 'supergloss';
+                    const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
+                    const mtl = isGloss ? 0.3 : 0;
+                    if(!faceId) return new THREE.MeshStandardMaterial({ color: isKraft?0xa8835a:0xe2e8f0, roughness: rgh, metalness: mtl });
+
+                    if(textures[faceId]) {
+                        textures[faceId].center.set(0.5, 0.5);
+                        if (faceId === 'top') textures[faceId].rotation = Math.PI;
+                        return new THREE.MeshStandardMaterial({map: textures[faceId], roughness: rgh, metalness: mtl, color: 0xffffff});
+                    }
+                    return new THREE.MeshStandardMaterial({color: isKraft ? 0xc29b70 : 0xffffff, roughness: rgh, metalness: mtl});
                 };
 
+                const edgeMat = getMat(null);
+
+                const createSolidBox = (w, h, d, isLid) => {
+                    const grp = new THREE.Group();
+
+                    const mY = isLid ? new THREE.Mesh(new THREE.BoxGeometry(w, T, d), [edgeMat, edgeMat, getMat('top'), getMat('inside'), edgeMat, edgeMat])
+                             : new THREE.Mesh(new THREE.BoxGeometry(w, T, d), [edgeMat, edgeMat, getMat('inside'), getMat('bottom'), edgeMat, edgeMat]);
+                    mY.position.y = isLid ? h/2 - T/2 : -h/2 + T/2;
+                    grp.add(mY);
+
+                    const mB = new THREE.Mesh(new THREE.BoxGeometry(w, h, T), [edgeMat, edgeMat, edgeMat, edgeMat, getMat('inside'), isLid ? getMat('back') : edgeMat]);
+                    mB.position.z = -d/2 + T/2;
+                    grp.add(mB);
+
+                    const mF = new THREE.Mesh(new THREE.BoxGeometry(w, h, T), [edgeMat, edgeMat, edgeMat, edgeMat, isLid ? getMat('front') : edgeMat, getMat('inside')]);
+                    mF.position.z = d/2 - T/2;
+                    grp.add(mF);
+
+                    const mL = new THREE.Mesh(new THREE.BoxGeometry(T, h, d-T*2), [getMat('inside'), isLid ? getMat('left') : edgeMat, edgeMat, edgeMat, edgeMat, edgeMat]);
+                    mL.position.x = -w/2 + T/2;
+                    grp.add(mL);
+
+                    const mR = new THREE.Mesh(new THREE.BoxGeometry(T, h, d-T*2), [isLid ? getMat('right') : edgeMat, getMat('inside'), edgeMat, edgeMat, edgeMat, edgeMat]);
+                    mR.position.x = w/2 - T/2;
+                    grp.add(mR);
+
+                    grp.children.forEach(c => {
+                        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry), new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity: 0.05 }));
+                        c.add(edges);
+                    });
+                    return grp;
+                };
+
+                const baseGrp = createSolidBox(L, D, W, false);
+                mainBoxGroup.add(baseGrp);
+
+                const lidD = D * 0.75;
+                const lidGrp = createSolidBox(L + T*2.5, lidD, W + T*2.5, true);
+
+                lidGrp.position.y = D/2 - lidD/2 + T;
+                mainBoxGroup.add(lidGrp);
+
+                animatedParts.push({
+                    obj: lidGrp,
+                    closedPos: { x:0, y: D/2 - lidD/2 + T, z: 0 },
+                    openPos: { x:0, y: D * 1.5, z: W/1.2 },
+                    closedRot: { x: 0 },
+                    openRot: { x: -Math.PI/6 }
+                });
+
+                if(isBoxOpen) {
+                    lidGrp.position.set(0, D*1.5, W/1.2);
+                    lidGrp.rotation.x = -Math.PI/6;
+                }
+            }
+            else if (currentType === 'folding') {
+                const getMat = (faceId) => {
+                    const isKraft = mat === 'kraft';
+                    const isGloss = mat === 'supergloss';
+                    const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
+                    const mtl = isGloss ? 0.3 : 0;
+                    if(!textures[faceId]) return new THREE.MeshStandardMaterial({color: isKraft ? (faceId?'#c29b70':'#a8835a') : '#ffffff', roughness: rgh, metalness: mtl});
+
+                    textures[faceId].center.set(0.5, 0.5);
+                    if(faceId === 'top') textures[faceId].rotation = Math.PI/2;
+                    if(faceId === 'bottom') textures[faceId].rotation = -Math.PI/2;
+                    return new THREE.MeshStandardMaterial({map: textures[faceId], roughness: rgh, metalness: mtl, color: 0xffffff});
+                };
+
+                const b = new THREE.Mesh(new THREE.BoxGeometry(L, D, W), [
+                    getMat('right'), getMat('left'), getMat('top'), getMat('bottom'), getMat('front'), getMat('back')
+                ]);
+
+                const edges = new THREE.LineSegments(new THREE.EdgesGeometry(b.geometry), new THREE.LineBasicMaterial({color:0x000000, opacity:0.1, transparent:true}));
+                b.add(edges);
+
+                const slitTop = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.04, 0.04), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                slitTop.rotation.x = -Math.PI/2;
+                slitTop.position.set(0, D/2 + 0.001, W/2 - 0.06);
+                b.add(slitTop);
+
+                const slitTopL = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                slitTopL.rotation.x = -Math.PI/2;
+                slitTopL.position.set(-L/2 + 0.04, D/2 + 0.001, W/2 - W/5 - 0.02);
+                b.add(slitTopL);
+
+                const slitTopR = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                slitTopR.rotation.x = -Math.PI/2;
+                slitTopR.position.set(L/2 - 0.04, D/2 + 0.001, W/2 - W/5 - 0.02);
+                b.add(slitTopR);
+
+                const slitBot = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.04, 0.04), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                slitBot.rotation.x = Math.PI/2;
+                slitBot.position.set(0, -D/2 - 0.001, -W/2 + 0.06);
+                b.add(slitBot);
+
+                const slitBotL = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                slitBotL.rotation.x = Math.PI/2;
+                slitBotL.position.set(-L/2 + 0.04, -D/2 - 0.001, -W/2 + W/5 + 0.02);
+                b.add(slitBotL);
+
+                const slitBotR = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                slitBotR.rotation.x = Math.PI/2;
+                slitBotR.position.set(L/2 - 0.04, -D/2 - 0.001, -W/2 + W/5 + 0.02);
+                b.add(slitBotR);
+
+                mainBoxGroup.add(b);
+            }
+            else if (currentType === 'shipping') {
+                const getMat = (faceId) => {
+                    const isKraft = mat === 'kraft';
+                    const isGloss = mat === 'supergloss';
+                    const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
+                    const mtl = isGloss ? 0.3 : 0;
+                    if(!textures[faceId]) return new THREE.MeshStandardMaterial({color: isKraft ? (faceId?'#c29b70':'#a8835a') : '#ffffff', roughness: rgh, metalness: mtl});
+
+                    textures[faceId].center.set(0.5, 0.5);
+                    if(faceId === 'top') textures[faceId].rotation = Math.PI/2;
+                    if(faceId === 'bottom') textures[faceId].rotation = -Math.PI/2;
+                    return new THREE.MeshStandardMaterial({map: textures[faceId], roughness: rgh, metalness: mtl, color: 0xffffff});
+                };
+
+                const b = new THREE.Mesh(new THREE.BoxGeometry(L, D, W), [
+                    getMat('right'), getMat('left'), getMat('top'), getMat('bottom'), getMat('front'), getMat('back')
+                ]);
+
+                const edges = new THREE.LineSegments(new THREE.EdgesGeometry(b.geometry), new THREE.LineBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                b.add(edges);
+
+                const slitTop = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.05), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.2, transparent:true}));
+                slitTop.rotation.x = -Math.PI/2; slitTop.position.set(0, D/2 + 0.001, 0); b.add(slitTop);
+
+                const slitBot = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.05), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.2, transparent:true}));
+                slitBot.rotation.x = Math.PI/2; slitBot.position.set(0, -D/2 - 0.001, 0); b.add(slitBot);
+
+                mainBoxGroup.add(b);
+            }
+
+            const box3 = new THREE.Box3().setFromObject(mainBoxGroup);
+            const center = box3.getCenter(new THREE.Vector3());
+            mainBoxGroup.position.sub(center);
+            scene.add(mainBoxGroup);
+        }
+
+        // --- Animations & Finalize ---
+        function toggle3DAnimation() {
+            if(animatedParts.length === 0) { return; }
+            isBoxOpen = !isBoxOpen;
+            const btn = document.getElementById('btn-anim-toggle');
+            if(btn) { btn.innerHTML = isBoxOpen ? `<i class="fas fa-box"></i> <span>إغلاق</span>` : `<i class="fas fa-box-open"></i> <span>فتح</span>`; }
+
+            animatedParts.forEach((part, idx) => {
+                const tr = isBoxOpen ? part.openRot : part.closedRot;
+                const tp = isBoxOpen ? part.openPos : part.closedPos;
+                const dly = idx * 100;
+                if(tr) new TWEEN.Tween(part.obj.rotation).to(tr, 800).delay(dly).easing(TWEEN.Easing.Quadratic.InOut).start();
+                if(tp) new TWEEN.Tween(part.obj.position).to(tp, 800).delay(dly).easing(TWEEN.Easing.Quadratic.InOut).start();
+            });
+        }
+
+        function calculatePrice() {
+            const areaCm2 = 2 * ((parseFloat(document.getElementById('dim-l').value)||15)*(parseFloat(document.getElementById('dim-w').value)||10) + (parseFloat(document.getElementById('dim-l').value)||15)*(parseFloat(document.getElementById('dim-d').value)||5) + (parseFloat(document.getElementById('dim-w').value)||10)*(parseFloat(document.getElementById('dim-d').value)||5));
+            const cost = document.getElementById('box-material').value === 'kraft' ? 0.01 : 0.015;
+            let baseUnitPrice = (areaCm2 * cost) + 0.50;
+            const qty = parseInt(document.getElementById('box-qty').value) || 100;
+
+            let currentDiscount = 0;
+            if(qty >= 500) currentDiscount = 0.15;
+            if(qty >= 1000) currentDiscount = 0.25;
+
+            let unitPrice = baseUnitPrice * (1 - currentDiscount);
+            document.getElementById('unit-price').innerText = `${unitPrice.toFixed(2)} ر.س`;
+
+            const list = document.getElementById('price-table-list');
+            if(list) {
+                list.innerHTML = '';
+                const packages = [100, 250, 500, 1000, 1500, 2000, 3000];
+                packages.forEach(q => {
+                    let d = 0;
+                    if(q >= 500) d = 0.15;
+                    if(q >= 1000) d = 0.25;
+                    let p = baseUnitPrice * (1 - d);
+
+                    let li = document.createElement('li');
+                    li.onclick = () => selectPackage(q);
+                    li.innerHTML = `<span>${q} وحدة</span><span>${p.toFixed(2)} ر.س</span>`;
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        function togglePriceTable() {
+            const list = document.getElementById('price-table-list');
+            const caret = document.getElementById('pt-caret');
+
+            list.classList.toggle('show');
+            if(list.classList.contains('show')) {
+                caret.classList.replace('fa-caret-up', 'fa-caret-down');
+            } else {
+                caret.classList.replace('fa-caret-down', 'fa-caret-up');
+            }
+        }
+
+        function selectPackage(q) {
+            document.getElementById('box-qty').value = q;
+            document.getElementById('qty-slider').value = q;
+            calculatePrice();
+            togglePriceTable();
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.price-table-wrapper')) {
+                const list = document.getElementById('price-table-list');
+                const caret = document.getElementById('pt-caret');
+                if (list && list.classList.contains('show')) {
+                    list.classList.remove('show');
+                    caret.classList.replace('fa-caret-down', 'fa-caret-up');
+                }
+            }
+        });
+
+        // --- UPDATED: Save Data Function (Matching Old Code Logic) ---
+        async function saveDesignData() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
+
+            // 1. Prepare Design JSON
+            let designJsonData = {};
+            ALL_POSSIBLE_FACES.forEach(face => {
+                if (canvases[face]) {
+                    canvases[face].discardActiveObject();
+                    designJsonData[face] = canvases[face].toJSON();
+                }
+            });
+
+            // 2. Close box for screenshot if open
+            if (isBoxOpen) toggle3DAnimation();
+
+            // 3. Render Preview
+            setTimeout(async () => {
+                renderer.render(scene, camera);
+                const previewImg = renderer.domElement.toDataURL("image/png", 0.9);
+
+                // 4. Gather Data for Server & Cart
+                const boxTypeStr = document.getElementById('box-type').options[document.getElementById('box-type').selectedIndex].text;
+                const matStr = document.getElementById('box-material').options[document.getElementById('box-material').selectedIndex].text;
+                const L = parseFloat(document.getElementById('dim-l').value) || 15;
+                const W = parseFloat(document.getElementById('dim-w').value) || 10;
+                const D = parseFloat(document.getElementById('dim-d').value) || 5;
+                const qty = parseInt(document.getElementById('box-qty').value) || 100;
+                const unitPrice = parseFloat(document.getElementById('unit-price').innerText.replace(/[^\d.]/g, ''));
+
+                // 5. Construct Cart Item (Matching Old Code Structure)
+                const cartItem = {
+                    id: Date.now().toString(),
+                    name: `علبة مخصصة - ${boxTypeStr}`,
+                    size: `${L} × ${W} × ${D} سم`,
+                    material: matStr,
+                    quantity: qty,
+                    unitPrice: unitPrice,
+                    totalPrice: unitPrice * qty,
+                    image: previewImg,
+                    designData: JSON.stringify(designJsonData),
+                    SelectedOptionsJson: JSON.stringify({ "المقاس": `${L} × ${W} × ${D} سم`, "الخامة": matStr })
+                };
+
+                // 6. Send to Server
                 try {
                     const response = await fetch('/Studio/SaveDesign', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({
+                            ProductType: boxTypeStr,
+                            Length: L, Width: W, Height: D,
+                            ColorHex: document.getElementById('box-material').value,
+                            CanvasJsonData: JSON.stringify(designJsonData),
+                            PreviewImageBase64: previewImg,
+                            Price: unitPrice * qty
+                        })
                     });
+                    const result = await response.json();
 
-                    const data = await response.json();
+                    if (result.success) {
+                        // Add Design ID to options
+                        cartItem.designId = result.designId;
+                        let opt = JSON.parse(cartItem.SelectedOptionsJson);
+                        opt["معرف التصميم"] = `#${result.designId}`;
+                        cartItem.SelectedOptionsJson = JSON.stringify(opt);
 
-                    if (data.success) {
-                        const cartItem = {
-                            id: 0, name: `تصميم 3D مخصص (${payload.ProductType})`, price: unit,
-                            img: data.imageUrl || previewBase64, quantity: qty,
-                            details: {
-                                "design": `${l}x${w}x${d} سم`,
-                                "paperType": payload.ColorHex,
-                                "sides": "مرجع: #" + data.designId,
-                                "cover": data.imageUrl || previewBase64
-                            }
-                        };
-
-                        let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
-                        cart.push(cartItem);
-                        localStorage.setItem('printnesCart', JSON.stringify(cart));
-                        window.location.href = '/Cart';
-                    } else {
-                        alert("حدث خطأ أثناء الحفظ.");
-                        resetBtn();
+                        // Update image if server returned a URL
+                        if(result.imageUrl) cartItem.image = result.imageUrl;
                     }
-                } catch (error) {
-                    const cartItem = {
-                        id: 0, name: `تصميم 3D مخصص (${payload.ProductType})`, price: unit, img: previewBase64, quantity: qty,
-                        details: {
-                            "design": `${l}x${w}x${d} سم`,
-                            "paperType": payload.ColorHex,
-                            "sides": "خطأ في الاتصال بالسيرفر",
-                            "cover": previewBase64
-                        }
-                    };
+                } catch (e) {
+                    console.log('Saved locally due to error:', e);
+                } finally {
+                    // 7. Save to LocalStorage and Redirect (Same as Old Code)
                     let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
                     cart.push(cartItem);
                     localStorage.setItem('printnesCart', JSON.stringify(cart));
+
+                    // Navigate to Cart
                     window.location.href = '/Cart';
                 }
-
-            }, 800);
-
-            function resetBtn() {
-                if (btn) { btn.innerHTML = '<i class="fas fa-check-circle"></i> اعتماد التصميم للسلة'; btn.disabled = false; btn.style.opacity = '1'; }
-            }
+            }, 1000);
         }
+
     </script>
 </body>
 </html>
