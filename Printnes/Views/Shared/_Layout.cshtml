@@ -12,6 +12,7 @@
 
     // جلب إعدادات المتجر الديناميكية
     var siteSettings = SiteSettingsManager.LoadSettings();
+    var logoUrl = string.IsNullOrEmpty(siteSettings.StoreLogoUrl) ? "https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" : siteSettings.StoreLogoUrl;
 
     // التحقق من حالة تسجيل الدخول
     bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
@@ -28,7 +29,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="~/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" rel="icon" type="image/x-icon" />
+    <link href="@logoUrl" rel="icon" type="image/x-icon" />
 
     <style>
         .menu-promo-item {
@@ -77,7 +78,7 @@
         <div class="container header-content">
             <div class="brand-area">
                 <div class="logo-and-text" onclick="location.href='/'" style="cursor: pointer;">
-                    <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="@siteSettings.StoreName" class="logo-img">
+                    <img src="@logoUrl" alt="@siteSettings.StoreName" class="logo-img">
                     <div class="brand-text">
                         <!-- اسم المتجر ديناميكي -->
                         <h1 style="font-size: 22px;">@siteSettings.StoreName.Split(' ')[0]</h1>
@@ -153,7 +154,7 @@
     <aside id="side-menu" class="side-menu shadow-lg">
         <div class="menu-header">
             <div class="brand-small">
-                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="@siteSettings.StoreName">
+                <img src="@logoUrl" alt="@siteSettings.StoreName">
                 <span>@siteSettings.StoreName.Split(' ')[0]</span>
             </div>
             <button class="close-menu-btn" onclick="closeSideMenu()">&times;</button>
@@ -206,7 +207,7 @@
     <footer class="main-footer">
         <div class="container footer-inner">
             <div class="footer-col brand-col">
-                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="@siteSettings.StoreName" class="footer-logo">
+                <img src="@logoUrl" alt="@siteSettings.StoreName" class="footer-logo">
                 <p class="footer-desc">
                     @siteSettings.StoreDescription
                 </p>

@@ -1,15 +1,18 @@
-﻿// الملف: ViewModels/CartViewModels.cs
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json; // 👈 مهم جداً عشان الـ JsonElement
 using System.Text.Json.Serialization;
 
 namespace Printnes.ViewModels
 {
     // هذا الكلاس وظيفته استقبال وفك تشفير الـ JSON الخاص بالسلة 
-    // القادم من الـ LocalStorage في الـ Front-end (مهم لعملية إتمام الطلب)
+    // القادم من الـ LocalStorage في الـ Front-end
     public class CartItemDto
     {
+        // 🟢 الحل هنا: استخدمنا JsonElement عشان يقبل (رقم) للمنتجات العادية، و (نص) للتصميم المخصص بدون ما يضرب Error
+        [JsonPropertyName("id")]
+        public JsonElement Id { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
@@ -24,23 +27,26 @@ namespace Printnes.ViewModels
 
         [JsonPropertyName("details")]
         public CartItemDetailsDto Details { get; set; }
+
+        [JsonPropertyName("SelectedOptionsJson")]
+        public string SelectedOptionsJson { get; set; }
     }
 
     public class CartItemDetailsDto
     {
-        [JsonPropertyName("design")]
+        [JsonPropertyName("Design")]
         public string Design { get; set; }
 
-        [JsonPropertyName("sides")]
+        [JsonPropertyName("Sides")]
         public string Sides { get; set; }
 
-        [JsonPropertyName("cover")]
+        [JsonPropertyName("Cover")]
         public string Cover { get; set; }
 
-        [JsonPropertyName("paperType")]
+        [JsonPropertyName("PaperType")]
         public string PaperType { get; set; }
 
-        [JsonPropertyName("corners")]
+        [JsonPropertyName("Corners")]
         public string Corners { get; set; }
     }
 
@@ -73,9 +79,8 @@ namespace Printnes.ViewModels
         public string Notes { get; set; }
 
         [Required]
-        public byte PaymentMethod { get; set; } // 1=Mada, 2=Visa, 3=ApplePay, 4=BankTransfer, 5=COD
+        public byte PaymentMethod { get; set; } 
 
-        // هذا الحقل سيستقبل بيانات السلة من الـ LocalStorage عن طريق الـ JavaScript كـ JSON String
         [Required(ErrorMessage = "السلة فارغة!")]
         public string CartItemsJson { get; set; }
     }

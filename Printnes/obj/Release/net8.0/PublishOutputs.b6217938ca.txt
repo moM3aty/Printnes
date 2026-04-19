@@ -2,6 +2,7 @@ C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\ne
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\appsettings.Development.json
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\appsettings.json
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\site_settings.json
+C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\studio_settings.json
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\Printnes.dll
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\Printnes.runtimeconfig.json
 C:\Users\MOHAMED ABO-ELM3ATY\Downloads\Projects\Printnes\Printnes\obj\Release\net8.0\PubTmp\Out\Printnes.pdb

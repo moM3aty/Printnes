@@ -1,15 +1,20 @@
 ﻿<!-- الملف: Areas/Admin/Views/Shared/_AdminLayout.cshtml -->
+@using Printnes.Helpers
+@{
+    var siteSettings = SiteSettingsManager.LoadSettings();
+    var logoUrl = string.IsNullOrEmpty(siteSettings.StoreLogoUrl) ? "https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" : siteSettings.StoreLogoUrl;
+}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>@ViewData["Title"] | Printnes ERP</title>
+    <title>@ViewData["Title"] | @siteSettings.StoreName</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/admin-style.css" />
-    <link href="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" rel="icon" type="image/x-icon" />
+    <link href="@logoUrl" rel="icon" type="image/x-icon" />
 
     <!-- إصلاحات قوية للـ Sidebar لضمان الفتح والإغلاق السلس على جميع الشاشات -->
     <style>
@@ -60,81 +65,77 @@
 
         /* الشاشات الصغيرة (الجوال والتابلت) */
         @@media (max-width: 992px) {
-            .sidebar
-
-        {
-            transform: translateX(100%) !important;
-            position: fixed !important;
-            right: 0 !important;
-            top: 0 !important;
-            bottom: 0 !important;
-            width: 280px !important;
-        }
-
-        .sidebar.active {
-            transform: translateX(0) !important;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.3);
-        }
-
-        .main-content {
-            margin-right: 0 !important;
-            width: 100% !important;
-        }
-
-        .sidebar.collapsed ~ .main-content {
-            margin-right: 0 !important;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(3px);
-            z-index: 999;
-        }
-
-            .sidebar-overlay.active {
-                display: block;
+            .sidebar {
+                transform: translateX(100%) !important;
+                position: fixed !important;
+                right: 0 !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                width: 280px !important;
             }
 
-        /* إخفاء عناصر بالشريط العلوي في الجوال لتوفير مساحة */
-        .topbar {
-            padding: 0 15px;
-        }
+                .sidebar.active {
+                    transform: translateX(0) !important;
+                    box-shadow: -5px 0 25px rgba(0,0,0,0.3);
+                }
 
-        .btn-visit-store span {
-            display: none;
-        }
+            .main-content {
+                margin-right: 0 !important;
+                width: 100% !important;
+            }
 
-        .admin-profile-info {
-            display: none;
-        }
+            .sidebar.collapsed ~ .main-content {
+                margin-right: 0 !important;
+            }
 
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(3px);
+                z-index: 999;
+            }
 
-        .stats-grid {
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
+                .sidebar-overlay.active {
+                    display: block;
+                }
+            /* إخفاء عناصر بالشريط العلوي في الجوال لتوفير مساحة */
+            .topbar {
+                padding: 0 15px;
+            }
 
-        .filter-bar {
-            flex-direction: column;
-            align-items: stretch;
-        }
+            .btn-visit-store span {
+                display: none;
+            }
 
-        .filter-select, .filter-input {
-            width: 100%;
-        }
+            .admin-profile-info {
+                display: none;
+            }
 
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-select, .filter-input {
+                width: 100%;
+            }
         }
     </style>
 
@@ -149,7 +150,7 @@
     <aside class="sidebar" id="erp-sidebar">
         <div class="sidebar-header" style="position: relative;">
             <a href="/Admin/Dashboard">
-                <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes ERP" style="transition: all 0.3s ease;">
+                <img src="@logoUrl" alt="@siteSettings.StoreName" style="transition: all 0.3s ease;">
             </a>
         </div>
 
@@ -184,6 +185,10 @@
             <a href="/Admin/ProductOptions" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ProductOptions" ? "active" : "")">
                 <i class="fas fa-sliders-h"></i>
                 <span>خيارات الطباعة</span>
+            </a>
+            <a href="/Admin/StudioSettings" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "StudioSettings" ? "active" : "")">
+                <i class="fas fa-cubes"></i>
+                <span>إعدادات الاستوديو 3D</span>
             </a>
             <a href="/Admin/ProductExtras" class="menu-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "ProductExtras" ? "active" : "")">
                 <i class="fas fa-puzzle-piece"></i>

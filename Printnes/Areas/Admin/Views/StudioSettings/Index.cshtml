@@ -1,0 +1,160 @@
+﻿@model Printnes.ViewModels.StudioSettingsViewModel
+@{
+    ViewData["Title"] = "إعدادات وتسعير الاستوديو 3D";
+}
+
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-cubes"></i> إعدادات وتسعير الاستوديو 3D</h1>
+    <p style="color: var(--text-muted); margin-top: 10px;">تحكم في المقاسات والألوان و **الأسعار** التي تظهر للعملاء داخل الاستوديو بشكل مستقل تماماً.</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-auto-dismiss">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="form-grid">
+
+    <!-- التكلفة الأساسية للعلبة -->
+    <div class="premium-card">
+        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
+            <i class="fas fa-coins"></i> التكلفة الأساسية للعلبة
+        </h3>
+        <form asp-action="SaveBaseCost" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: bold;">السعر الثابت للقص والتجهيز (يضاف لكل علبة قبل حساب المساحة)</label>
+                <input type="number" step="0.01" name="basePrintCost" class="form-control" value="@Model.BasePrintCost" required>
+            </div>
+            <button type="submit" class="btn-premium btn-sm" style="width: 100%; background: #10b981;"><i class="fas fa-save"></i> تحديث التكلفة الأساسية</button>
+        </form>
+    </div>
+
+    <!-- شرائح الخصم -->
+    <div class="premium-card">
+        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
+            <i class="fas fa-percent"></i> شرائح خصم الكميات
+        </h3>
+        <form asp-action="AddDiscountTier" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: bold;">أكبر من أو يساوي (كمية)</label>
+                    <input type="number" name="MinQuantity" class="form-control" placeholder="مثال: 500" required>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: bold;">نسبة الخصم (0.15 = 15%)</label>
+                    <input type="number" step="0.01" name="DiscountPercentage" class="form-control" placeholder="مثال: 0.15" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-premium btn-sm" style="width: 100%;"><i class="fas fa-plus"></i> إضافة شريحة خصم</button>
+        </form>
+        <table class="premium-table" style="font-size: 13px;">
+            <thead><tr><th>الكمية فوق</th><th>الخصم المطبق</th><th>حذف</th></tr></thead>
+            <tbody>
+                @foreach (var tier in Model.DiscountTiers.OrderBy(t => t.MinQuantity))
+                {
+                    <tr>
+                        <td><strong>@tier.MinQuantity</strong> علبة</td>
+                        <td><span class="badge badge-success">@(tier.DiscountPercentage * 100)%</span></td>
+                        <td>
+                            <form asp-action="DeleteDiscountTier" method="post"><input type="hidden" name="id" value="@tier.Id" /><button type="submit" class="btn-outline btn-icon btn-sm" style="color: red; border-color: red;"><i class="fas fa-trash"></i></button></form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- قسم الخامات والألوان -->
+    <div class="premium-card">
+        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
+            <i class="fas fa-swatchbook"></i> خامات الورق وتسعيرها
+        </h3>
+
+        <form asp-action="AddMaterial" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: bold;">اسم الخامة (عربي)</label>
+                    <input type="text" name="Name" class="form-control" required>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: bold;">البرمجة (white/kraft/supergloss)</label>
+                    <input type="text" name="InternalValue" class="form-control" required>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: bold;">تكلفة 1 سم²</label>
+                    <input type="number" step="0.001" name="CostPerCm2" class="form-control" placeholder="0.015" required>
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; font-weight: bold;">لون العلبة (Hex)</label>
+                    <input type="color" name="ColorHex" class="form-control" style="height: 45px; padding: 5px;" value="#ffffff" required>
+                </div>
+                <div style="flex: 1; padding-bottom: 12px;">
+                    <input type="checkbox" name="IsGlossy" id="IsGlossy" value="true">
+                    <label for="IsGlossy" style="font-size: 13px; font-weight: bold;">لامع؟</label>
+                </div>
+            </div>
+            <button type="submit" class="btn-premium btn-sm" style="width: 100%; background: var(--info);"><i class="fas fa-plus"></i> إضافة الخامة</button>
+        </form>
+
+        <table class="premium-table" style="font-size: 13px;">
+            <thead><tr><th>الخامة</th><th>سعر سم²</th><th>اللون واللمعان</th><th>حذف</th></tr></thead>
+            <tbody>
+                @foreach (var mat in Model.Materials)
+                {
+                    <tr>
+                        <td><strong>@mat.Name</strong><br><small>@mat.InternalValue</small></td>
+                        <td style="color:var(--primary-color); font-weight:bold;">@mat.CostPerCm2</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <div style="width: 15px; height: 15px; background-color: @mat.ColorHex; border: 1px solid #ccc;"></div>
+                                @if (mat.IsGlossy)
+                                {
+                                    <span class="badge badge-warning" style="font-size:10px;">لامع</span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <form asp-action="DeleteMaterial" method="post"><input type="hidden" name="id" value="@mat.Id" /><button type="submit" class="btn-outline btn-icon btn-sm" style="color: red; border-color: red;"><i class="fas fa-trash"></i></button></form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- قسم المقاسات -->
+    <div class="premium-card">
+        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
+            <i class="fas fa-ruler-combined"></i> المقاسات الجاهزة
+        </h3>
+        <form asp-action="AddSize" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+            <div style="margin-bottom: 10px;">
+                <label style="font-size: 12px; font-weight: bold;">اسم المقاس</label>
+                <input type="text" name="Name" class="form-control" required>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" step="0.1" name="Length" class="form-control" placeholder="الطول" required>
+                <input type="number" step="0.1" name="Width" class="form-control" placeholder="العرض" required>
+                <input type="number" step="0.1" name="Depth" class="form-control" placeholder="الارتفاع" required>
+            </div>
+            <button type="submit" class="btn-premium btn-sm" style="width: 100%;"><i class="fas fa-plus"></i> إضافة المقاس</button>
+        </form>
+        <table class="premium-table" style="font-size: 13px;">
+            <thead><tr><th>المقاس</th><th>الأبعاد</th><th>حذف</th></tr></thead>
+            <tbody>
+                @foreach (var size in Model.Sizes)
+                {
+                    <tr>
+                        <td><strong>@size.Name</strong></td>
+                        <td dir="ltr">@size.DimensionsString</td>
+                        <td><form asp-action="DeleteSize" method="post"><input type="hidden" name="id" value="@size.Id" /><button type="submit" class="btn-outline btn-icon btn-sm" style="color: red; border-color: red;"><i class="fas fa-trash"></i></button></form></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

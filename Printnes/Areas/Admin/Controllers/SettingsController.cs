@@ -34,7 +34,52 @@ namespace Printnes.Areas.Admin.Controllers
             }
             return View("Index", model);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken] // يمكنك إزالتها لهذا الـ Endpoint إذا واجهت مشكلة مع الـ Fetch API
+        [Route("Admin/Settings/UploadLogo")]
+        public async Task<IActionResult> UploadLogo(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return Json(new { success = false, message = "لم يتم اختيار أي ملف." });
+                }
 
+                // التأكد من صيغة الملف
+                var extension = Path.GetExtension(file.FileName).ToLower();
+                if (extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".svg")
+                {
+                    return Json(new { success = false, message = "صيغة غير مدعومة. يرجى رفع صورة (PNG, JPG, SVG)." });
+                }
+
+                // إنشاء مجلد الرفع إذا لم يكن موجوداً
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "settings");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // إنشاء اسم عشوائي لمنع تعارض الأسماء
+                string uniqueFileName = Guid.NewGuid().ToString() + extension;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // حفظ الملف
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                // مسار الصورة الذي سيتم حفظه في الداتا بيز واستخدامه في الـ HTML
+                string imageUrl = "/uploads/settings/" + uniqueFileName;
+
+                return Json(new { success = true, imageUrl = imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "حدث خطأ داخلي: " + ex.Message });
+            }
+        }
         public IActionResult ClearCache()
         {
             TempData["SuccessMessage"] = "تم مسح الـ Cache بنجاح وتحديث النظام.";

@@ -1,9 +1,4 @@
-﻿/*
- * الملف: Controllers/OrderController.cs
- * كنترولر الطلبات - إتمام الطلب عبر الواتساب (تم إصلاح الأخطاء الحسابية والأقواس)
- */
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Printnes.Data;
 using Printnes.Models;
@@ -26,14 +21,12 @@ namespace Printnes.Controllers
         }
 
         // GET: /Order/Checkout
-        // صفحة إتمام الطلب مع ملخص السلة وبيانات الشحن
         public IActionResult Checkout()
         {
             return View(new CheckoutViewModel());
         }
 
         // POST: /Order/Checkout
-        // استقبال الطلب وحفظه في قاعدة البيانات ثم إرساله للواتساب
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(CheckoutViewModel model)
@@ -51,12 +44,11 @@ namespace Printnes.Controllers
 
             try
             {
-                // 1. فك تشفير JSON السلة
-                var cartItems = JsonSerializer.Deserialize<List<CartItemDto>>(model.CartItemsJson);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var cartItems = JsonSerializer.Deserialize<List<CartItemDto>>(model.CartItemsJson, options);
 
                 decimal subTotal = 0;
 
-                // 2. إنشاء الطلب الرئيسي
                 var order = new Order
                 {
                     OrderNumber = "PN-" + DateTime.Now.ToString("yyMM") + "-" + new Random().Next(10000, 99999),
@@ -77,9 +69,19 @@ namespace Printnes.Controllers
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // 3. إضافة عناصر الطلب
                 foreach (var item in cartItems)
                 {
+                    // 🟢 الحل الجذري: التقاط الخيارات والـ ID من أي مكان جاءت منه لضمان عدم ضياعها
+                    string finalOptionsJson = null;
+                    if (!string.IsNullOrEmpty(item.SelectedOptionsJson))
+                    {
+                        finalOptionsJson = item.SelectedOptionsJson;
+                    }
+                    else if (item.Details != null)
+                    {
+                        finalOptionsJson = JsonSerializer.Serialize(item.Details, options);
+                    }
+
                     var orderItem = new OrderItem
                     {
                         OrderId = order.Id,
@@ -87,7 +89,7 @@ namespace Printnes.Controllers
                         Quantity = item.Quantity > 0 ? item.Quantity : 1,
                         CalculatedUnitPrice = item.Price,
                         ItemTotal = item.Price * (item.Quantity > 0 ? item.Quantity : 1),
-                        SelectedOptionsJson = item.Details != null ? JsonSerializer.Serialize(item.Details) : null,
+                        SelectedOptionsJson = finalOptionsJson, // تم ربط البيانات هنا بنجاح
                         ExtrasTotal = 0
                     };
 
@@ -95,7 +97,6 @@ namespace Printnes.Controllers
                     _context.OrderItems.Add(orderItem);
                 }
 
-                // 4. حساب المجاميع المالية
                 order.SubTotal = subTotal;
                 order.ShippingCost = 25m;
                 order.TaxAmount = (subTotal + order.ShippingCost) * 0.15m;
@@ -103,7 +104,6 @@ namespace Printnes.Controllers
 
                 _context.Orders.Update(order);
 
-                // 5. تسجيل في سجل الحركات
                 var history = new OrderStatusHistory
                 {
                     OrderId = order.Id,
@@ -116,7 +116,6 @@ namespace Printnes.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // 6. توجيه لصفحة النجاح مع رقم الطلب
                 return RedirectToAction("Success", new { orderNumber = order.OrderNumber });
             }
             catch (Exception ex)
@@ -128,7 +127,6 @@ namespace Printnes.Controllers
         }
 
         // GET: /Order/Success?orderNumber=PN-xxxx
-        // صفحة تأكيد إتمام الطلب مع رابط الواتساب
         public IActionResult Success(string orderNumber)
         {
             if (string.IsNullOrEmpty(orderNumber))
@@ -139,7 +137,6 @@ namespace Printnes.Controllers
         }
 
         // POST: /Order/SendWhatsApp
-        // API لإرسال الطلب للواتساب من صفحة إتمام الطلب (بدون حفظ في DB)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult SendWhatsApp(CheckoutViewModel model)
@@ -149,9 +146,9 @@ namespace Printnes.Controllers
                 return Json(new { success = false, message = "السلة فارغة" });
             }
 
-            var cartItems = JsonSerializer.Deserialize<List<CartItemDto>>(model.CartItemsJson);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var cartItems = JsonSerializer.Deserialize<List<CartItemDto>>(model.CartItemsJson, options);
 
-            // بناء رسالة واتساب
             string message = BuildWhatsAppMessage(cartItems, model);
 
             string cleanPhone = model.CustomerPhone.Replace(" ", "").Replace("-", "").Replace("+", "");
@@ -165,7 +162,6 @@ namespace Printnes.Controllers
             return Json(new { success = true, url = waUrl });
         }
 
-        // بناء رسالة واتساب للطلب
         private string BuildWhatsAppMessage(List<CartItemDto> items, CheckoutViewModel model)
         {
             decimal total = items.Sum(i => i.Price * (i.Quantity > 0 ? i.Quantity : 1));
@@ -183,7 +179,6 @@ namespace Printnes.Controllers
             foreach (var item in items)
             {
                 msg += $"{idx}. *{item.Name}*\n";
-                // تم إضافة القوس الناقص هنا لحل المشكلة
                 msg += $"   الكمية: {item.Quantity} | السعر: {(item.Price * (item.Quantity > 0 ? item.Quantity : 1)):F2} ر.س\n";
 
                 if (item.Details != null)
@@ -193,7 +188,7 @@ namespace Printnes.Controllers
                     if (!string.IsNullOrEmpty(item.Details.PaperType))
                         msg += $"   الورق: {item.Details.PaperType}\n";
                     if (!string.IsNullOrEmpty(item.Details.Sides))
-                        msg += $"   الأوجه: {item.Details.Sides}\n";
+                        msg += $"   الأوجه/المقاس: {item.Details.Sides}\n";
                     if (!string.IsNullOrEmpty(item.Details.Cover))
                         msg += $"   الحماية: {item.Details.Cover}\n";
                     if (!string.IsNullOrEmpty(item.Details.Corners))
@@ -207,13 +202,11 @@ namespace Printnes.Controllers
             msg += $"━━━━━━━━━━━━━━━━━━\n";
             msg += $"💰 *الإجمالي التقريبي:* {total:F2} ر.س\n";
             msg += $"🚚 *الشحن (تقريباً):* 25.00 ر.س\n";
-            // تم إضافة m بجانب 0.15 لحل الخطأ الخاص بنوع البيانات
             msg += $"📊 *الضريبة (15%):* {(total * 0.15m):F2} ر.س\n";
-            // تم إضافة m بجانب الأرقام 25 و 0.15
             msg += $"💵 *الإجمالي النهائي:* *{(total + 25m + (total * 0.15m)):F2} ر.س*\n";
             msg += $"━━━━━━━━━━━━━━━━━━\n";
             msg += $"_شكراً لاختياركم برنتس للطباعة 🖨️_\n";
-            msg += $"_تم الإرسال عبر واتساب تلقائياً_{DateTime.Now:HH:mm}_";
+            msg += $"_تم الإرسال عبر واتساب تلقائياً_";
 
             return msg;
         }

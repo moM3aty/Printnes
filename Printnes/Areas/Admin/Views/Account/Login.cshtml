@@ -1,6 +1,9 @@
-﻿@{
+﻿@using Printnes.Helpers
+@{
     ViewData["Title"] = "تسجيل الدخول - نظام الإدارة";
     Layout = null; // لا نستخدم الـ Layout الرئيسي هنا
+    var siteSettings = SiteSettingsManager.LoadSettings();
+    var logoUrl = string.IsNullOrEmpty(siteSettings.StoreLogoUrl) ? "https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" : siteSettings.StoreLogoUrl;
 }
 
 <!DOCTYPE html>
@@ -8,9 +11,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] | Printnes ERP</title>
+    <title>@ViewData["Title"] | @siteSettings.StoreName</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="@logoUrl" rel="icon" type="image/x-icon" />
 
     <style>
         :root {
@@ -68,18 +72,15 @@
         }
 
         @@keyframes pulse {
-            0%
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
 
-        {
-            transform: scale(1);
-            opacity: 0.5;
-        }
-
-        100% {
-            transform: scale(1.2);
-            opacity: 0.8;
-        }
-
+            100% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
         }
 
         /* Premium Glassmorphism Card */
@@ -264,7 +265,7 @@
 
     <div class="login-card">
         <div class="brand-logo">
-            <img src="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" alt="Printnes Logo">
+            <img src="@logoUrl" alt="@siteSettings.StoreName">
             <h1>مرحباً بك مجدداً</h1>
             <p>سجل دخولك للوصول إلى لوحة تحكم برنتس</p>
         </div>

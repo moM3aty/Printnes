@@ -1,0 +1,94 @@
+{
+  "BasePrintCost": 1,
+  "Materials": [
+    {
+      "Id": "17791d57-26a6-4e38-9f67-966059a56906",
+      "Name": "\u0648\u0631\u0642 \u0645\u0642\u0648\u0649 \u0623\u0628\u064A\u0636",
+      "ColorHex": "#ffffff",
+      "IsGlossy": false,
+      "InternalValue": "white",
+      "CostPerCm2": 0.015
+    },
+    {
+      "Id": "309d48e6-bbe5-410b-bffd-36f77926e1b7",
+      "Name": "\u0648\u0631\u0642 \u0643\u0631\u0627\u0641\u062A \u0628\u0646\u064A",
+      "ColorHex": "#ffffff",
+      "IsGlossy": false,
+      "InternalValue": "kraft",
+      "CostPerCm2": 0.015
+    },
+    {
+      "Id": "154372d5-8cc3-486a-904d-092f0a9a1524",
+      "Name": "\u0648\u0631\u0642 \u0644\u0627\u0645\u0639 (\u0633\u0648\u0628\u0631 \u062C\u0644\u0648\u0633)",
+      "ColorHex": "#ffffff",
+      "IsGlossy": false,
+      "InternalValue": "supergloss",
+      "CostPerCm2": 0.015
+    },
+    {
+      "Id": "6d8eaa04-2cf4-494d-aece-24fb4bf58d23",
+      "Name": "M3aty",
+      "ColorHex": "#0028f0",
+      "IsGlossy": true,
+      "InternalValue": "white",
+      "CostPerCm2": 0.015
+    },
+    {
+      "Id": "cf6ea8ea-940d-4106-bf06-05ec0858ac6b",
+      "Name": "\u0645\u0646\u062A\u062C",
+      "ColorHex": "#a02c2c",
+      "IsGlossy": true,
+      "InternalValue": "white",
+      "CostPerCm2": 1
+    }
+  ],
+  "Sizes": [
+    {
+      "Id": "44187380-51bc-41be-ada2-347ec83571c1",
+      "Name": "\u0645\u0642\u0627\u0633 \u0642\u064A\u0627\u0633\u064A 1",
+      "Length": 15,
+      "Width": 10,
+      "Depth": 5,
+      "DimensionsString": "15x10x5"
+    },
+    {
+      "Id": "84ebbb13-8a28-4ad9-8917-81acbedde06b",
+      "Name": "\u0645\u0642\u0627\u0633 \u0642\u064A\u0627\u0633\u064A 2",
+      "Length": 20,
+      "Width": 15,
+      "Depth": 8,
+      "DimensionsString": "20x15x8"
+    },
+    {
+      "Id": "6e62d980-5178-47d7-a20e-62a01f71c1c5",
+      "Name": "\u0645\u0642\u0627\u0633 \u0642\u064A\u0627\u0633\u064A 3",
+      "Length": 25,
+      "Width": 20,
+      "Depth": 10,
+      "DimensionsString": "25x20x10"
+    },
+    {
+      "Id": "aee5b9eb-6f9a-4dd2-af0e-218cda3aa9db",
+      "Name": "\u0645\u0642\u0627\u0633 \u0646\u0635 \u0646\u0635 ",
+      "Length": 20,
+      "Width": 30,
+      "Depth": 40,
+      "DimensionsString": "20x30x40"
+    },
+    {
+      "Id": "47036454-1b5a-48bb-abd4-a50289817f3a",
+      "Name": "\u0645\u0646\u062A\u062C",
+      "Length": 1,
+      "Width": 1,
+      "Depth": 1,
+      "DimensionsString": "1x1x1"
+    }
+  ],
+  "DiscountTiers": [
+    {
+      "Id": "70fd2c50-b0b7-4bf8-88d9-f6ab80ac158e",
+      "MinQuantity": 500,
+      "DiscountPercentage": 0.15
+    }
+  ]
+}

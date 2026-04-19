@@ -1,11 +1,8 @@
-﻿/*
- * الملف: Controllers/StudioController.cs
- * الكنترولر المسؤول عن تشغيل ستوديو التصميم وحفظ مخرجاته
- */
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Printnes.Data;
 using Printnes.Models;
+using Printnes.Helpers; // إضافة هذا السطر
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -26,6 +23,10 @@ namespace Printnes.Controllers
         // GET: /Studio
         public IActionResult Index()
         {
+            // قراءة إعدادات الاستوديو المستقلة وتمريرها للـ View
+            var studioSettings = StudioSettingsManager.LoadSettings();
+            ViewBag.StudioSettings = studioSettings;
+
             return View();
         }
 
@@ -37,8 +38,8 @@ namespace Printnes.Controllers
             {
                 string imageUrl = "";
 
-                // 1. تحويل صورة الـ Base64 وحفظها في السيرفر
-                if (!string.IsNullOrEmpty(payload.PreviewImageBase64))
+                // 1. تحويل صورة الـ Base64 وحفظها في السيرفر (مع التأكد من التنسيق)
+                if (!string.IsNullOrEmpty(payload.PreviewImageBase64) && payload.PreviewImageBase64.Contains(","))
                 {
                     string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "designs");
                     if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
@@ -62,7 +63,7 @@ namespace Printnes.Controllers
                     Width = payload.Width,
                     Height = payload.Height,
                     ColorHex = payload.ColorHex,
-                    CanvasJsonData = payload.CanvasJsonData, // JSON الخاص بـ Fabric.js
+                    CanvasJsonData = payload.CanvasJsonData, 
                     PreviewImageUrl = imageUrl,
                     EstimatedPrice = payload.Price,
                     CreatedAt = DateTime.UtcNow
@@ -79,7 +80,6 @@ namespace Printnes.Controllers
             }
         }
 
-        // 👇=== الدالة الجديدة التي سنضيفها لجلب بيانات التصميم للإدارة ===👇
         [HttpGet]
         public async Task<IActionResult> GetDesignData(int id)
         {
@@ -105,7 +105,7 @@ namespace Printnes.Controllers
                 }
             });
         }
- 
+
         public class DesignPayload
         {
             public string ProductType { get; set; }

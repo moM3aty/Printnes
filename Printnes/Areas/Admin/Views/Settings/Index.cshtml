@@ -1,5 +1,4 @@
-﻿<!-- الملف: Areas/Admin/Views/Settings/Index.cshtml -->
-@model Printnes.ViewModels.StoreSettingsViewModel
+﻿@model Printnes.ViewModels.StoreSettingsViewModel
 @{
     ViewData["Title"] = "إعدادات النظام";
     Layout = "_AdminLayout";
@@ -18,7 +17,7 @@
 }
 
 <div class="premium-card" style="max-width: 900px; padding: 35px;">
-    <form asp-action="Save" method="post">
+    <form asp-action="Save" method="post" id="settings-form">
 
         <!-- قسم الإعدادات العامة -->
         <h3 style="font-size: 16px; margin: 0 0 20px 0; color: var(--primary-color); font-weight: 800; display: flex; align-items: center; gap: 10px;">
@@ -38,6 +37,39 @@
                 <label asp-for="Currency" class="form-label">العملة الافتراضية</label>
                 <input asp-for="Currency" class="form-control" placeholder="مثال: ر.س" />
                 <span asp-validation-for="Currency" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <!-- حقل اللوجو الديناميكي -->
+        <div class="form-group" style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px dashed var(--border-color);">
+            <label class="form-label" style="margin-bottom: 15px;">لوجو المتجر</label>
+
+            <input type="hidden" asp-for="StoreLogoUrl" id="StoreLogoUrl" />
+            <input type="file" id="logo-upload-input" accept="image/*" style="display: none;" />
+
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div id="logo-preview-box" onclick="document.getElementById('logo-upload-input').click();" style="width: 120px; height: 120px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; cursor: pointer; position: relative; transition: 0.3s;">
+                    @if (!string.IsNullOrEmpty(Model.StoreLogoUrl))
+                    {
+                        <img id="logo-img-preview" src="@Model.StoreLogoUrl" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                        <i id="logo-placeholder-icon" class="fas fa-image" style="font-size: 30px; color: #94a3b8; display:none;"></i>
+                    }
+                    else
+                    {
+                        <img id="logo-img-preview" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; display:none;" />
+                        <i id="logo-placeholder-icon" class="fas fa-image" style="font-size: 30px; color: #94a3b8;"></i>
+                    }
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="button" class="btn-outline btn-sm" onclick="document.getElementById('logo-upload-input').click();">
+                        <i class="fas fa-cloud-upload-alt"></i> اختيار صورة (Upload)
+                    </button>
+                    <span class="form-hint" style="margin: 0; font-size: 12px;">يفضل أن تكون الصورة بصيغة PNG وبخلفية شفافة.</span>
+                    <div id="logo-upload-spinner" style="display:none; color: var(--primary-color); font-size: 13px; font-weight: bold;">
+                        <i class="fas fa-spinner fa-spin"></i> جاري الرفع...
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -184,4 +216,53 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('logo-upload-input').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('يرجى اختيار ملف صورة صحيح.');
+                this.value = '';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            document.getElementById('logo-upload-spinner').style.display = 'block';
+
+            // استخراج توكن الحماية من الفورم لإصلاح خطأ 400 Bad Request
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('/Admin/Settings/UploadLogo', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('StoreLogoUrl').value = result.imageUrl;
+
+                    const imgPreview = document.getElementById('logo-img-preview');
+                    imgPreview.src = result.imageUrl;
+                    imgPreview.style.display = 'block';
+
+                    document.getElementById('logo-placeholder-icon').style.display = 'none';
+                } else {
+                    alert('فشل رفع الصورة: ' + result.message);
+                }
+            } catch (error) {
+                alert('حدث خطأ أثناء الاتصال بالسيرفر لرفع الصورة.');
+            } finally {
+                document.getElementById('logo-upload-spinner').style.display = 'none';
+                this.value = '';
+            }
+        });
+    </script>
 }

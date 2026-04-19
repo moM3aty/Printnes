@@ -56,6 +56,7 @@ namespace Printnes.ViewModels
 
         [Required(ErrorMessage = "رقم الجوال مطلوب")]
         public string ContactPhone { get; set; }
+        public string StoreLogoUrl { get; set; } = "https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png";
 
         public string WhatsappNumber { get; set; }
         public string StoreDescription { get; set; }

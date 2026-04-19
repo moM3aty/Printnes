@@ -1,24 +1,26 @@
 ﻿@{
     ViewData["Title"] = "استوديو التصميم | علب مخصصة";
     Layout = null;
+    var settings = ViewBag.StudioSettings as Printnes.ViewModels.StudioSettingsViewModel;
 }
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>@ViewData["Title"]</title>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png" rel="icon" type="image/x-icon" />
 
     <style>
         /* ==========================================
-                           1. ROOT VARIABLES & GLOBAL RESET
-                           ========================================== */
+                   1. ROOT VARIABLES & GLOBAL RESET
+                   ========================================== */
         :root {
-            --primary: #0f62fe; /* Premium Blue */
+            --primary: #0f62fe;
             --primary-hover: #0353e9;
             --bg-panel: rgba(255, 255, 255, 0.95);
             --text-main: #1f2937;
@@ -47,6 +49,7 @@
 
         ::-webkit-scrollbar {
             width: 6px;
+            height: 6px;
         }
 
         ::-webkit-scrollbar-track {
@@ -63,8 +66,8 @@
             }
 
         /* ==========================================
-                           2. PREMIUM WELCOME SCREEN
-                           ========================================== */
+                   2. PREMIUM WELCOME SCREEN
+                   ========================================== */
         #premium-welcome {
             position: fixed;
             inset: 0;
@@ -89,7 +92,6 @@
         .pw-logo {
             font-size: 26px;
             font-weight: 900;
-            letter-spacing: 0.5px;
             color: #fff;
             display: flex;
             align-items: center;
@@ -141,24 +143,13 @@
             border-radius: 20px;
             padding: 40px 20px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s;
             backdrop-filter: blur(12px);
-            position: relative;
-            overflow: hidden;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-            .pw-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
-                opacity: 0;
-                transition: opacity 0.4s;
-            }
 
             .pw-card:hover {
                 transform: translateY(-10px);
@@ -167,21 +158,25 @@
                 box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             }
 
-                .pw-card:hover::before {
-                    opacity: 1;
-                }
-
         .pw-card-icon {
-            font-size: 60px;
-            color: #60a5fa;
+            width: 100%;
             margin-bottom: 25px;
-            filter: drop-shadow(0 4px 15px rgba(96, 165, 250, 0.4));
             transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 12px;
         }
+
+            .pw-card-icon img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
 
         .pw-card:hover .pw-card-icon {
             transform: scale(1.1);
-            color: #fff;
         }
 
         .pw-card h2 {
@@ -195,12 +190,12 @@
             font-size: 14px;
             color: #94a3b8;
             line-height: 1.6;
-            font-weight: 500;
+            text-align: center;
         }
 
         /* ==========================================
-                           3. STUDIO WORKSPACE UI
-                           ========================================== */
+                   3. STUDIO WORKSPACE UI
+                   ========================================== */
         #studio-workspace {
             position: fixed;
             inset: 0;
@@ -218,7 +213,6 @@
                 cursor: grabbing;
             }
 
-        /* Top Header */
         .studio-header {
             position: absolute;
             top: 0;
@@ -300,7 +294,7 @@
             text-align: center;
         }
 
-        /* --- Right Panel (Was Left) - Box Settings --- */
+        /* --- Right Panel --- */
         .panel-settings {
             top: 80px;
             right: 25px;
@@ -310,7 +304,7 @@
 
         .panel-content {
             padding: 15px;
-            overflow-y: visible;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -327,16 +321,15 @@
             color: var(--text-main);
             cursor: pointer;
             appearance: none;
+            transition: all 0.2s;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: left 1em top 50%;
             background-size: .65em auto;
-            transition: all 0.2s;
         }
 
             .custom-select:focus {
                 border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.1);
                 background: #fff;
             }
 
@@ -353,23 +346,13 @@
                 animation: fadeIn 0.3s;
             }
 
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
+            .dim-box label {
+                font-size: 12px;
+                color: var(--text-light);
+                font-weight: 700;
+                display: block;
+                margin-bottom: 5px;
             }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        .dim-box label {
-            font-size: 12px;
-            color: var(--text-light);
-            font-weight: 700;
-            display: block;
-            margin-bottom: 5px;
-        }
 
         .dim-input {
             text-align: center;
@@ -487,7 +470,6 @@
                 color: #16a34a;
             }
 
-        /* Price Table Dropdown */
         .price-table-wrapper {
             position: relative;
             margin-top: 5px;
@@ -580,25 +562,7 @@
                 color: #10b981;
             }
 
-        .custom-quote-link {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-light);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            margin-top: 10px;
-            transition: 0.2s;
-        }
-
-            .custom-quote-link:hover {
-                color: var(--primary);
-            }
-
-        /* --- Left Panel (Was Right) - Design Wrapper --- */
+        /* --- Left Panel --- */
         .design-wrapper {
             position: absolute;
             top: 80px;
@@ -612,7 +576,6 @@
             backdrop-filter: blur(16px);
         }
 
-        /* Face Selector Column */
         .face-selector-col {
             width: 85px;
             background: #f8fafc;
@@ -639,11 +602,11 @@
             cursor: pointer;
             border-right: 3px solid transparent;
             transition: 0.2s;
+            position: relative;
         }
 
             .face-btn i {
                 font-size: 20px;
-                color: #94a3b8;
                 transition: 0.2s;
             }
 
@@ -716,7 +679,6 @@
                 transform: scale(1.05);
             }
 
-        /* Design Board Column */
         .design-board-col {
             width: 340px;
             display: flex;
@@ -764,8 +726,8 @@
             align-items: center;
             background: #f8fafc;
             padding: 12px 15px;
-            border: 1px solid var(--border-color);
             border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
             .bg-fill-row span {
@@ -774,29 +736,38 @@
                 color: var(--text-main);
             }
 
-        .color-picker-box {
-            width: 36px;
-            height: 24px;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 4px;
-            overflow: hidden;
+        input[type="color"].simple-color {
+            width: 40px;
+            height: 30px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
             cursor: pointer;
-            position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            padding: 0;
+            background: none;
         }
 
-            .color-picker-box input[type="color"] {
-                position: absolute;
-                top: -10px;
-                left: -10px;
-                width: 60px;
-                height: 60px;
-                cursor: pointer;
-                border: none;
-                padding: 0;
+        .text-properties-box {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+            .text-properties-box label.title {
+                font-size: 12px;
+                font-weight: 800;
+                color: var(--primary);
+                margin-bottom: 2px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
             }
 
-        /* Canvas Area */
         .canvas-wrapper {
             background: #f1f5f9;
             padding: 20px;
@@ -844,7 +815,6 @@
             display: flex;
         }
 
-        /* Align Buttons Bottom */
         .align-row {
             padding: 15px 20px;
             display: flex;
@@ -874,7 +844,6 @@
                 border-color: #cbd5e1;
             }
 
-        /* Scene Background Picker */
         .scene-bg-picker {
             position: absolute;
             bottom: 30px;
@@ -906,7 +875,6 @@
                 color: var(--text-light);
             }
 
-        /* Bottom Actions */
         .bottom-bar {
             position: absolute;
             bottom: 30px;
@@ -945,6 +913,9 @@
             border: none;
             padding: 14px 40px;
             box-shadow: 0 4px 15px rgba(15, 98, 254, 0.3);
+            border-radius: 30px;
+            font-weight: 800;
+            cursor: pointer;
         }
 
             .btn-cart:hover {
@@ -1013,14 +984,261 @@
                 opacity: 1;
             }
 
+        /* ==========================================
+                   4. PREMIUM RESPONSIVE DESIGN (MOBILE APP FEEL)
+                   ========================================== */
+        .mobile-tabs {
+            display: none;
+        }
+
+        @@media (max-width: 1200px) {
+            .pw-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .studio-header {
+                padding: 15px 20px;
+                background: linear-gradient(to bottom, rgba(255,255,255,0.9), transparent);
+            }
+
+            .studio-logo {
+                font-size: 18px;
+            }
+
+            .btn-cart-top {
+                padding: 8px 12px;
+            }
+
+                .btn-cart-top span {
+                    display: none;
+                }
+            /* 3D Canvas takes top half */
+            #three-canvas {
+                height: 45vh !important;
+            }
+            /* App-like Segmented Tabs */
+            .mobile-tabs {
+                display: flex;
+                position: absolute;
+                top: 45vh;
+                left: 0;
+                width: 100%;
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(10px);
+                border-top: 1px solid rgba(0,0,0,0.05);
+                border-bottom: 1px solid rgba(0,0,0,0.05);
+                z-index: 50;
+                padding: 5px;
+                justify-content: center;
+                gap: 5px;
+            }
+
+                .mobile-tabs button {
+                    flex: 1;
+                    padding: 10px;
+                    border: none;
+                    background: transparent;
+                    font-weight: 800;
+                    font-size: 13px;
+                    color: var(--text-light);
+                    border-radius: 8px;
+                    transition: 0.3s;
+                }
+
+                    .mobile-tabs button.active {
+                        background: #fff;
+                        color: var(--primary);
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                    }
+            /* Panels as Bottom Sheets */
+            .panel-settings, .design-wrapper {
+                top: calc(45vh + 50px) !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                bottom: 75px !important;
+                border-radius: 20px 20px 0 0;
+                border: none;
+                background: #fff;
+                box-shadow: 0 -5px 25px rgba(0,0,0,0.05);
+                max-height: none;
+            }
+
+            .panel-settings {
+                display: flex;
+            }
+
+            .panel-header {
+                display: none;
+            }
+
+            .panel-content {
+                padding: 20px;
+                padding-bottom: 40px;
+            }
+
+            .design-wrapper {
+                display: none;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            /* Horizontal Scroll Face Selector */
+            .face-selector-col {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                border-radius: 20px 20px 0 0;
+                border-left: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 10px;
+                justify-content: flex-start;
+                height: auto;
+                order: -1;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+                .face-selector-col::-webkit-scrollbar {
+                    display: none;
+                }
+
+            .face-btn {
+                min-width: 70px;
+                padding: 8px 5px;
+                border-right: none;
+                border-radius: 12px;
+                margin-left: 5px;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+                .face-btn i {
+                    font-size: 20px;
+                    margin-bottom: 4px;
+                    display: block;
+                }
+
+                .face-btn span {
+                    display: block;
+                    font-size: 11px;
+                    white-space: nowrap;
+                }
+
+                .face-btn.active {
+                    background: var(--primary);
+                    color: #fff;
+                    box-shadow: 0 4px 10px rgba(15,98,254,0.2);
+                }
+
+                    .face-btn.active i {
+                        color: #fff;
+                    }
+
+            .design-board-col {
+                width: 100%;
+                height: 100%;
+                overflow-y: auto;
+                padding-bottom: 20px;
+            }
+
+            .canvas-wrapper {
+                height: 200px;
+                padding: 10px;
+            }
+            /* App Action Bar (Sticky Bottom) */
+            .bottom-bar {
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                transform: none;
+                padding: 12px 20px;
+                background: rgba(255,255,255,0.9);
+                backdrop-filter: blur(15px);
+                border-top: 1px solid rgba(0,0,0,0.08);
+                justify-content: space-between;
+                gap: 12px;
+                z-index: 100;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            }
+
+            .btn-bottom, .btn-cart {
+                padding: 12px;
+                flex: 1;
+                justify-content: center;
+                font-size: 14px;
+                border-radius: 12px;
+            }
+
+                .btn-bottom span {
+                    display: none;
+                }
+
+            .btn-bottom {
+                flex: 0 0 50px;
+                padding: 0;
+            }
+            /* Square Reset Button */
+
+            .scene-bg-picker {
+                display: none;
+            }
+
+            .zoom-controls {
+                flex-direction: row;
+                width: auto;
+                border-top: none;
+                border-left: 1px solid var(--border-color);
+                padding: 0 10px;
+                background: transparent;
+                margin-right: auto;
+                align-items: center;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .pw-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .pw-title {
+                font-size: 36px;
+            }
+
+            .pw-subtitle {
+                font-size: 15px;
+                margin-bottom: 30px;
+            }
+
+            .pw-card-icon {
+                height: 100px;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <script>
+        const BASE_PRINT_COST = @(settings?.BasePrintCost ?? 0.50m);
+        const DISCOUNT_TIERS = [
+            @if (settings?.DiscountTiers != null && settings.DiscountTiers.Any())
+            {
+                    foreach (var t in settings.DiscountTiers.OrderByDescending(x => x.MinQuantity))
+                    {
+                            <text>{ min: @t.MinQuantity, discount: @t.DiscountPercentage },</text>
+                    }
+            }
+            else
+            {
+                    <text>{ min: 1000, discount: 0.25 }, { min: 500, discount: 0.15 }</text>
+            }
+        ];
+    </script>
+
     <div id="toast" class="toast"><i class="fas fa-check-circle" style="color:#34d399; font-size: 18px;"></i> <span id="toast-msg">تمت العملية بنجاح</span></div>
     <div id="loading-overlay"><div class="spinner"></div><h3 style="font-weight: 800; font-size: 20px;">جاري المعالجة...</h3></div>
 
-    <!-- PREMIUM WELCOME SCREEN -->
     <div id="premium-welcome">
         <nav class="pw-nav">
             <div class="pw-logo"><i class="fas fa-cube"></i> Printnes</div>
@@ -1028,49 +1246,48 @@
         <div class="pw-hero">
             <h1 class="pw-title">صمم عبوتك باحترافية</h1>
             <p class="pw-subtitle">اختر نوع العلبة المفضل وابدأ تجربة التصميم ثلاثي الأبعاد بكل سهولة وفخامة.</p>
-
             <div class="pw-grid">
                 <div class="pw-card" onclick="enterStudio('mailer')">
-                    <div class="pw-card-icon"><i class="fas fa-box-open"></i></div>
+                    <div class="pw-card-icon"><img src="/images/blue-mailer.jpg" alt="mailer" /></div>
                     <h2>علبة بريدية</h2>
-                    <p>التجربة الأمثل لفتح منتجات المتاجر الإلكترونية. متينة، أنيقة، وآمنة.</p>
+                    <p>التجربة الأمثل لفتح منتجات المتاجر الإلكترونية.</p>
                 </div>
                 <div class="pw-card" onclick="enterStudio('folding')">
-                    <div class="pw-card-icon"><i class="fas fa-box"></i></div>
+                    <div class="pw-card-icon"><img src="/images/blue-folding.jpg" alt="folding" style="width:50%;" /></div>
                     <h2>كرتون مطوي</h2>
-                    <p>علب نحيفة وخفيفة الوزن مثالية للأرفف التجارية ومستحضرات التجميل.</p>
+                    <p>علب نحيفة مثالية للأرفف التجارية والتجميل.</p>
                 </div>
                 <div class="pw-card" onclick="enterStudio('rigid')">
-                    <div class="pw-card-icon"><i class="fas fa-gift"></i></div>
+                    <div class="pw-card-icon"><img src="/images/blue-rigid.jpg" alt="rigid" /></div>
                     <h2>علبة هدايا صلبة</h2>
-                    <p>علب فاخرة وسميكة تضفي طابعاً من الأناقة والرقي على منتجاتك.</p>
+                    <p>علب فاخرة وسميكة تضفي طابعاً من الأناقة.</p>
                 </div>
                 <div class="pw-card" onclick="enterStudio('shipping')">
-                    <div class="pw-card-icon"><i class="fas fa-truck-loading"></i></div>
+                    <div class="pw-card-icon"><img src="/images/blue-shipping.jpg" alt="shipping" /></div>
                     <h2>كرتون شحن</h2>
-                    <p>صناديق مموجة شديدة التحمل مصممة لحماية بضائعك أثناء النقل.</p>
+                    <p>صناديق مموجة شديدة التحمل مصممة لحماية بضائعك.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- STUDIO WORKSPACE -->
     <div id="studio-workspace">
         <div class="studio-header">
-            <div class="studio-logo" onclick="window.location.reload()">
-                <i class="fas fa-cube" style="font-size:26px;"></i> برينتنس<sup>®</sup>
-            </div>
-            <div class="top-nav">
-                <button class="btn-cart-top" onclick="window.location.href='/Cart'"><i class="fas fa-shopping-cart"></i> السلة</button>
-            </div>
+            <div class="studio-logo" onclick="window.location.reload()"><i class="fas fa-cube"></i> برينتنس<sup>®</sup></div>
+            <div class="top-nav"><button class="btn-cart-top" onclick="window.location.href='/Cart'"><i class="fas fa-shopping-cart"></i> <span>السلة</span></button></div>
         </div>
 
         <div id="three-canvas"></div>
 
-        <!-- Right Panel -->
-        <aside class="panel panel-settings">
-            <div class="panel-header">إعدادات العلبة</div>
+        <div class="mobile-tabs" id="mobile-tabs">
+            <button id="tab-settings-btn" class="active" onclick="toggleMobileTab('settings')">المواصفات والتسعير</button>
+            <button id="tab-design-btn" onclick="toggleMobileTab('design')">أدوات التصميم 2D</button>
+        </div>
+
+        <aside class="panel panel-settings" id="panel-settings">
+            <div class="panel-header">المواصفات والتسعير</div>
             <div class="panel-content">
+
                 <select id="box-type" class="custom-select" onchange="changeBoxType()">
                     <option value="mailer">علبة بريدية</option>
                     <option value="folding">كرتون مطوي</option>
@@ -1080,28 +1297,44 @@
 
                 <select id="size-preset" class="custom-select" onchange="handleSizeChange()">
                     <optgroup label="مقاسات جاهزة">
-                        <option value="15x10x5">15 × 10 × 5 سم</option>
-                        <option value="20x15x8">20 × 15 × 8 سم</option>
-                        <option value="25x20x10">25 × 20 × 10 سم</option>
-                        <option value="30x25x15">30 × 25 × 15 سم</option>
+                        @if (settings != null && settings.Sizes != null && settings.Sizes.Count > 0)
+                        {
+                            foreach (var size in settings.Sizes)
+                            {
+                                <option value="@size.DimensionsString">@size.Name (@size.DimensionsString سم)</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="15x10x5">15 × 10 × 5 سم</option>
+                            <option value="20x15x8">20 × 15 × 8 سم</option>
+                            <option value="30x25x15">30 × 25 × 15 سم</option>
+                        }
                     </optgroup>
                     <option value="custom">أبعاد مخصصة <i class="fas fa-sliders-h"></i></option>
                 </select>
 
                 <div class="dim-box" id="custom-dim-box">
-                    <label>الطول (سم)</label>
-                    <input type="number" id="dim-l" class="dim-input" value="15">
-                    <label>العرض (سم)</label>
-                    <input type="number" id="dim-w" class="dim-input" value="10">
-                    <label>الارتفاع (سم)</label>
-                    <input type="number" id="dim-d" class="dim-input" value="5">
+                    <label>الطول (سم)</label><input type="number" id="dim-l" class="dim-input" value="15">
+                    <label>العرض (سم)</label><input type="number" id="dim-w" class="dim-input" value="10">
+                    <label>الارتفاع (سم)</label><input type="number" id="dim-d" class="dim-input" value="5">
                     <button class="dim-apply" onclick="applyCustomDims()">تطبيق الأبعاد</button>
                 </div>
 
                 <select id="box-material" class="custom-select" onchange="onMaterialChange()">
-                    <option value="white">ورق مقوى أبيض</option>
-                    <option value="kraft">ورق كرافت بني</option>
-                    <option value="supergloss">ورق لامع (سوبر جلوس)</option>
+                    @if (settings != null && settings.Materials != null && settings.Materials.Count > 0)
+                    {
+                        foreach (var mat in settings.Materials)
+                        {
+                            <option value="@mat.InternalValue" data-color="@mat.ColorHex" data-glossy="@(mat.IsGlossy ? "true" : "false")" data-cost="@mat.CostPerCm2">@mat.Name</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="white" data-color="#ffffff" data-glossy="false" data-cost="0.015">ورق مقوى أبيض</option>
+                        <option value="kraft" data-color="#c29b70" data-glossy="false" data-cost="0.010">ورق كرافت بني</option>
+                        <option value="supergloss" data-color="#ffffff" data-glossy="true" data-cost="0.020">ورق لامع (سوبر جلوس)</option>
+                    }
                 </select>
 
                 <div class="qty-container">
@@ -1114,32 +1347,22 @@
 
                 <div class="price-box">
                     <span>سعر الوحدة</span>
-                    <strong id="unit-price">1.76 ر.س</strong>
+                    <strong id="unit-price">0.00 ر.س</strong>
                 </div>
 
                 <div class="price-table-wrapper">
                     <div class="pt-header" onclick="togglePriceTable()">جدول الأسعار <i class="fas fa-caret-up" id="pt-caret" style="color: #888;"></i></div>
-                    <ul class="pt-list" id="price-table-list">
-                        <!-- Populated dynamically via JS -->
-                    </ul>
+                    <ul class="pt-list" id="price-table-list"></ul>
                 </div>
-
-                <a href="#" class="custom-quote-link">تحتاج إلى تسعيرة خاصة؟ <i class="fas fa-external-link-alt"></i></a>
             </div>
         </aside>
 
-        <!-- Left Design Wrapper -->
-        <aside class="design-wrapper">
-            <div class="face-selector-col" id="face-selector">
-                <!-- Buttons injected via JS -->
-            </div>
-
+        <aside class="design-wrapper" id="design-wrapper">
+            <div class="face-selector-col" id="face-selector"></div>
             <div class="design-board-col">
-                <div class="panel-header">تصميم العلبة</div>
-
+                <div class="panel-header">أدوات التصميم 2D</div>
                 <div class="db-tools-top">
                     <button class="btn-upload" onclick="document.getElementById('img-upload').click()"><i class="fas fa-cloud-upload-alt"></i> إضافة صورة/تصميم</button>
-                    <div class="formats-txt">الصيغ المدعومة: JPG, PNG, WebP, PDF (حد أقصى 10MB)</div>
                     <input type="file" id="img-upload" hidden accept="image/*" onchange="uploadImage(event)">
 
                     <select class="custom-select" id="text-dropdown" onchange="if(this.value==='text'){addText(); this.value='';}">
@@ -1148,10 +1371,21 @@
                     </select>
 
                     <div class="bg-fill-row">
-                        <span>لون خلفية الواجهة</span>
-                        <div class="color-picker-box">
-                            <input type="color" id="face-bg-color" value="#ffffff" oninput="changeBackgroundColor()">
+                        <span>لون الوجه الحالي</span>
+                        <input type="color" id="face-bg-color" class="simple-color" value="#ffffff" oninput="changeBackgroundColor()">
+                    </div>
+
+                    <div class="text-properties-box" id="text-properties">
+                        <label class="title"><i class="fas fa-font"></i> خصائص النص المحدد</label>
+                        <div class="bg-fill-row" style="padding: 8px 12px; background: #fff;">
+                            <span>لون النص</span><input type="color" id="text-color-picker" class="simple-color" value="#1f2937" oninput="updateTextProperty('fill', this.value)">
                         </div>
+                        <select class="custom-select" id="text-font-family" onchange="updateTextProperty('fontFamily', this.value)" style="padding: 8px 12px;">
+                            <option value="Cairo">Cairo (كيرو)</option>
+                            <option value="Arial">Arial (عريض الأساسي)</option>
+                            <option value="Tahoma">Tahoma (تاهوما)</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                        </select>
                     </div>
                 </div>
 
@@ -1166,315 +1400,222 @@
                     <button class="btn-align" onclick="alignObject('center')"><i class="fas fa-align-center"></i> توسيط</button>
                     <button class="btn-align" onclick="alignObject('stretch')"><i class="fas fa-expand"></i> تمدد</button>
                 </div>
-
             </div>
         </aside>
 
         <div class="scene-bg-picker">
-            <label for="scene-bg-color"><i class="fas fa-palette"></i> لون الإضاءة / الخلفية</label>
-            <div class="color-picker-box" style="border: 2px solid #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); width: 28px; height: 28px;">
-                <input type="color" id="scene-bg-color" value="#cbd5e1" oninput="changeSceneBackground()">
-            </div>
+            <label for="scene-bg-color"><i class="fas fa-palette"></i> الخلفية المضيئة</label>
+            <input type="color" id="scene-bg-color" class="simple-color" style="border-radius: 50%;" value="#cbd5e1" oninput="changeSceneBackground()">
         </div>
 
         <div class="bottom-bar">
-            <button class="btn-bottom" onclick="resetDesign()"><i class="fas fa-sync-alt"></i> إعادة ضبط</button>
-            <button class="btn-bottom"><i class="fas fa-save"></i> حفظ مؤقت</button>
-            <button class="btn-cart" onclick="saveDesignData()"><i class="fas fa-shopping-bag"></i> اعتمـاد وأضف للسلة</button>
+            <button class="btn-bottom" onclick="resetDesign()"><i class="fas fa-sync-alt"></i> <span>مسح</span></button>
+            <button class="btn-cart" onclick="saveDesignData()"><i class="fas fa-shopping-bag"></i> اعتمـاد للسلة</button>
         </div>
     </div>
 
-    <!-- Core Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
     <script>
-        /**
-         * ==========================================
-         * PRINTNES 3D STUDIO CORE (PREMIUM ARABIC)
-         * ==========================================
-         */
+        function toggleMobileTab(tab) {
+            if(window.innerWidth > 1200) return;
+            const settingsPanel = document.getElementById('panel-settings');
+            const designPanel = document.getElementById('design-wrapper');
+            const btnSet = document.getElementById('tab-settings-btn');
+            const btnDes = document.getElementById('tab-design-btn');
 
-        // --- Configuration Models (Arabic Translation) ---
-        const BOX_CONFIGS = {
-            'mailer': [
-                { id: 'top', name: 'أعلى', icon: 'fa-cube' },
-                { id: 'front', name: 'الأمام', icon: 'fa-box' },
-                { id: 'right', name: 'يمين', icon: 'fa-box' },
-                { id: 'back', name: 'الخلف', icon: 'fa-box' },
-                { id: 'left', name: 'يسار', icon: 'fa-box' },
-                { id: 'bottom', name: 'أسفل', icon: 'fa-cube' },
-                { id: 'inside', name: 'الداخل', icon: 'fa-box-open' }
-            ],
-            'rigid': [
-                { id: 'top', name: 'الغطاء', icon: 'fa-cube' },
-                { id: 'bottom', name: 'القاعدة', icon: 'fa-cube' },
-                { id: 'front', name: 'الأمام', icon: 'fa-box' },
-                { id: 'right', name: 'يمين', icon: 'fa-box' },
-                { id: 'back', name: 'الخلف', icon: 'fa-box' },
-                { id: 'left', name: 'يسار', icon: 'fa-box' }
-            ],
-            'folding': [
-                { id: 'front', name: 'الأمام', icon: 'fa-box' },
-                { id: 'right', name: 'يمين', icon: 'fa-box' },
-                { id: 'back', name: 'الخلف', icon: 'fa-box' },
-                { id: 'left', name: 'يسار', icon: 'fa-box' },
-                { id: 'top', name: 'أعلى', icon: 'fa-cube' },
-                { id: 'bottom', name: 'أسفل', icon: 'fa-cube' }
-            ],
-            'shipping': [
-                { id: 'top', name: 'أعلى', icon: 'fa-cube' },
-                { id: 'front', name: 'الأمام', icon: 'fa-box' },
-                { id: 'right', name: 'يمين', icon: 'fa-box' },
-                { id: 'back', name: 'الخلف', icon: 'fa-box' },
-                { id: 'left', name: 'يسار', icon: 'fa-box' },
-                { id: 'bottom', name: 'أسفل', icon: 'fa-cube' }
-            ]
-        };
+            if (tab === 'settings') {
+                settingsPanel.style.display = 'flex'; designPanel.style.display = 'none';
+                btnSet.classList.add('active'); btnDes.classList.remove('active');
+            } else {
+                settingsPanel.style.display = 'none'; designPanel.style.display = 'flex';
+                btnDes.classList.add('active'); btnSet.classList.remove('active');
+                setTimeout(resizeCanvasesToFitUI, 100);
+            }
+        }
 
-        const ALL_POSSIBLE_FACES = ['top', 'bottom', 'front', 'back', 'left', 'right', 'inside'];
-
-        let currentType = 'mailer';
-        let activeFace = 'top';
-        let isBoxOpen = false;
-
-        // Track which faces the user has explicitly changed the background color for
-        let userCustomizedColors = {};
-
-        const PIXELS_PER_CM = 40;
-        let canvases = {};
-        let textures = {};
-        let activeFabricObj = null;
-
-        let scene, camera, renderer, controls;
-        let mainBoxGroup;
-        let animatedParts = [];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup engines in the background
-            setupFabricEngine();
-            setupThreeEngine();
-
-            // Check if opened from Admin panel with a specific design
-            const urlParams = new URLSearchParams(window.location.search);
-            const designId = urlParams.get('designId');
-
-            if (designId) {
-                loadDesignFromServer(designId);
+        window.addEventListener('resize', () => {
+            if(window.innerWidth > 1200) {
+                document.getElementById('panel-settings').style.display = 'flex';
+                document.getElementById('design-wrapper').style.display = 'flex';
+                document.getElementById('mobile-tabs').style.display = 'none';
+            } else {
+                document.getElementById('mobile-tabs').style.display = 'flex';
+                if(!document.getElementById('tab-design-btn').classList.contains('active')) toggleMobileTab('settings');
             }
         });
 
-        // --- Premium Welcome Screen Entry ---
+        const BOX_CONFIGS = {
+            'mailer': [ { id: 'top', name: 'أعلى', icon: 'fa-cube' }, { id: 'front', name: 'الأمام', icon: 'fa-box' }, { id: 'right', name: 'يمين', icon: 'fa-box' }, { id: 'back', name: 'الخلف', icon: 'fa-box' }, { id: 'left', name: 'يسار', icon: 'fa-box' }, { id: 'bottom', name: 'أسفل', icon: 'fa-cube' }, { id: 'inside', name: 'الداخل', icon: 'fa-box-open' } ],
+            'rigid': [ { id: 'top', name: 'الغطاء', icon: 'fa-cube' }, { id: 'bottom', name: 'القاعدة', icon: 'fa-cube' }, { id: 'front', name: 'الأمام', icon: 'fa-box' }, { id: 'right', name: 'يمين', icon: 'fa-box' }, { id: 'back', name: 'الخلف', icon: 'fa-box' }, { id: 'left', name: 'يسار', icon: 'fa-box' } ],
+            'folding': [ { id: 'front', name: 'الأمام', icon: 'fa-box' }, { id: 'right', name: 'يمين', icon: 'fa-box' }, { id: 'back', name: 'الخلف', icon: 'fa-box' }, { id: 'left', name: 'يسار', icon: 'fa-box' }, { id: 'top', name: 'أعلى', icon: 'fa-cube' }, { id: 'bottom', name: 'أسفل', icon: 'fa-cube' } ],
+            'shipping': [ { id: 'top', name: 'أعلى', icon: 'fa-cube' }, { id: 'front', name: 'الأمام', icon: 'fa-box' }, { id: 'right', name: 'يمين', icon: 'fa-box' }, { id: 'back', name: 'الخلف', icon: 'fa-box' }, { id: 'left', name: 'يسار', icon: 'fa-box' }, { id: 'bottom', name: 'أسفل', icon: 'fa-cube' } ]
+        };
+
+        const ALL_POSSIBLE_FACES = ['top', 'bottom', 'front', 'back', 'left', 'right', 'inside'];
+        let currentType = 'mailer'; let activeFace = 'top'; let isBoxOpen = false; let userCustomizedColors = {};
+        const PIXELS_PER_CM = 40; let canvases = {}; let textures = {}; let activeFabricObj = null;
+        let scene, camera, renderer, controls, mainBoxGroup; let animatedParts = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFabricEngine(); setupThreeEngine();
+            if(window.innerWidth <= 1200) { document.getElementById('mobile-tabs').style.display = 'flex'; toggleMobileTab('settings'); }
+            const urlParams = new URLSearchParams(window.location.search);
+            const designId = urlParams.get('designId');
+            if (designId) loadDesignFromServer(designId);
+            handleSizeChange(); onMaterialChange();
+        });
+
+        function getCurrentMaterialSettings() {
+            const matSelect = document.getElementById('box-material');
+            const selectedOpt = matSelect.options[matSelect.selectedIndex];
+            return { color: selectedOpt.getAttribute('data-color') || '#ffffff', isGlossy: selectedOpt.getAttribute('data-glossy') === 'true' };
+        }
+
+        function getDefaultFaceColor(faceId) {
+            const matSettings = getCurrentMaterialSettings();
+            if (faceId === 'inside') {
+                const val = document.getElementById('box-material').value;
+                if (val.includes('kraft')) return '#a8835a';
+                return '#f1f5f9';
+            }
+            const val = document.getElementById('box-material').value;
+            if (val.includes('kraft') && faceId !== 'inside') return '#c29b70';
+            return matSettings.color;
+        }
+
+        function onMaterialChange() {
+            const defaultMatColor = getDefaultFaceColor(activeFace);
+            ALL_POSSIBLE_FACES.forEach(face => {
+                if (canvases[face] && !userCustomizedColors[face]) {
+                    canvases[face].backgroundColor = getDefaultFaceColor(face);
+                    canvases[face].renderAll();
+                }
+            });
+            if(!userCustomizedColors[activeFace]) { document.getElementById('face-bg-color').value = defaultMatColor; }
+            updateGeometry();
+        }
+
         function enterStudio(type) {
             document.getElementById('box-type').value = type;
-
             const welcome = document.getElementById('premium-welcome');
-            welcome.style.opacity = '0';
-            welcome.style.transform = 'scale(1.05)';
-
+            welcome.style.opacity = '0'; welcome.style.transform = 'scale(1.05)';
             setTimeout(() => {
-                welcome.style.display = 'none';
-                changeBoxType();
-                handleSizeChange();
-
-                // Add a cool entrance swoop animation for the 3D box
+                welcome.style.display = 'none'; changeBoxType(); handleSizeChange();
                 if(mainBoxGroup) {
-                    mainBoxGroup.position.y += 10;
-                    mainBoxGroup.rotation.y = Math.PI;
+                    mainBoxGroup.position.y += 10; mainBoxGroup.rotation.y = Math.PI;
                     new TWEEN.Tween(mainBoxGroup.position).to({y: mainBoxGroup.position.y - 10}, 1500).easing(TWEEN.Easing.Cubic.Out).start();
                     new TWEEN.Tween(mainBoxGroup.rotation).to({y: 0}, 1500).easing(TWEEN.Easing.Cubic.Out).start();
                 }
             }, 600);
         }
 
-        // --- Load Design for Admin ---
         async function loadDesignFromServer(id) {
             const welcome = document.getElementById('premium-welcome');
             const overlay = document.getElementById('loading-overlay');
-            welcome.style.display = 'none';
-            overlay.style.display = 'flex';
-
+            welcome.style.display = 'none'; overlay.style.display = 'flex';
             try {
                 const response = await fetch(`/Studio/GetDesignData?id=${id}`);
                 const result = await response.json();
-
                 if (result.success && result.data) {
                     const data = result.data;
-
-                    // Map Arabic text back to values
                     let typeVal = 'mailer';
                     if(data.productType.includes('طوي') || data.productType.includes('Folding')) typeVal = 'folding';
                     else if(data.productType.includes('صلب') || data.productType.includes('Rigid')) typeVal = 'rigid';
                     else if(data.productType.includes('شحن') || data.productType.includes('Shipping')) typeVal = 'shipping';
 
                     document.getElementById('box-type').value = typeVal;
-
                     document.getElementById('dim-l').value = data.length;
                     document.getElementById('dim-w').value = data.width;
                     document.getElementById('dim-d').value = data.height;
 
-                    let matVal = 'white';
-                    if(data.colorHex.includes('كرافت') || data.colorHex.includes('Kraft')) matVal = 'kraft';
-                    else if(data.colorHex.includes('لامع') || data.colorHex.includes('Gloss')) matVal = 'supergloss';
-                    document.getElementById('box-material').value = matVal;
+                    const matSelect = document.getElementById('box-material');
+                    for (let i = 0; i < matSelect.options.length; i++) {
+                        if (matSelect.options[i].value === data.colorHex) { matSelect.selectedIndex = i; break; }
+                    }
 
-                    changeBoxType(); // Rebuild UI based on type
+                    changeBoxType();
                     document.getElementById('size-preset').value = 'custom';
                     document.getElementById('custom-dim-box').classList.add('active');
 
-                    // Load JSON to Fabric
                     const parsedJson = JSON.parse(data.canvasJsonData);
                     let loadedCount = 0;
                     const facesToLoad = Object.keys(parsedJson).filter(k => canvases[k]);
-
-                    if (facesToLoad.length === 0) {
-                        updateGeometry();
-                        overlay.style.display = 'none';
-                        return;
-                    }
+                    if (facesToLoad.length === 0) { updateGeometry(); overlay.style.display = 'none'; return; }
 
                     facesToLoad.forEach(face => {
                         canvases[face].loadFromJSON(parsedJson[face], () => {
-                            canvases[face].renderAll();
-                            textures[face].needsUpdate = true;
-                            loadedCount++;
-                            if(loadedCount === facesToLoad.length) {
-                                updateGeometry();
-                                overlay.style.display = 'none';
-                                showToast('تم جلب بيانات التصميم بنجاح');
-                            }
+                            canvases[face].renderAll(); textures[face].needsUpdate = true; loadedCount++;
+                            if(loadedCount === facesToLoad.length) { updateGeometry(); overlay.style.display = 'none'; showToast('تم جلب بيانات التصميم بنجاح'); }
                         });
                     });
-                } else {
-                    throw new Error(result.message || 'بيانات غير صالحة');
-                }
+                } else throw new Error(result.message || 'بيانات غير صالحة');
             } catch (e) {
-                console.error(e);
-                showToast('حدث خطأ أثناء جلب التصميم');
-                overlay.style.display = 'none';
+                console.error(e); showToast('حدث خطأ أثناء جلب التصميم'); overlay.style.display = 'none';
             }
         }
 
         function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg;
+            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // --- Background Color Changer ---
         function changeSceneBackground() {
             const color = document.getElementById('scene-bg-color').value;
-            // Create a premium radial gradient using the selected color
             document.getElementById('studio-workspace').style.background = `radial-gradient(circle at 50% 50%, #ffffff 0%, ${color} 100%)`;
         }
 
-        // --- Material & Canvas Color Logic ---
-        function getDefaultColor(faceId, mat) {
-            if (mat === 'kraft') {
-                return (faceId === 'inside') ? '#a8835a' : '#c29b70';
-            }
-            return (faceId === 'inside') ? '#f1f5f9' : '#ffffff';
-        }
-
-        function onMaterialChange() {
-            const mat = document.getElementById('box-material').value;
-
-            // Update canvas backgrounds if user hasn't customized them
-            ALL_POSSIBLE_FACES.forEach(face => {
-                if (canvases[face] && !userCustomizedColors[face]) {
-                    canvases[face].backgroundColor = getDefaultColor(face, mat);
-                    canvases[face].renderAll();
-                }
-            });
-
-            // Sync Color Picker UI
-            if(!userCustomizedColors[activeFace]) {
-                document.getElementById('face-bg-color').value = getDefaultColor(activeFace, mat);
-            }
-
-            updateGeometry();
-        }
-
-        // --- Left Panel Logic ---
         function syncQty(source) {
-            const slider = document.getElementById('qty-slider');
-            const input = document.getElementById('box-qty');
-            if (source === 'slider') {
-                input.value = slider.value;
-            } else {
-                slider.value = input.value;
-            }
+            const slider = document.getElementById('qty-slider'); const input = document.getElementById('box-qty');
+            if (source === 'slider') input.value = slider.value; else slider.value = input.value;
             calculatePrice();
         }
 
         function handleSizeChange() {
             const preset = document.getElementById('size-preset').value;
             const customBox = document.getElementById('custom-dim-box');
-
-            if (preset === 'custom') {
-                customBox.classList.add('active');
-            } else {
+            if (preset === 'custom') { customBox.classList.add('active'); }
+            else {
                 customBox.classList.remove('active');
-                const dims = preset.split('x');
-                document.getElementById('dim-l').value = dims[0];
-                document.getElementById('dim-w').value = dims[1];
-                document.getElementById('dim-d').value = dims[2];
-                updateGeometry();
+                if(preset) {
+                    const dims = preset.split('x');
+                    if(dims.length === 3) { document.getElementById('dim-l').value = dims[0]; document.getElementById('dim-w').value = dims[1]; document.getElementById('dim-d').value = dims[2]; updateGeometry(); }
+                }
             }
         }
 
-        function applyCustomDims() {
-            document.getElementById('size-preset').value = 'custom';
-            updateGeometry();
-        }
+        function applyCustomDims() { document.getElementById('size-preset').value = 'custom'; updateGeometry(); }
 
-        // --- UI & Face Selection Logic ---
         function changeBoxType() {
             currentType = document.getElementById('box-type').value;
             const config = BOX_CONFIGS[currentType];
             isBoxOpen = false;
+            const selector = document.getElementById('face-selector'); selector.innerHTML = '';
 
-            const selector = document.getElementById('face-selector');
-            selector.innerHTML = '';
-
-            // Only Mailer and Rigid have "Open" feature
             if (currentType === 'mailer' || currentType === 'rigid') {
                 const btnOpen = document.createElement('button');
-                btnOpen.className = 'face-btn action-btn';
-                btnOpen.id = 'btn-anim-toggle';
+                btnOpen.className = 'face-btn action-btn'; btnOpen.id = 'btn-anim-toggle';
                 btnOpen.innerHTML = `<i class="fas fa-box-open"></i> <span>فتح</span>`;
-                btnOpen.onclick = toggle3DAnimation;
-                selector.appendChild(btnOpen);
+                btnOpen.onclick = toggle3DAnimation; selector.appendChild(btnOpen);
             }
 
             config.forEach((f, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `face-btn ${idx === 0 ? 'active' : ''}`;
-                btn.id = `btn-face-${f.id}`;
+                btn.className = `face-btn ${idx === 0 ? 'active' : ''}`; btn.id = `btn-face-${f.id}`;
                 btn.innerHTML = `<i class="fas ${f.icon}"></i> <span>${f.name}</span>`;
-                btn.onclick = () => switchActiveFace(f.id);
-                selector.appendChild(btn);
+                btn.onclick = () => switchActiveFace(f.id); selector.appendChild(btn);
             });
 
-            // 3D Zoom Controls
-            const zoomHtml = `
-                <div class="zoom-controls">
-                    <button class="zoom-btn" onclick="zoom3D(true)" title="تقريب المشهد"><i class="fas fa-plus"></i></button>
-                    <button class="zoom-btn" onclick="zoom3D(false)" title="إبعاد المشهد"><i class="fas fa-minus"></i></button>
-                </div>
-            `;
+            const zoomHtml = `<div class="zoom-controls"><button class="zoom-btn" onclick="zoom3D(true)" title="تقريب المشهد"><i class="fas fa-plus"></i></button><button class="zoom-btn" onclick="zoom3D(false)" title="إبعاد المشهد"><i class="fas fa-minus"></i></button></div>`;
             selector.insertAdjacentHTML('beforeend', zoomHtml);
-
-            switchActiveFace(config[0].id);
-            updateGeometry();
+            switchActiveFace(config[0].id); updateGeometry();
         }
 
         function switchActiveFace(faceId) {
             activeFace = faceId;
-
             document.querySelectorAll('.face-btn').forEach(b => b.classList.remove('active'));
             const btn = document.getElementById(`btn-face-${faceId}`);
             if(btn) btn.classList.add('active');
@@ -1485,16 +1626,12 @@
             });
 
             if(canvases[faceId]) {
-                const bg = canvases[faceId].backgroundColor || getDefaultColor(faceId, document.getElementById('box-material').value);
+                const bg = canvases[faceId].backgroundColor || getDefaultFaceColor(faceId);
                 document.getElementById('face-bg-color').value = bg;
-                canvases[faceId].discardActiveObject();
-                canvases[faceId].renderAll();
+                canvases[faceId].discardActiveObject(); canvases[faceId].renderAll();
             }
 
-            resizeCanvasesToFitUI();
-            toggleTrashBtn(false);
-
-            moveCameraToFace(faceId);
+            resizeCanvasesToFitUI(); toggleTrashBtn(false); document.getElementById('text-properties').style.display = 'none'; moveCameraToFace(faceId);
         }
 
         function moveCameraToFace(faceId) {
@@ -1504,10 +1641,11 @@
             const D = parseFloat(document.getElementById('dim-d').value) || 5;
 
             const maxDim = Math.max(L, W, D);
-            const dist = maxDim * 2 + 10;
+            const isMobile = window.innerWidth <= 1200;
+            const distMultiplier = isMobile ? 3 : 2;
+            const dist = maxDim * distMultiplier + 15;
 
-            let targetPos = new THREE.Vector3();
-            let targetLook = new THREE.Vector3(0,0,0);
+            let targetPos = new THREE.Vector3(); let targetLook = new THREE.Vector3(0,0,0);
 
             switch(faceId) {
                 case 'top': targetPos.set(0, dist, 0.1); break;
@@ -1518,8 +1656,7 @@
                 case 'right': targetPos.set(dist, 0, 0); break;
                 case 'inside':
                     if(!isBoxOpen && document.getElementById('btn-anim-toggle')) toggle3DAnimation();
-                    targetPos.set(0, dist * 1.2, dist * 0.5);
-                    break;
+                    targetPos.set(0, dist * 1.2, dist * 0.5); break;
             }
 
             new TWEEN.Tween(camera.position).to({x: targetPos.x, y: targetPos.y, z: targetPos.z}, 1000).easing(TWEEN.Easing.Cubic.Out).start();
@@ -1528,14 +1665,12 @@
 
         function zoom3D(zoomIn) {
             if(!camera || !controls) return;
-            const zoomSpeed = 5;
-            const dir = new THREE.Vector3();
+            const zoomSpeed = 5; const dir = new THREE.Vector3();
             camera.getWorldDirection(dir);
             camera.position.addScaledVector(dir, zoomIn ? zoomSpeed : -zoomSpeed);
             controls.update();
         }
 
-        // --- Fabric.js (2D Texture Engine) ---
         function setupFabricEngine() {
             fabric.Object.prototype.transparentCorners = false;
             fabric.Object.prototype.cornerColor = 'var(--primary)';
@@ -1546,24 +1681,19 @@
             const trashBtnHtml = '<button class="btn-trash" id="btn-delete-obj" onclick="deleteObject()"><i class="fas fa-trash"></i></button>';
             container.innerHTML = trashBtnHtml;
 
-            const mat = document.getElementById('box-material').value || 'white';
-
             ALL_POSSIBLE_FACES.forEach(face => {
                 const div = document.createElement('div');
                 div.id = `wrap-${face}`; div.style.display = 'none';
                 div.innerHTML = `<canvas id="cvs-${face}"></canvas>`;
                 container.prepend(div);
 
-                const cvs = new fabric.Canvas(`cvs-${face}`, {
-                    backgroundColor: getDefaultColor(face, mat),
-                    preserveObjectStacking: true
-                });
+                const cvs = new fabric.Canvas(`cvs-${face}`, { backgroundColor: getDefaultFaceColor(face), preserveObjectStacking: true });
                 canvases[face] = cvs;
 
                 cvs.on('after:render', () => { if (textures[face]) textures[face].needsUpdate = true; });
                 cvs.on('selection:created', onObjectSelected);
                 cvs.on('selection:updated', onObjectSelected);
-                cvs.on('selection:cleared', () => toggleTrashBtn(false));
+                cvs.on('selection:cleared', () => { toggleTrashBtn(false); document.getElementById('text-properties').style.display = 'none'; activeFabricObj = null; });
             });
         }
 
@@ -1586,19 +1716,17 @@
                 };
             }
 
-            const maxUiSizeW = 300;
-            const maxUiSizeH = 240;
+            const isMobile = window.innerWidth <= 1200;
+            const maxUiSizeW = isMobile ? window.innerWidth - 120 : 250;
+            const maxUiSizeH = isMobile ? 180 : 220;
 
             ALL_POSSIBLE_FACES.forEach(face => {
                 if(!canvases[face] || !dimMap[face]) return;
                 const cvs = canvases[face];
-
                 const internalW = dimMap[face].w * PIXELS_PER_CM;
                 const internalH = dimMap[face].h * PIXELS_PER_CM;
-
                 const scale = Math.min(maxUiSizeW / internalW, maxUiSizeH / internalH);
-                const cssW = internalW * scale;
-                const cssH = internalH * scale;
+                const cssW = internalW * scale; const cssH = internalH * scale;
 
                 cvs.setDimensions({ width: internalW, height: internalH }, { backstoreOnly: true });
                 cvs.setDimensions({ width: cssW, height: cssH }, { cssOnly: true });
@@ -1610,21 +1738,21 @@
             });
         }
 
-        // --- 2D Tools Actions ---
         function changeBackgroundColor() {
             const color = document.getElementById('face-bg-color').value;
-            userCustomizedColors[activeFace] = true; // Mark as user customized
+            userCustomizedColors[activeFace] = true;
             if(canvases[activeFace]) { canvases[activeFace].backgroundColor = color; canvases[activeFace].renderAll(); }
         }
 
         function addText() {
             const cvs = canvases[activeFace];
-            const text = new fabric.IText('نص جديد', {
-                originX: 'center', originY: 'center',
-                left: cvs.width / (2 * cvs.getZoom()), top: cvs.height / (2 * cvs.getZoom()),
-                fontFamily: 'Cairo', fill: '#1f2937', fontSize: 60, fontWeight: 'bold'
-            });
+            const text = new fabric.IText('نص جديد', { originX: 'center', originY: 'center', left: cvs.width / (2 * cvs.getZoom()), top: cvs.height / (2 * cvs.getZoom()), fontFamily: 'Cairo', fill: '#1f2937', fontSize: 60, fontWeight: 'bold' });
             cvs.add(text); cvs.setActiveObject(text);
+        }
+
+        function updateTextProperty(property, value) {
+            if (!activeFabricObj || activeFabricObj.type !== 'i-text') return;
+            activeFabricObj.set(property, value); canvases[activeFace].renderAll();
         }
 
         function uploadImage(e) {
@@ -1643,9 +1771,18 @@
         }
 
         function onObjectSelected(e) {
-            activeFabricObj = e.selected[0]; if(!activeFabricObj) return;
+            activeFabricObj = e.selected[0];
+            if(!activeFabricObj) return;
+
             activeFabricObj.set({ cornerSize: 12 / canvases[activeFace].getZoom() });
             toggleTrashBtn(true);
+
+            const textPropsBox = document.getElementById('text-properties');
+            if (activeFabricObj.type === 'i-text') {
+                textPropsBox.style.display = 'flex';
+                document.getElementById('text-color-picker').value = activeFabricObj.fill;
+                document.getElementById('text-font-family').value = activeFabricObj.fontFamily;
+            } else { textPropsBox.style.display = 'none'; }
         }
 
         function toggleTrashBtn(show) {
@@ -1663,32 +1800,34 @@
             activeFabricObj.setCoords(); cvs.renderAll();
         }
 
-        function deleteObject() { if(activeFabricObj) { canvases[activeFace].remove(activeFabricObj); toggleTrashBtn(false); } }
+        function deleteObject() { if(activeFabricObj) { canvases[activeFace].remove(activeFabricObj); toggleTrashBtn(false); document.getElementById('text-properties').style.display='none'; } }
         document.addEventListener('keydown', (e) => { if((e.key === 'Delete' || e.key === 'Backspace') && e.target.tagName !== 'INPUT') deleteObject(); });
 
         function resetDesign() {
             if(confirm("هل أنت متأكد من مسح جميع التصاميم؟")) {
-                userCustomizedColors = {}; // Reset customization tracker
-                const mat = document.getElementById('box-material').value;
+                userCustomizedColors = {};
                 ALL_POSSIBLE_FACES.forEach(f => {
                     if(canvases[f]){
                         canvases[f].clear();
-                        canvases[f].backgroundColor = getDefaultColor(f, mat);
+                        canvases[f].backgroundColor = getDefaultFaceColor(f);
                         canvases[f].renderAll();
                     }
                 });
-                document.getElementById('face-bg-color').value = getDefaultColor(activeFace, mat);
+                document.getElementById('face-bg-color').value = getDefaultFaceColor(activeFace);
+                document.getElementById('text-properties').style.display = 'none';
                 updateGeometry();
                 showToast('تمت إعادة الضبط بنجاح');
             }
         }
 
-        // --- Three.js (3D Renderer Engine) ---
+        // --- Three.js ---
         function setupThreeEngine() {
             const container = document.getElementById('three-canvas');
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(30, 40, 50); // Set further back for bigger sizes
+
+            const isMobile = window.innerWidth <= 1200;
+            camera.position.set(isMobile ? 40 : 30, isMobile ? 60 : 40, isMobile ? 80 : 50);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -1697,9 +1836,8 @@
             container.appendChild(renderer.domElement);
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; controls.dampingFactor = 0.05;
+            controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enablePan = false;
 
-            // Premium Lighting Setup
             scene.add(new THREE.AmbientLight(0xffffff, 0.8));
             const dl = new THREE.DirectionalLight(0xffffff, 0.5); dl.position.set(30, 60, 30); scene.add(dl);
             const fl = new THREE.DirectionalLight(0xffffff, 0.2); fl.position.set(-30, 30, -30); scene.add(fl);
@@ -1707,8 +1845,7 @@
             ALL_POSSIBLE_FACES.forEach(face => {
                 if(canvases[face]) {
                     const tex = new THREE.CanvasTexture(canvases[face].getElement());
-                    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-                    tex.encoding = THREE.sRGBEncoding;
+                    tex.anisotropy = renderer.capabilities.getMaxAnisotropy(); tex.encoding = THREE.sRGBEncoding;
                     textures[face] = tex;
                 }
             });
@@ -1718,46 +1855,50 @@
             window.addEventListener('resize', () => { camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); });
         }
 
-        // --- PERFECTED FLAT-TO-3D GEOMETRIES ---
-        function createHingedPanel(w, h, d, px, py, pz, outFace, inFace, matType, rotFix = 0) {
-            const isKraft = matType === 'kraft';
-            const isGloss = matType === 'supergloss';
-            const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
-            const mtl = isGloss ? 0.3 : 0;
+        function createHingedPanel(w, h, d, px, py, pz, outFace, inFace, rotFix = 0) {
+            const matSettings = getCurrentMaterialSettings();
+            const val = document.getElementById('box-material').value;
+            const isKraft = val.includes('kraft');
 
-            const edgeM = new THREE.MeshStandardMaterial({ color: isKraft? 0xa8835a : 0xe2e8f0, roughness: 0.8 });
+            const rgh = matSettings.isGlossy ? 0.1 : (isKraft ? 0.9 : 0.8);
+            const mtl = matSettings.isGlossy ? 0.3 : 0.0;
+
+            const edgeColor = isKraft ? 0xa8835a : matSettings.color;
+            const edgeM = new THREE.MeshStandardMaterial({ color: edgeColor, roughness: 0.9, metalness: 0 });
+
             let fM = edgeM, bM = edgeM;
 
             if(outFace) {
                 if(textures[outFace]) {
-                    textures[outFace].center.set(0.5, 0.5);
-                    textures[outFace].rotation = rotFix;
+                    textures[outFace].center.set(0.5, 0.5); textures[outFace].rotation = rotFix;
                     fM = new THREE.MeshStandardMaterial({map: textures[outFace], roughness: rgh, metalness: mtl, color: 0xffffff});
-                } else fM = new THREE.MeshStandardMaterial({color: isKraft ? 0xc29b70 : 0xffffff, roughness: rgh, metalness: mtl});
+                } else {
+                    const outColor = isKraft ? 0xc29b70 : matSettings.color;
+                    fM = new THREE.MeshStandardMaterial({color: outColor, roughness: rgh, metalness: mtl});
+                }
             }
             if(inFace) {
                 if(textures[inFace]) {
                     textures[inFace].center.set(0.5, 0.5);
                     bM = new THREE.MeshStandardMaterial({map: textures[inFace], roughness: rgh, metalness: mtl, color: 0xffffff});
-                } else bM = new THREE.MeshStandardMaterial({color: isKraft ? 0xa8835a : 0xf1f5f9, roughness: rgh, metalness: mtl});
+                } else {
+                    const inColor = isKraft ? 0xa8835a : (matSettings.color === '#ffffff' ? '#f1f5f9' : matSettings.color);
+                    bM = new THREE.MeshStandardMaterial({color: inColor, roughness: rgh, metalness: mtl});
+                }
             }
 
-            const geo = new THREE.BoxGeometry(w, h, d);
-            geo.translate(px, py, pz);
-            // FIXED MAPPING: Swapped index 4 and 5 so that fM (outFace) correctly maps to the physical outside (-Z) of the folded panel
+            const geo = new THREE.BoxGeometry(w, h, d); geo.translate(px, py, pz);
             const mesh = new THREE.Mesh(geo, [edgeM, edgeM, edgeM, edgeM, bM, fM]);
 
             const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity: 0.05 }));
             mesh.add(line);
 
-            const hinge = new THREE.Group();
-            hinge.add(mesh);
+            const hinge = new THREE.Group(); hinge.add(mesh);
             return { mesh, hinge };
         }
 
         function updateGeometry() {
-            resizeCanvasesToFitUI();
-            calculatePrice();
+            resizeCanvasesToFitUI(); calculatePrice();
 
             if (!scene) return;
             if (mainBoxGroup) {
@@ -1765,49 +1906,23 @@
                 mainBoxGroup.traverse(c => { if(c.isMesh){ c.geometry.dispose(); if(Array.isArray(c.material)) c.material.forEach(m=>m.dispose()); else c.material.dispose();} });
             }
 
-            mainBoxGroup = new THREE.Group();
-            animatedParts = [];
+            mainBoxGroup = new THREE.Group(); animatedParts = [];
 
             const L = parseFloat(document.getElementById('dim-l').value) || 15;
             const W = parseFloat(document.getElementById('dim-w').value) || 10;
             const D = parseFloat(document.getElementById('dim-d').value) || 5;
-            const mat = document.getElementById('box-material').value;
-            const T = 0.1; // Base thickness adjusted for larger default sizes
+            const T = 0.1;
 
             if (currentType === 'mailer') {
-                const bot = createHingedPanel(L, W, T, 0,0,0, 'bottom', 'inside', mat, 0).mesh;
-                mainBoxGroup.add(bot);
+                const bot = createHingedPanel(L, W, T, 0,0,0, 'bottom', 'inside', 0).mesh; mainBoxGroup.add(bot);
+                const back = createHingedPanel(L, D, T, 0, D/2, 0, 'back', null, 0); back.hinge.position.set(0, W/2, 0); mainBoxGroup.add(back.hinge);
+                const front = createHingedPanel(L, D, T, 0, -D/2, 0, 'front', null, Math.PI); front.hinge.position.set(0, -W/2, 0); mainBoxGroup.add(front.hinge);
+                const left = createHingedPanel(D, W-T*2, T, -D/2, 0, 0, 'left', null, Math.PI/2); left.hinge.position.set(-L/2, 0, 0); mainBoxGroup.add(left.hinge);
+                const right = createHingedPanel(D, W-T*2, T, D/2, 0, 0, 'right', null, -Math.PI/2); right.hinge.position.set(L/2, 0, 0); mainBoxGroup.add(right.hinge);
+                const top = createHingedPanel(L, W, T, 0, W/2, 0, 'top', 'inside', Math.PI); top.hinge.position.set(0, D, 0); back.mesh.add(top.hinge);
+                const flap = createHingedPanel(L-0.6, D*0.8, T, 0, D*0.4, 0, null, 'inside', 0); flap.hinge.position.set(0, W - T * 1.5, -T); top.mesh.add(flap.hinge);
 
-                const back = createHingedPanel(L, D, T, 0, D/2, 0, 'back', null, mat, 0);
-                back.hinge.position.set(0, W/2, 0);
-                mainBoxGroup.add(back.hinge);
-
-                // Note: rotFix=Math.PI applied to 'front' so the texture renders upright on the folded front face
-                const front = createHingedPanel(L, D, T, 0, -D/2, 0, 'front', null, mat, Math.PI);
-                front.hinge.position.set(0, -W/2, 0);
-                mainBoxGroup.add(front.hinge);
-
-                const left = createHingedPanel(D, W-T*2, T, -D/2, 0, 0, 'left', null, mat, Math.PI/2);
-                left.hinge.position.set(-L/2, 0, 0);
-                mainBoxGroup.add(left.hinge);
-
-                const right = createHingedPanel(D, W-T*2, T, D/2, 0, 0, 'right', null, mat, -Math.PI/2);
-                right.hinge.position.set(L/2, 0, 0);
-                mainBoxGroup.add(right.hinge);
-
-                // Note: rotFix=Math.PI applied to 'top' so the texture renders upright on the folded lid
-                const top = createHingedPanel(L, W, T, 0, W/2, 0, 'top', 'inside', mat, Math.PI);
-                top.hinge.position.set(0, D, 0);
-                back.mesh.add(top.hinge);
-
-                const flap = createHingedPanel(L-0.6, D*0.8, T, 0, D*0.4, 0, null, 'inside', mat, 0);
-                flap.hinge.position.set(0, W - T * 1.5, -T);
-                top.mesh.add(flap.hinge);
-
-                back.hinge.rotation.x = Math.PI/2;
-                front.hinge.rotation.x = -Math.PI/2;
-                left.hinge.rotation.y = Math.PI/2;
-                right.hinge.rotation.y = -Math.PI/2;
+                back.hinge.rotation.x = Math.PI/2; front.hinge.rotation.x = -Math.PI/2; left.hinge.rotation.y = Math.PI/2; right.hinge.rotation.y = -Math.PI/2;
 
                 animatedParts.push({ obj: top.hinge, closedRot: { x: Math.PI/2 }, openRot: { x: 0 } });
                 animatedParts.push({ obj: flap.hinge, closedRot: { x: Math.PI/2 + 0.05 }, openRot: { x: 0.1 } });
@@ -1815,50 +1930,47 @@
                 if(isBoxOpen) { top.hinge.rotation.x = 0; flap.hinge.rotation.x = 0.1; }
                 else { top.hinge.rotation.x = Math.PI/2; flap.hinge.rotation.x = Math.PI/2 + 0.05; }
 
-                mainBoxGroup.rotation.x = -Math.PI/2;
-                mainBoxGroup.position.y = -D/2;
+                mainBoxGroup.rotation.x = -Math.PI/2; mainBoxGroup.position.y = -D/2;
             }
             else if (currentType === 'rigid') {
+                const matSettings = getCurrentMaterialSettings();
+                const val = document.getElementById('box-material').value;
+                const isKraft = val.includes('kraft');
+
+                const rgh = matSettings.isGlossy ? 0.1 : (isKraft ? 0.9 : 0.8);
+                const mtl = matSettings.isGlossy ? 0.3 : 0.0;
+
                 const getMat = (faceId) => {
-                    const isKraft = mat === 'kraft';
-                    const isGloss = mat === 'supergloss';
-                    const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
-                    const mtl = isGloss ? 0.3 : 0;
-                    if(!faceId) return new THREE.MeshStandardMaterial({ color: isKraft?0xa8835a:0xe2e8f0, roughness: rgh, metalness: mtl });
+                    if(!faceId) return new THREE.MeshStandardMaterial({ color: isKraft ? 0xa8835a : 0xe2e8f0, roughness: 0.9, metalness: 0 });
 
                     if(textures[faceId]) {
                         textures[faceId].center.set(0.5, 0.5);
                         if (faceId === 'top') textures[faceId].rotation = Math.PI;
                         return new THREE.MeshStandardMaterial({map: textures[faceId], roughness: rgh, metalness: mtl, color: 0xffffff});
                     }
-                    return new THREE.MeshStandardMaterial({color: isKraft ? 0xc29b70 : 0xffffff, roughness: rgh, metalness: mtl});
+                    const colorStr = isKraft ? (faceId === 'inside' ? 0xa8835a : 0xc29b70) : (faceId === 'inside' ? '#f1f5f9' : matSettings.color);
+                    return new THREE.MeshStandardMaterial({color: colorStr, roughness: rgh, metalness: mtl});
                 };
 
                 const edgeMat = getMat(null);
 
                 const createSolidBox = (w, h, d, isLid) => {
                     const grp = new THREE.Group();
-
                     const mY = isLid ? new THREE.Mesh(new THREE.BoxGeometry(w, T, d), [edgeMat, edgeMat, getMat('top'), getMat('inside'), edgeMat, edgeMat])
                              : new THREE.Mesh(new THREE.BoxGeometry(w, T, d), [edgeMat, edgeMat, getMat('inside'), getMat('bottom'), edgeMat, edgeMat]);
-                    mY.position.y = isLid ? h/2 - T/2 : -h/2 + T/2;
-                    grp.add(mY);
+                    mY.position.y = isLid ? h/2 - T/2 : -h/2 + T/2; grp.add(mY);
 
                     const mB = new THREE.Mesh(new THREE.BoxGeometry(w, h, T), [edgeMat, edgeMat, edgeMat, edgeMat, getMat('inside'), isLid ? getMat('back') : edgeMat]);
-                    mB.position.z = -d/2 + T/2;
-                    grp.add(mB);
+                    mB.position.z = -d/2 + T/2; grp.add(mB);
 
                     const mF = new THREE.Mesh(new THREE.BoxGeometry(w, h, T), [edgeMat, edgeMat, edgeMat, edgeMat, isLid ? getMat('front') : edgeMat, getMat('inside')]);
-                    mF.position.z = d/2 - T/2;
-                    grp.add(mF);
+                    mF.position.z = d/2 - T/2; grp.add(mF);
 
                     const mL = new THREE.Mesh(new THREE.BoxGeometry(T, h, d-T*2), [getMat('inside'), isLid ? getMat('left') : edgeMat, edgeMat, edgeMat, edgeMat, edgeMat]);
-                    mL.position.x = -w/2 + T/2;
-                    grp.add(mL);
+                    mL.position.x = -w/2 + T/2; grp.add(mL);
 
                     const mR = new THREE.Mesh(new THREE.BoxGeometry(T, h, d-T*2), [isLid ? getMat('right') : edgeMat, getMat('inside'), edgeMat, edgeMat, edgeMat, edgeMat]);
-                    mR.position.x = w/2 - T/2;
-                    grp.add(mR);
+                    mR.position.x = w/2 - T/2; grp.add(mR);
 
                     grp.children.forEach(c => {
                         const edges = new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry), new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity: 0.05 }));
@@ -1867,35 +1979,27 @@
                     return grp;
                 };
 
-                const baseGrp = createSolidBox(L, D, W, false);
-                mainBoxGroup.add(baseGrp);
+                const baseGrp = createSolidBox(L, D, W, false); mainBoxGroup.add(baseGrp);
+                const lidD = D * 0.75; const lidGrp = createSolidBox(L + T*2.5, lidD, W + T*2.5, true);
+                lidGrp.position.y = D/2 - lidD/2 + T; mainBoxGroup.add(lidGrp);
 
-                const lidD = D * 0.75;
-                const lidGrp = createSolidBox(L + T*2.5, lidD, W + T*2.5, true);
+                animatedParts.push({ obj: lidGrp, closedPos: { x:0, y: D/2 - lidD/2 + T, z: 0 }, openPos: { x:0, y: D * 1.5, z: W/1.2 }, closedRot: { x: 0 }, openRot: { x: -Math.PI/6 } });
 
-                lidGrp.position.y = D/2 - lidD/2 + T;
-                mainBoxGroup.add(lidGrp);
-
-                animatedParts.push({
-                    obj: lidGrp,
-                    closedPos: { x:0, y: D/2 - lidD/2 + T, z: 0 },
-                    openPos: { x:0, y: D * 1.5, z: W/1.2 },
-                    closedRot: { x: 0 },
-                    openRot: { x: -Math.PI/6 }
-                });
-
-                if(isBoxOpen) {
-                    lidGrp.position.set(0, D*1.5, W/1.2);
-                    lidGrp.rotation.x = -Math.PI/6;
-                }
+                if(isBoxOpen) { lidGrp.position.set(0, D*1.5, W/1.2); lidGrp.rotation.x = -Math.PI/6; }
             }
-            else if (currentType === 'folding') {
+            else if (currentType === 'folding' || currentType === 'shipping') {
+                const matSettings = getCurrentMaterialSettings();
+                const val = document.getElementById('box-material').value;
+                const isKraft = val.includes('kraft');
+
+                const rgh = matSettings.isGlossy ? 0.1 : (isKraft ? 0.9 : 0.8);
+                const mtl = matSettings.isGlossy ? 0.3 : 0.0;
+
                 const getMat = (faceId) => {
-                    const isKraft = mat === 'kraft';
-                    const isGloss = mat === 'supergloss';
-                    const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
-                    const mtl = isGloss ? 0.3 : 0;
-                    if(!textures[faceId]) return new THREE.MeshStandardMaterial({color: isKraft ? (faceId?'#c29b70':'#a8835a') : '#ffffff', roughness: rgh, metalness: mtl});
+                    if(!textures[faceId]) {
+                        const c = isKraft ? (faceId === 'inside' ? '#a8835a' : '#c29b70') : (faceId === 'inside' ? '#f1f5f9' : matSettings.color);
+                        return new THREE.MeshStandardMaterial({color: c, roughness: rgh, metalness: mtl});
+                    }
 
                     textures[faceId].center.set(0.5, 0.5);
                     if(faceId === 'top') textures[faceId].rotation = Math.PI/2;
@@ -1903,72 +2007,29 @@
                     return new THREE.MeshStandardMaterial({map: textures[faceId], roughness: rgh, metalness: mtl, color: 0xffffff});
                 };
 
-                const b = new THREE.Mesh(new THREE.BoxGeometry(L, D, W), [
-                    getMat('right'), getMat('left'), getMat('top'), getMat('bottom'), getMat('front'), getMat('back')
-                ]);
-
+                const b = new THREE.Mesh(new THREE.BoxGeometry(L, D, W), [ getMat('right'), getMat('left'), getMat('top'), getMat('bottom'), getMat('front'), getMat('back') ]);
                 const edges = new THREE.LineSegments(new THREE.EdgesGeometry(b.geometry), new THREE.LineBasicMaterial({color:0x000000, opacity:0.1, transparent:true}));
                 b.add(edges);
 
-                const slitTop = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.04, 0.04), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                slitTop.rotation.x = -Math.PI/2;
-                slitTop.position.set(0, D/2 + 0.001, W/2 - 0.06);
-                b.add(slitTop);
-
-                const slitTopL = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                slitTopL.rotation.x = -Math.PI/2;
-                slitTopL.position.set(-L/2 + 0.04, D/2 + 0.001, W/2 - W/5 - 0.02);
-                b.add(slitTopL);
-
-                const slitTopR = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                slitTopR.rotation.x = -Math.PI/2;
-                slitTopR.position.set(L/2 - 0.04, D/2 + 0.001, W/2 - W/5 - 0.02);
-                b.add(slitTopR);
-
-                const slitBot = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.04, 0.04), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                slitBot.rotation.x = Math.PI/2;
-                slitBot.position.set(0, -D/2 - 0.001, -W/2 + 0.06);
-                b.add(slitBot);
-
-                const slitBotL = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                slitBotL.rotation.x = Math.PI/2;
-                slitBotL.position.set(-L/2 + 0.04, -D/2 - 0.001, -W/2 + W/5 + 0.02);
-                b.add(slitBotL);
-
-                const slitBotR = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                slitBotR.rotation.x = Math.PI/2;
-                slitBotR.position.set(L/2 - 0.04, -D/2 - 0.001, -W/2 + W/5 + 0.02);
-                b.add(slitBotR);
-
-                mainBoxGroup.add(b);
-            }
-            else if (currentType === 'shipping') {
-                const getMat = (faceId) => {
-                    const isKraft = mat === 'kraft';
-                    const isGloss = mat === 'supergloss';
-                    const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.5);
-                    const mtl = isGloss ? 0.3 : 0;
-                    if(!textures[faceId]) return new THREE.MeshStandardMaterial({color: isKraft ? (faceId?'#c29b70':'#a8835a') : '#ffffff', roughness: rgh, metalness: mtl});
-
-                    textures[faceId].center.set(0.5, 0.5);
-                    if(faceId === 'top') textures[faceId].rotation = Math.PI/2;
-                    if(faceId === 'bottom') textures[faceId].rotation = -Math.PI/2;
-                    return new THREE.MeshStandardMaterial({map: textures[faceId], roughness: rgh, metalness: mtl, color: 0xffffff});
-                };
-
-                const b = new THREE.Mesh(new THREE.BoxGeometry(L, D, W), [
-                    getMat('right'), getMat('left'), getMat('top'), getMat('bottom'), getMat('front'), getMat('back')
-                ]);
-
-                const edges = new THREE.LineSegments(new THREE.EdgesGeometry(b.geometry), new THREE.LineBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
-                b.add(edges);
-
-                const slitTop = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.05), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.2, transparent:true}));
-                slitTop.rotation.x = -Math.PI/2; slitTop.position.set(0, D/2 + 0.001, 0); b.add(slitTop);
-
-                const slitBot = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.05), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.2, transparent:true}));
-                slitBot.rotation.x = Math.PI/2; slitBot.position.set(0, -D/2 - 0.001, 0); b.add(slitBot);
-
+                if (currentType === 'folding') {
+                    const slitTop = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.04, 0.04), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                    slitTop.rotation.x = -Math.PI/2; slitTop.position.set(0, D/2 + 0.001, W/2 - 0.06); b.add(slitTop);
+                    const slitTopL = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                    slitTopL.rotation.x = -Math.PI/2; slitTopL.position.set(-L/2 + 0.04, D/2 + 0.001, W/2 - W/5 - 0.02); b.add(slitTopL);
+                    const slitTopR = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                    slitTopR.rotation.x = -Math.PI/2; slitTopR.position.set(L/2 - 0.04, D/2 + 0.001, W/2 - W/5 - 0.02); b.add(slitTopR);
+                    const slitBot = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.04, 0.04), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                    slitBot.rotation.x = Math.PI/2; slitBot.position.set(0, -D/2 - 0.001, -W/2 + 0.06); b.add(slitBot);
+                    const slitBotL = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                    slitBotL.rotation.x = Math.PI/2; slitBotL.position.set(-L/2 + 0.04, -D/2 - 0.001, -W/2 + W/5 + 0.02); b.add(slitBotL);
+                    const slitBotR = new THREE.Mesh(new THREE.PlaneGeometry(0.04, W/2.5), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.15, transparent:true}));
+                    slitBotR.rotation.x = Math.PI/2; slitBotR.position.set(L/2 - 0.04, -D/2 - 0.001, -W/2 + W/5 + 0.02); b.add(slitBotR);
+                } else {
+                    const slitTop = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.05), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.2, transparent:true}));
+                    slitTop.rotation.x = -Math.PI/2; slitTop.position.set(0, D/2 + 0.001, 0); b.add(slitTop);
+                    const slitBot = new THREE.Mesh(new THREE.PlaneGeometry(L, 0.05), new THREE.MeshBasicMaterial({color:0x000000, opacity:0.2, transparent:true}));
+                    slitBot.rotation.x = Math.PI/2; slitBot.position.set(0, -D/2 - 0.001, 0); b.add(slitBot);
+                }
                 mainBoxGroup.add(b);
             }
 
@@ -1978,7 +2039,6 @@
             scene.add(mainBoxGroup);
         }
 
-        // --- Animations & Finalize ---
         function toggle3DAnimation() {
             if(animatedParts.length === 0) { return; }
             isBoxOpen = !isBoxOpen;
@@ -1995,14 +2055,22 @@
         }
 
         function calculatePrice() {
-            const areaCm2 = 2 * ((parseFloat(document.getElementById('dim-l').value)||15)*(parseFloat(document.getElementById('dim-w').value)||10) + (parseFloat(document.getElementById('dim-l').value)||15)*(parseFloat(document.getElementById('dim-d').value)||5) + (parseFloat(document.getElementById('dim-w').value)||10)*(parseFloat(document.getElementById('dim-d').value)||5));
-            const cost = document.getElementById('box-material').value === 'kraft' ? 0.01 : 0.015;
-            let baseUnitPrice = (areaCm2 * cost) + 0.50;
+            const l = parseFloat(document.getElementById('dim-l').value) || 15;
+            const w = parseFloat(document.getElementById('dim-w').value) || 10;
+            const d = parseFloat(document.getElementById('dim-d').value) || 5;
+            const areaCm2 = 2 * ((l * w) + (l * d) + (w * d));
+
+            const matSelect = document.getElementById('box-material');
+            const selectedOpt = matSelect.options[matSelect.selectedIndex];
+            const costPerCm2 = parseFloat(selectedOpt.getAttribute('data-cost')) || 0.015;
+
+            let baseUnitPrice = (areaCm2 * costPerCm2) + BASE_PRINT_COST;
             const qty = parseInt(document.getElementById('box-qty').value) || 100;
 
             let currentDiscount = 0;
-            if(qty >= 500) currentDiscount = 0.15;
-            if(qty >= 1000) currentDiscount = 0.25;
+            for (let i = 0; i < DISCOUNT_TIERS.length; i++) {
+                if (qty >= DISCOUNT_TIERS[i].min) { currentDiscount = DISCOUNT_TIERS[i].discount; break; }
+            }
 
             let unitPrice = baseUnitPrice * (1 - currentDiscount);
             document.getElementById('unit-price').innerText = `${unitPrice.toFixed(2)} ر.س`;
@@ -2013,10 +2081,10 @@
                 const packages = [100, 250, 500, 1000, 1500, 2000, 3000];
                 packages.forEach(q => {
                     let d = 0;
-                    if(q >= 500) d = 0.15;
-                    if(q >= 1000) d = 0.25;
+                    for (let i = 0; i < DISCOUNT_TIERS.length; i++) {
+                        if (q >= DISCOUNT_TIERS[i].min) { d = DISCOUNT_TIERS[i].discount; break; }
+                    }
                     let p = baseUnitPrice * (1 - d);
-
                     let li = document.createElement('li');
                     li.onclick = () => selectPackage(q);
                     li.innerHTML = `<span>${q} وحدة</span><span>${p.toFixed(2)} ر.س</span>`;
@@ -2028,39 +2096,29 @@
         function togglePriceTable() {
             const list = document.getElementById('price-table-list');
             const caret = document.getElementById('pt-caret');
-
             list.classList.toggle('show');
-            if(list.classList.contains('show')) {
-                caret.classList.replace('fa-caret-up', 'fa-caret-down');
-            } else {
-                caret.classList.replace('fa-caret-down', 'fa-caret-up');
-            }
+            if(list.classList.contains('show')) { caret.classList.replace('fa-caret-up', 'fa-caret-down'); }
+            else { caret.classList.replace('fa-caret-down', 'fa-caret-up'); }
         }
 
         function selectPackage(q) {
             document.getElementById('box-qty').value = q;
             document.getElementById('qty-slider').value = q;
-            calculatePrice();
-            togglePriceTable();
+            calculatePrice(); togglePriceTable();
         }
 
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.price-table-wrapper')) {
                 const list = document.getElementById('price-table-list');
                 const caret = document.getElementById('pt-caret');
-                if (list && list.classList.contains('show')) {
-                    list.classList.remove('show');
-                    caret.classList.replace('fa-caret-down', 'fa-caret-up');
-                }
+                if (list && list.classList.contains('show')) { list.classList.remove('show'); caret.classList.replace('fa-caret-down', 'fa-caret-up'); }
             }
         });
 
-        // --- UPDATED: Save Data Function (Matching Old Code Logic) ---
         async function saveDesignData() {
             const overlay = document.getElementById('loading-overlay');
             overlay.style.display = 'flex';
 
-            // 1. Prepare Design JSON
             let designJsonData = {};
             ALL_POSSIBLE_FACES.forEach(face => {
                 if (canvases[face]) {
@@ -2069,72 +2127,64 @@
                 }
             });
 
-            // 2. Close box for screenshot if open
             if (isBoxOpen) toggle3DAnimation();
 
-            // 3. Render Preview
             setTimeout(async () => {
                 renderer.render(scene, camera);
                 const previewImg = renderer.domElement.toDataURL("image/png", 0.9);
 
-                // 4. Gather Data for Server & Cart
                 const boxTypeStr = document.getElementById('box-type').options[document.getElementById('box-type').selectedIndex].text;
-                const matStr = document.getElementById('box-material').options[document.getElementById('box-material').selectedIndex].text;
+                const matSelect = document.getElementById('box-material');
+                const matStr = matSelect.options[matSelect.selectedIndex].text;
+                const matInternalValue = matSelect.value;
+
                 const L = parseFloat(document.getElementById('dim-l').value) || 15;
                 const W = parseFloat(document.getElementById('dim-w').value) || 10;
                 const D = parseFloat(document.getElementById('dim-d').value) || 5;
                 const qty = parseInt(document.getElementById('box-qty').value) || 100;
                 const unitPrice = parseFloat(document.getElementById('unit-price').innerText.replace(/[^\d.]/g, ''));
+                const totalPrice = unitPrice * qty;
 
-                // 5. Construct Cart Item (Matching Old Code Structure)
+                const payload = {
+                    ProductType: boxTypeStr,
+                    Length: L, Width: W, Height: D,
+                    ColorHex: matInternalValue,
+                    CanvasJsonData: JSON.stringify(designJsonData),
+                    PreviewImageBase64: previewImg,
+                    Price: totalPrice
+                };
+
                 const cartItem = {
                     id: Date.now().toString(),
                     name: `علبة مخصصة - ${boxTypeStr}`,
-                    size: `${L} × ${W} × ${D} سم`,
-                    material: matStr,
+                    price: unitPrice,
+                    img: previewImg,
                     quantity: qty,
-                    unitPrice: unitPrice,
-                    totalPrice: unitPrice * qty,
-                    image: previewImg,
-                    designData: JSON.stringify(designJsonData),
+                    details: {
+                        Sides: `${L} × ${W} × ${D} سم`,
+                        PaperType: matStr,
+                        Design: "جاري الحفظ...",
+                        Cover: previewImg,
+                        Corners: ""
+                    },
                     SelectedOptionsJson: JSON.stringify({ "المقاس": `${L} × ${W} × ${D} سم`, "الخامة": matStr })
                 };
 
-                // 6. Send to Server
                 try {
-                    const response = await fetch('/Studio/SaveDesign', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            ProductType: boxTypeStr,
-                            Length: L, Width: W, Height: D,
-                            ColorHex: document.getElementById('box-material').value,
-                            CanvasJsonData: JSON.stringify(designJsonData),
-                            PreviewImageBase64: previewImg,
-                            Price: unitPrice * qty
-                        })
-                    });
-                    const result = await response.json();
+                    const r = await fetch('/Studio/SaveDesign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const res = await r.json();
 
-                    if (result.success) {
-                        // Add Design ID to options
-                        cartItem.designId = result.designId;
+                    if(res.success) {
                         let opt = JSON.parse(cartItem.SelectedOptionsJson);
-                        opt["معرف التصميم"] = `#${result.designId}`;
+                        opt["معرف التصميم"] = `#${res.designId}`;
                         cartItem.SelectedOptionsJson = JSON.stringify(opt);
-
-                        // Update image if server returned a URL
-                        if(result.imageUrl) cartItem.image = result.imageUrl;
                     }
                 } catch (e) {
-                    console.log('Saved locally due to error:', e);
+                    console.log('Saved Locally', e);
                 } finally {
-                    // 7. Save to LocalStorage and Redirect (Same as Old Code)
                     let cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
                     cart.push(cartItem);
                     localStorage.setItem('printnesCart', JSON.stringify(cart));
-
-                    // Navigate to Cart
                     window.location.href = '/Cart';
                 }
             }, 1000);

@@ -1,13 +1,311 @@
-﻿<!-- الملف: Areas/Admin/Views/Orders/Details.cshtml -->
-@using System.Text.Json
+﻿@using System.Text.Json
 @model Printnes.Models.Order
 @{
     ViewData["Title"] = "تفاصيل الطلب " + Model.OrderNumber;
+    int currentStatus = Model.OrderStatus;
 }
 
 <style>
     /* ==========================================
-           تنسيقات نافذة استخراج ملفات الطباعة (Premium)
+           1. التنسيقات المتقدمة للصفحة (Advanced UI)
+           ========================================== */
+    .order-page-wrapper {
+        display: grid;
+        grid-template-columns: 2.2fr 1fr;
+        gap: 25px;
+        margin-top: 20px;
+    }
+
+    /* --- Status Timeline --- */
+    .timeline-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-light);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+        }
+
+    .timeline {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        padding: 0 20px;
+    }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 22px;
+            right: 40px;
+            left: 40px;
+            height: 4px;
+            background: #f1f5f9;
+            z-index: 1;
+            border-radius: 4px;
+        }
+
+    .timeline-progress {
+        position: absolute;
+        top: 22px;
+        right: 40px;
+        height: 4px;
+        background: var(--primary-color);
+        z-index: 2;
+        border-radius: 4px;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step {
+        position: relative;
+        z-index: 3;
+        text-align: center;
+        width: 80px;
+    }
+
+    .step-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #f8fafc;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        font-size: 18px;
+        border: 4px solid #fff;
+        transition: 0.4s;
+        box-shadow: 0 0 0 1px #e2e8f0;
+    }
+
+    .step-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: #64748b;
+    }
+
+    .step.completed .step-icon {
+        background: var(--primary-color);
+        color: #fff;
+        border-color: #fff;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .step.completed .step-label {
+        color: var(--text-main);
+    }
+
+    .step.current .step-icon {
+        background: var(--success);
+        color: #fff;
+        box-shadow: 0 0 0 4px var(--success-bg);
+        animation: pulse 2s infinite;
+    }
+
+    .step.current .step-label {
+        color: var(--success);
+    }
+
+    @("@") keyframes pulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+
+    }
+
+    /* --- Advanced Cards --- */
+    .adv-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-light);
+        margin-bottom: 25px;
+    }
+
+    .adv-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+        .adv-card-header i {
+            font-size: 20px;
+            color: var(--primary-color);
+            background: var(--primary-light);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .adv-card-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+    /* Customer Info Grid */
+    .info-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .info-value {
+        font-size: 14px;
+        color: var(--text-main);
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .contact-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-contact {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-call {
+        background: #eff6ff;
+        color: #007aff;
+        border: 1px solid #bfdbfe;
+    }
+
+        .btn-call:hover {
+            background: #007aff;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+    .btn-wa {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+    }
+
+        .btn-wa:hover {
+            background: #16a34a;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+    /* Modern Options Tags */
+    .option-tag-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .option-tag {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        color: var(--text-main);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+    }
+
+        .option-tag strong {
+            color: var(--primary-color);
+            font-weight: 900;
+        }
+
+    /* Receipt Style */
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+        .receipt-row:last-child {
+            border-bottom: none;
+        }
+
+    .receipt-total {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        box-shadow: 0 10px 20px rgba(15,23,42,0.15);
+    }
+
+        .receipt-total span {
+            font-size: 13px;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .receipt-total strong {
+            font-size: 26px;
+            font-weight: 900;
+            color: #38bdf8;
+        }
+
+    /* ==========================================
+           2. تنسيقات نافذة استخراج ملفات الطباعة (Modal)
            ========================================== */
     .design-modal-overlay {
         position: fixed;
@@ -105,7 +403,6 @@
         flex: 1;
     }
 
-    /* Stats Row */
     .dm-stats-row {
         display: flex;
         gap: 15px;
@@ -151,7 +448,6 @@
         font-weight: 900;
     }
 
-    /* Faces Grid for Printing */
     .dm-section-title {
         font-size: 18px;
         font-weight: 900;
@@ -214,6 +510,7 @@
         align-items: center;
         justify-content: center;
         min-height: 250px;
+        display: none;
     }
 
     .dm-face-canvas-inner {
@@ -249,7 +546,6 @@
             box-shadow: 0 5px 15px rgba(0,122,255,0.3);
         }
 
-    /* Loader */
     .dm-loader-wrap {
         display: flex;
         flex-direction: column;
@@ -270,14 +566,58 @@
             color: #0f172a;
             margin-bottom: 10px;
         }
+
+    @("@") keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    @("@") media (max-width: 1200px) {
+        .order-page-wrapper
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline {
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        padding: 0;
+    }
+
+        .timeline::before, .timeline-progress {
+            display: none;
+        }
+
+    .step {
+        width: 100px;
+    }
+
+    }
 </style>
 
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-file-invoice"></i>
-        طلب رقم: <span style="color: var(--primary-color);">@Model.OrderNumber</span>
-    </h1>
-    <a href="/Admin/Orders" class="btn-outline"><i class="fas fa-arrow-right"></i> العودة للطلبات</a>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 class="page-title" style="margin: 0; font-size: 24px;">
+            <i class="fas fa-file-invoice" style="color: var(--primary-color);"></i>
+            طلب رقم: <span style="font-family: monospace; letter-spacing: 1px; color: var(--navy);">@Model.OrderNumber</span>
+        </h1>
+        <p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 14px; font-weight: 600;">
+            <i class="far fa-clock"></i> تم الإنشاء في @Model.CreatedAt.ToString("dd MMMM yyyy - hh:mm tt")
+        </p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a href="/Admin/Orders" class="btn-outline"><i class="fas fa-arrow-right"></i> العودة للطلبات</a>
+    </div>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -288,45 +628,59 @@
     </div>
 }
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 28px;">
-    <!-- الجانب الأيمن: عناصر الطلب -->
-    <div style="display: flex; flex-direction: column; gap: 28px;">
+<!-- شريط تتبع حالة الطلب المتقدم -->
+<div class="timeline-card">
+    <div class="timeline">
+        @{
+            int progressWidth = 0;
+            if (currentStatus == 1) progressWidth = 0;
+            else if (currentStatus == 2) progressWidth = 25;
+            else if (currentStatus == 3) progressWidth = 50;
+            else if (currentStatus == 4) progressWidth = 75;
+            else if (currentStatus == 5) progressWidth = 100;
+        }
+        <div class="timeline-progress" style="width: @progressWidth%;"></div>
 
-        <!-- كروت ملخص سريع -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-            <div class="stat-card orange" style="padding: 18px;">
-                <div class="stat-info">
-                    <div class="stat-info-title" style="font-size: 11px;">الإجمالي</div>
-                    <div class="stat-info-value" style="font-size: 22px;">@Model.TotalAmount.ToString("N2") <small>ر.س</small></div>
-                </div>
-            </div>
-            <div class="stat-card blue" style="padding: 18px;">
-                <div class="stat-info">
-                    <div class="stat-info-title" style="font-size: 11px;">عناصر الطلب</div>
-                    <div class="stat-info-value" style="font-size: 22px;">@(Model.OrderItems?.Count ?? 0)</div>
-                </div>
-            </div>
-            <div class="stat-card green" style="padding: 18px;">
-                <div class="stat-info">
-                    <div class="stat-info-title" style="font-size: 11px;">تاريخ الطلب</div>
-                    <div class="stat-info-value" style="font-size: 16px;">@Model.CreatedAt.ToString("dd/MM/yyyy")</div>
-                </div>
-            </div>
+        <div class="step @(currentStatus >= 1 ? (currentStatus == 1 ? "current" : "completed") : "")">
+            <div class="step-icon"><i class="fas fa-inbox"></i></div>
+            <div class="step-label">طلب جديد</div>
         </div>
+        <div class="step @(currentStatus >= 2 ? (currentStatus == 2 ? "current" : "completed") : "")">
+            <div class="step-icon"><i class="fas fa-search"></i></div>
+            <div class="step-label">قيد المراجعة</div>
+        </div>
+        <div class="step @(currentStatus >= 3 ? (currentStatus == 3 ? "current" : "completed") : "")">
+            <div class="step-icon"><i class="fas fa-print"></i></div>
+            <div class="step-label">جاري الطباعة</div>
+        </div>
+        <div class="step @(currentStatus >= 4 ? (currentStatus == 4 ? "current" : "completed") : "")">
+            <div class="step-icon"><i class="fas fa-truck"></i></div>
+            <div class="step-label">تم الشحن</div>
+        </div>
+        <div class="step @(currentStatus == 5 ? "completed" : "")">
+            <div class="step-icon"><i class="fas fa-check"></i></div>
+            <div class="step-label">مكتمل</div>
+        </div>
+    </div>
+</div>
 
-        <!-- عناصر الطلب -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3><i class="fas fa-box-open" style="color: var(--primary-color);"></i> عناصر الطلب</h3>
+<div class="order-page-wrapper">
+    <!-- الجانب الأيمن: تفاصيل وعناصر الطلب -->
+    <div style="display: flex; flex-direction: column;">
+
+        <div class="adv-card" style="padding: 0; overflow: hidden;">
+            <div class="adv-card-header" style="padding: 24px 24px 15px 24px; margin: 0; background: #f8fafc;">
+                <i class="fas fa-box-open"></i>
+                <h3>محتويات الطلب (@(Model.OrderItems?.Count ?? 0) منتجات)</h3>
             </div>
             <div class="table-responsive">
-                <table class="premium-table">
-                    <thead>
+                <table class="premium-table" style="margin: 0; box-shadow: none; border-radius: 0;">
+                    <thead style="background: #f8fafc;">
                         <tr>
                             <th>المنتج</th>
-                            <th style="min-width: 250px;">الخيارات والمقاسات</th>
-                            <th>الكمية</th>
-                            <th>الإجمالي</th>
+                            <th style="min-width: 280px;">مواصفات العميل</th>
+                            <th style="text-align: center;">الكمية</th>
+                            <th style="text-align: left; padding-left: 30px;">الإجمالي</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -336,47 +690,77 @@
                             {
                                 <tr>
                                     <td>
-                                        <strong style="color: var(--text-main); font-size: 14px;">@item.ProductName</strong>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 45px; height: 45px; background: #eff6ff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--primary-color);">
+                                                <i class="fas fa-box"></i>
+                                            </div>
+                                            <strong style="color: var(--text-main); font-size: 15px;">@item.ProductName</strong>
+                                        </div>
                                     </td>
                                     <td>
-                                        @if (!string.IsNullOrEmpty(item.SelectedOptionsJson))
-                                        {
-                                            bool is3DDesign = item.ProductName.Contains("تصميم") || item.ProductName.Contains("3D") || item.ProductName.Contains("مخصص");
+                                        @{
+                                            string designIdStr = "";
+                                            bool isCustomDesign = false;
+                                            string safeJson = item.SelectedOptionsJson ?? "";
 
-                                            if (is3DDesign)
+                                            if (item.ProductName.Contains("علبة") || item.ProductName.Contains("مخصص") || item.ProductName.Contains("تصميم"))
                                             {
-                                                <button type="button" onclick="openPrintExtractionModal('@Html.Raw(Uri.EscapeDataString(item.SelectedOptionsJson))', '@item.ProductName.Replace("'", "\\'")')" class="btn-premium btn-sm" style="background: linear-gradient(135deg, #007aff, #0052cc); border: none; padding: 12px 15px; border-radius: 10px; width: 100%; justify-content: center; font-size: 13px; box-shadow: 0 4px 15px rgba(0,122,255,0.3);">
-                                                    <i class="fas fa-print" style="font-size: 16px;"></i> استخراج ملفات الطباعة (3D)
-                                                </button>
+                                                isCustomDesign = true;
                                             }
-                                            else
+
+                                            // استخراج الـ ID
+                                            if (!string.IsNullOrEmpty(safeJson))
                                             {
-                                                try
+                                                var match = System.Text.RegularExpressions.Regex.Match(safeJson, @"(?:#|DesignID|معرف التصميم|Design)[\s:\""']*(\d+)");
+                                                if (match.Success)
                                                 {
-                                                    var details = JsonSerializer.Deserialize<Dictionary<string, string>>(item.SelectedOptionsJson);
-                                                    if (details != null && details.Count > 0)
-                                                    {
-                                                        <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px;">
-                                                            @foreach (var kvp in details)
-                                                            {
-                                                                if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
-                                                                <div style="background: #f8fafc; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; line-height: 1.5;">
-                                                                    <strong style="color: var(--orange);">@kvp.Key:</strong>
-                                                                    <span style="color: var(--navy); font-weight: 600;">@kvp.Value</span>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    }
-                                                }
-                                                catch
-                                                {
-                                                    <span style="font-size: 12px; color: var(--text-secondary);">@item.SelectedOptionsJson</span>
+                                                    designIdStr = match.Groups[1].Value;
+                                                    isCustomDesign = true;
                                                 }
                                             }
                                         }
+
+                                        @if (isCustomDesign)
+                                        {
+                                            <button type="button"
+                                                    data-rawjson="@Html.Raw(Uri.EscapeDataString(safeJson))"
+                                                    onclick="openPrintExtractionModal(event, '@designIdStr', '@item.ProductName.Replace("'", "\\'")')"
+                                                    class="btn-premium btn-sm"
+                                                    style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; padding: 10px 15px; border-radius: 8px; width: 100%; justify-content: center; font-size: 13px; box-shadow: 0 4px 10px rgba(15,23,42,0.2); margin-bottom: 15px;">
+                                                <i class="fas fa-cube" style="color: #38bdf8;"></i> عرض التصميم 3D وملفات الطباعة
+                                            </button>
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(item.SelectedOptionsJson))
+                                        {
+                                            try
+                                            {
+                                                var details = JsonSerializer.Deserialize<Dictionary<string, string>>(item.SelectedOptionsJson);
+                                                if (details != null && details.Count > 0)
+                                                {
+                                                    <div class="option-tag-list">
+                                                        @foreach (var kvp in details)
+                                                        {
+                                                            if (string.IsNullOrWhiteSpace(kvp.Value) || kvp.Value.StartsWith("data:image") || kvp.Key == "معرف التصميم" || kvp.Key == "DesignID") continue;
+                                                            <div class="option-tag">
+                                                                <strong>@kvp.Key:</strong> @kvp.Value
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                            catch
+                                            {
+                                                <span style="font-size: 12px; color: var(--text-secondary);">@item.SelectedOptionsJson</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span style="font-size: 12px; color: #ef4444; font-weight: 700;"><i class="fas fa-exclamation-circle"></i> لا توجد خيارات مخصصة</span>
+                                        }
                                     </td>
-                                    <td><span class="badge badge-neutral" style="font-size: 14px;">@item.Quantity</span></td>
-                                    <td style="font-weight: 900; color: var(--primary-color); font-size: 15px;">@item.ItemTotal.ToString("N2") ر.س</td>
+                                    <td style="text-align: center;"><span class="badge badge-neutral" style="font-size: 15px; padding: 6px 12px;">@item.Quantity</span></td>
+                                    <td style="font-weight: 900; color: #0f172a; font-size: 16px; text-align: left; padding-left: 30px;">@item.ItemTotal.ToString("N2") <small style="color:var(--text-muted); font-size:12px;">ر.س</small></td>
                                 </tr>
                             }
                         }
@@ -384,62 +768,93 @@
                 </table>
             </div>
         </div>
-
-        <!-- تفاصيل المالية -->
-        <div class="premium-card" style="padding: 24px;">
-            <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main);">
-                <i class="fas fa-receipt" style="color: var(--primary-color); margin-left: 8px;"></i>
-                الملخص المالي
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
-                    <span style="color: var(--text-secondary);">المجموع الفرعي</span>
-                    <strong>@Model.SubTotal.ToString("N2") ر.س</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light);">
-                    <span style="color: var(--text-secondary);">تكلفة الشحن</span>
-                    <strong>@Model.ShippingCost.ToString("N2") ر.س</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 16px; background: var(--primary-light); border-radius: var(--radius-sm); border: 1px dashed var(--primary-color);">
-                    <span style="font-weight: 900; color: var(--primary-color); font-size: 16px;">الإجمالي النهائي</span>
-                    <strong style="color: var(--primary-color); font-size: 22px;">@Model.TotalAmount.ToString("N2") <small style="font-size: 14px;">ر.س</small></strong>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- الجانب الأيسر: معلومات العميل -->
-    <div style="display: flex; flex-direction: column; gap: 28px;">
-        <div class="premium-card" style="padding: 24px;">
-            <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--primary-light); color: var(--primary-color); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                معلومات العميل
-            </h3>
+    <!-- الجانب الأيسر: العميل والمالية والإدارة -->
+    <div style="display: flex; flex-direction: column;">
 
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: var(--text-muted); font-size: 13px;">الاسم</span>
-                    <strong style="color: var(--text-main);">@Model.CustomerName</strong>
+        <!-- كارت العميل المتقدم -->
+        <div class="adv-card">
+            <div class="adv-card-header">
+                <i class="fas fa-user-circle"></i>
+                <h3>بيانات العميل</h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #e0e7ff, #bae6fd); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #0369a1; box-shadow: 0 4px 10px rgba(3,105,161,0.1);">
+                    @Model.CustomerName.Substring(0, 1)
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="color: var(--text-muted); font-size: 13px;">الجوال</span>
-                    <a href="tel:@Model.CustomerPhone" style="color: var(--info); font-weight: 700;" dir="ltr">@Model.CustomerPhone</a>
-                </div>
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-top: 8px; border: 1px solid #e2e8f0;">
-                    <div style="font-size: 12px; color: var(--orange); margin-bottom: 8px; font-weight: bold;"><i class="fas fa-map-marker-alt"></i> عنوان التوصيل</div>
-                    <div style="font-size: 14px; color: var(--navy); line-height: 1.8; font-weight: 600;">
-                        @Model.City - @Model.District<br>
-                        <span style="color: var(--text-secondary); font-weight: normal;">@Model.Address</span>
+                <div>
+                    <div style="font-size: 16px; font-weight: 900; color: var(--text-main);">@Model.CustomerName</div>
+                    <div style="font-size: 12px; color: var(--text-muted); font-weight: 700;">
+                        @if (string.IsNullOrEmpty(Model.UserId))
+                        {
+                            <span>مشترٍ زائر (Guest)</span>
+                        }
+                        else
+                        {
+
+                            <span>عضو مسجل</span>
+                        }
                     </div>
                 </div>
             </div>
+
+            <div class="info-group">
+                <span class="info-label">رقم الجوال</span>
+                <span class="info-value"><i class="fas fa-phone-alt" style="color:#94a3b8; font-size:12px;"></i> <span dir="ltr">@Model.CustomerPhone</span></span>
+            </div>
+
+            <div class="info-group">
+                <span class="info-label">عنوان التوصيل المعتمد</span>
+                <span class="info-value" style="align-items: flex-start; line-height: 1.6;">
+                    <i class="fas fa-map-marker-alt" style="color:#ef4444; font-size:14px; margin-top: 3px;"></i>
+                    <span>@Model.City، @Model.District <br> <span style="font-weight: 600; color: var(--text-secondary); font-size: 13px;">@Model.Address</span></span>
+                </span>
+            </div>
+
+            <div class="contact-actions">
+                <a href="tel:@Model.CustomerPhone" class="btn-contact btn-call"><i class="fas fa-phone"></i> اتصال</a>
+                @{
+                    string cleanPhone = Model.CustomerPhone.Replace(" ", "").Replace("-", "").Replace("+", "");
+                    if (cleanPhone.StartsWith("0")) cleanPhone = "966" + cleanPhone.Substring(1);
+                    if (!cleanPhone.StartsWith("966")) cleanPhone = "966" + cleanPhone;
+                }
+                <a href="https://wa.me/@cleanPhone" target="_blank" class="btn-contact btn-wa"><i class="fab fa-whatsapp" style="font-size: 16px;"></i> واتساب</a>
+            </div>
         </div>
+
+        <!-- الفاتورة / الملخص المالي -->
+        <div class="adv-card">
+            <div class="adv-card-header">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h3>الفاتورة والمالية</h3>
+            </div>
+            <div class="receipt-row">
+                <span>المجموع الفرعي للمنتجات</span>
+                <span style="color: var(--text-main);">@Model.SubTotal.ToString("N2") ر.س</span>
+            </div>
+            <div class="receipt-row">
+                <span>رسوم التوصيل والشحن</span>
+                <span style="color: var(--text-main);">@Model.ShippingCost.ToString("N2") ر.س</span>
+            </div>
+            <div class="receipt-row">
+                <span>الضريبة المضافة (15%)</span>
+                <span style="color: var(--text-main);">@Model.TaxAmount.ToString("N2") ر.س</span>
+            </div>
+            <div class="receipt-total">
+                <div>
+                    <span style="display:block; margin-bottom: 3px;">الإجمالي النهائي</span>
+                    <small style="color: #64748b; font-size: 11px;">شامل القيمة المضافة</small>
+                </div>
+                <div>
+                    <strong>@Model.TotalAmount.ToString("N2")</strong> <span style="color:#fff;">ر.س</span>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
-<!-- نافذة استخراج ملفات الطباعة (Premium Modal) -->
 <div id="designExtractModal" class="design-modal-overlay">
     <div class="design-modal-box">
         <div class="dm-header">
@@ -447,23 +862,22 @@
                 <div style="width:36px; height:36px; background:#fff; color:#0f172a; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">
                     <i class="fas fa-print"></i>
                 </div>
-                استخراج ملفات الطباعة
+                ملفات التصميم والمجسم 3D
                 <span class="dm-header-badge">Production Ready</span>
             </h3>
             <button class="dm-close" onclick="closePrintExtractionModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="dm-body" id="dm-content">
-            <!-- سيتم حقن المحتوى من الجافاسكريبت هنا -->
-        </div>
+        <div class="dm-body" id="dm-content"></div>
     </div>
 </div>
 
 @section Scripts {
-    <!-- إضافة مكتبة Fabric.js لرسم الـ JSON الخاص بالتصميم في لوحة الإدارة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
 
     <script>
-        // تعريف الأوجه المتاحة وأسمائها
         const FACES_CONFIG = {
             'top': { label: 'الوجه العلوي', icon: 'fa-arrow-up' },
             'bottom': { label: 'القاعدة (أسفل)', icon: 'fa-arrow-down' },
@@ -473,182 +887,223 @@
             'right': { label: 'الجانب الأيمن', icon: 'fa-caret-right' }
         };
 
-        // كائن لحفظ مراجع الكانفاس لتصدير الصور
         let printCanvases = {};
+        let adminScene, adminCamera, adminRenderer, adminControls, adminBoxGroup;
+        let adminTextures = {};
+        let isAdminBoxOpen = false;
+        let adminAnimatedParts = [];
 
-        async function openPrintExtractionModal(encodedJson, productName) {
+        async function openPrintExtractionModal(event, designId, productName) {
+            console.clear();
+            console.log("🛠️ ====== بدء فحص استخراج الـ 3D ======");
+            console.log("📦 اسم المنتج:", productName);
+            console.log("🔑 الـ ID المستخرج:", designId);
+
             const contentDiv = document.getElementById('dm-content');
             document.getElementById('designExtractModal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
+            if (!designId || designId.trim() === '' || designId === '0') {
+                console.error("❌ خطأ: الـ ID غير موجود أو يساوي صفر.");
+                contentDiv.innerHTML = `
+                    <div style="background:#fef2f2; color:#ef4444; padding:50px; border-radius:16px; border:1px solid #fecaca; text-align:center; margin-top: 20px;">
+                        <i class="fas fa-exclamation-circle" style="font-size:60px; margin-bottom:20px;"></i>
+                        <h3 style="margin:0 0 10px 0; font-weight:900; font-size:24px;">لا يمكن استخراج التصميم!</h3>
+                        <p style="margin:0; font-weight:600; font-size:16px; line-height: 1.8;">
+                            عذراً، هذا الطلب <strong>قديم أو فارغ</strong>. لقد تم حفظه في قاعدة البيانات بدون ملفات تصميم 3D.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            console.log("✅ الـ ID سليم، جاري الاتصال بالسيرفر لجلب التصميم...");
+
             contentDiv.innerHTML = `
                 <div class="dm-loader-wrap">
                     <i class="fas fa-circle-notch fa-spin"></i>
-                    <h2>جاري جلب ملفات التصميم من السيرفر...</h2>
-                    <p>يرجى الانتظار لحين معالجة البيانات عالية الدقة</p>
+                    <h2>جاري جلب ملفات التصميم والمجسم من السيرفر...</h2>
                 </div>
             `;
 
             try {
-                // 1. استخراج الـ ID الخاص بالتصميم من الـ JSON المخزن في الطلب
-                const jsonStr = decodeURIComponent(encodedJson.replace(/\+/g, '%20'));
-                const details = JSON.parse(jsonStr);
-
-                // البحث عن كلمة "مرجع: #رقم"
-                const designRefStr = details.sides || details.Sides || details['معرف التصميم'] || '';
-                const match = designRefStr.match(/#(\d+)/);
-
-                if (!match) {
-                    throw new Error("لم يتم العثور على معرف التصميم (ID). قد يكون الطلب قديماً.");
-                }
-
-                const designId = match[1];
-
-                // 2. جلب التصميم الكامل من الـ API الذي برمجناه في StudioController
                 const response = await fetch(`/Studio/GetDesignData?id=${designId}`);
                 const result = await response.json();
 
-                if (!result.success) {
-                    throw new Error(result.message || "فشل جلب البيانات من السيرفر.");
-                }
+                if (!result.success) throw new Error(result.message || "فشل جلب البيانات من السيرفر.");
 
                 const dbDesign = result.data;
                 const canvasJsonData = JSON.parse(dbDesign.canvasJsonData);
 
-                // 3. بناء واجهة العرض (HTML) مع إضافة زر الفتح في الستوديو
-                let html = `
+                contentDiv.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                        <div class="dm-section-title" style="margin:0;">
-                            <i class="fas fa-print" style="color: #007aff;"></i> ملفات الطباعة لكل وجه
-                        </div>
-                        <a href="/Studio?designId=${designId}" target="_blank" class="btn-premium btn-sm" style="background:#161f31; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; display:flex; gap:8px; align-items:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                            <i class="fas fa-external-link-alt"></i> فتح ومراجعة في الـ Studio
-                        </a>
+                        <div class="dm-section-title" style="margin:0;"><i class="fas fa-cube"></i> استعراض المجسم والملفات</div>
+                        <a href="/Studio?designId=${designId}" target="_blank" class="btn-premium btn-sm" style="background:#161f31; color:#fff; padding:10px 20px; text-decoration:none; border-radius:10px;"><i class="fas fa-external-link-alt"></i> فتح في الـ Studio للتعديل</a>
                     </div>
-
-                    <div class="dm-stats-row">
-                        <div class="dm-stat-card">
-                            <div class="dm-stat-icon" style="background: #eff6ff; color: #007aff;"><i class="fas fa-box"></i></div>
-                            <div class="dm-stat-info">
-                                <h4>نوع ومقاس الهيكل</h4>
-                                <p dir="ltr">${dbDesign.length}x${dbDesign.width}x${dbDesign.height} cm</p>
-                            </div>
-                        </div>
-                        <div class="dm-stat-card">
-                            <div class="dm-stat-icon" style="background: #fffbeb; color: #d97706;"><i class="fas fa-palette"></i></div>
-                            <div class="dm-stat-info">
-                                <h4>لون الخلفية (Base)</h4>
-                                <p style="display:flex; align-items:center; gap:8px;">
-                                    <span style="width:20px; height:20px; border-radius:4px; border:1px solid #ccc; background:${dbDesign.colorHex};"></span>
-                                    <span dir="ltr">${dbDesign.colorHex}</span>
-                                </p>
-                            </div>
-                        </div>
+                    <div style="position: relative; width: 100%; height: 400px; background: #e2e8f0; border-radius: 16px; margin-bottom: 25px; overflow: hidden; border: 1px solid #cbd5e1; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);">
+                        <div id="admin-three-canvas" style="width: 100%; height: 100%;"></div>
+                        <button onclick="toggleAdmin3DAnimation()" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; border: none; padding: 10px 25px; border-radius: 20px; font-weight: 700; cursor: pointer; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"><i class="fas fa-box-open"></i> فتح / إغلاق المجسم</button>
                     </div>
-                    <div class="dm-faces-grid">
+                    <div class="dm-faces-grid" id="faces-container"></div>
                 `;
 
-                // إنشاء الدقة المتطابقة تماماً مع الستوديو (لكي يتم رسم العناصر في مكانها الصحيح)
+                setupAdminThreeEngine();
+
                 const PPU = 80;
+                const facesContainer = document.getElementById('faces-container');
+                const facesToLoad = Object.keys(canvasJsonData).filter(k => FACES_CONFIG[k] || k === 'inside');
+                let loadedCount = 0;
 
-                // إنشاء أماكن للكانفاس بناءً على الأوجه المتاحة في الـ JSON
-                for (const faceKey in FACES_CONFIG) {
-                    if (canvasJsonData[faceKey]) {
-                        // تحديد الأبعاد الحقيقية بناءً على الكرتون
-                        let faceW = 0, faceH = 0;
-                        if (faceKey === 'top' || faceKey === 'bottom') { faceW = dbDesign.length; faceH = dbDesign.width; }
-                        else if (faceKey === 'front' || faceKey === 'back') { faceW = dbDesign.length; faceH = dbDesign.height; }
-                        else { faceW = dbDesign.width; faceH = dbDesign.height; }
+                for (const faceKey of facesToLoad) {
+                    let faceW = 0, faceH = 0;
+                    if (faceKey === 'top' || faceKey === 'bottom' || faceKey === 'inside') { faceW = dbDesign.length; faceH = dbDesign.width; }
+                    else if (faceKey === 'front' || faceKey === 'back') { faceW = dbDesign.length; faceH = dbDesign.height; }
+                    else { faceW = dbDesign.width; faceH = dbDesign.height; }
 
-                        html += `
-                            <div class="dm-face-card">
-                                <div class="dm-face-header">
-                                    <span class="dm-face-title"><i class="fas ${FACES_CONFIG[faceKey].icon}"></i> ${FACES_CONFIG[faceKey].label}</span>
-                                    <span class="dm-face-dim" dir="ltr">${faceW} x ${faceH} cm</span>
-                                </div>
-                              
-                            </div>
+                    const realW = faceW * PPU;
+                    const realH = faceH * PPU;
+
+                    const canvasEl = document.createElement('canvas');
+                    if(faceKey !== 'inside') {
+                        const card = document.createElement('div');
+                        card.className = 'dm-face-card';
+                        card.innerHTML = `
+                            <div class="dm-face-header"><span class="dm-face-title"><i class="fas ${FACES_CONFIG[faceKey].icon}"></i> ${FACES_CONFIG[faceKey].label}</span> <span class="dm-face-dim">${faceW}x${faceH} cm</span></div>
+                            <div class="dm-face-canvas-wrap"><div class="dm-face-canvas-inner" id="cont-${faceKey}"></div></div>
+                            <div class="dm-face-footer"><button class="dm-btn-download" onclick="downloadFaceImage('${faceKey}', '${productName}')"><i class="fas fa-cloud-download-alt"></i> تحميل بجودة الطباعة</button></div>
                         `;
+                        facesContainer.appendChild(card);
+                        document.getElementById(`cont-${faceKey}`).appendChild(canvasEl);
                     }
-                }
 
-                html += `</div>`;
-                contentDiv.innerHTML = html;
+                    const fCanvas = new fabric.StaticCanvas(canvasEl, { width: realW, height: realH });
+                    if(faceKey !== 'inside') printCanvases[faceKey] = fCanvas;
 
-                // 4. حقن بيانات الـ JSON في الـ Canvases وإصلاح الإحداثيات والصور
-                printCanvases = {};
-                for (const faceKey in FACES_CONFIG) {
-                    if (canvasJsonData[faceKey]) {
-                        const canvasEl = document.getElementById(`admin-canvas-${faceKey}`);
+                    fCanvas.loadFromJSON(canvasJsonData[faceKey], function() {
+                        fCanvas.renderAll();
+                        const tex = new THREE.CanvasTexture(fCanvas.getElement());
+                        tex.encoding = THREE.sRGBEncoding;
+                        adminTextures[faceKey] = tex;
 
-                        let faceW = 0, faceH = 0;
-                        if (faceKey === 'top' || faceKey === 'bottom') { faceW = dbDesign.length; faceH = dbDesign.width; }
-                        else if (faceKey === 'front' || faceKey === 'back') { faceW = dbDesign.length; faceH = dbDesign.height; }
-                        else { faceW = dbDesign.width; faceH = dbDesign.height; }
-
-                        // إجبار الكانفاس على استخدام الأبعاد الداخلية العالية الجودة قبل تحميل الـ JSON
-                        const realW = faceW * PPU;
-                        const realH = faceH * PPU;
-
-                        const fCanvas = new fabric.StaticCanvas(canvasEl, {
-                            width: realW,
-                            height: realH
-                        });
-                        printCanvases[faceKey] = fCanvas;
-
-                        // تحميل الـ JSON (سيتم الآن وضع العناصر في أماكنها الحقيقية!)
-                        fCanvas.loadFromJSON(canvasJsonData[faceKey], function() {
-
-                            // تصغير الكانفاس "شكلياً فقط" باستخدام الـ CSS ليتناسب مع الكارت
-                            const maxDisplayW = 280;
-                            const maxDisplayH = 200;
-                            const scale = Math.min(maxDisplayW / realW, maxDisplayH / realH);
-
+                        if (faceKey !== 'inside') {
+                            const scale = Math.min(280 / realW, 200 / realH);
                             fCanvas.setDimensions({ width: realW * scale, height: realH * scale }, { cssOnly: true });
                             fCanvas.renderAll();
-                        });
-                    }
-                }
+                        }
 
+                        loadedCount++;
+                        if(loadedCount === facesToLoad.length) buildAdmin3DBox(dbDesign);
+                    });
+                }
             } catch (e) {
-                console.error("Error Loading Print Files:", e);
+                console.error("❌ حدث خطأ أثناء الرسم:", e);
                 contentDiv.innerHTML = `
-                    <div style="background:#fef2f2; color:#ef4444; padding:30px; border-radius:16px; border:1px solid #fecaca; text-align:center;">
-                        <i class="fas fa-exclamation-triangle" style="font-size:40px; margin-bottom:15px;"></i>
+                    <div style="background:#fef2f2; color:#ef4444; padding:40px; border-radius:16px; border:1px solid #fecaca; text-align:center; margin-top:20px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:50px; margin-bottom:15px;"></i>
                         <h3 style="margin:0 0 10px 0; font-weight:900;">حدث خطأ في استخراج الملفات</h3>
                         <p style="margin:0; font-weight:600;">${e.message}</p>
-                        <p style="margin:10px 0 0 0; font-size:12px; color:#991b1b;">التصميم القديم المحفوظ قبل هذا التحديث لا يحتوي على الملفات الهندسية.</p>
                     </div>`;
             }
         }
 
-        // دالة تحميل الصورة بدقة عالية للماكينات
+        function setupAdminThreeEngine() {
+            const container = document.getElementById('admin-three-canvas');
+            adminScene = new THREE.Scene();
+            adminCamera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+            adminCamera.position.set(30, 40, 60);
+            adminRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            adminRenderer.setSize(container.clientWidth, container.clientHeight);
+            adminRenderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(adminRenderer.domElement);
+            adminControls = new THREE.OrbitControls(adminCamera, adminRenderer.domElement);
+            adminScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const dl = new THREE.DirectionalLight(0xffffff, 0.5); dl.position.set(20, 50, 20); adminScene.add(dl);
+            const animate = (t) => { if(document.getElementById('admin-three-canvas')){ requestAnimationFrame(animate); TWEEN.update(t); adminControls.update(); adminRenderer.render(adminScene, adminCamera); } };
+            animate();
+        }
+
+        function buildAdmin3DBox(dbDesign) {
+            if (adminBoxGroup) adminScene.remove(adminBoxGroup);
+            adminBoxGroup = new THREE.Group();
+            adminAnimatedParts = [];
+
+            const L = parseFloat(dbDesign.length); const W = parseFloat(dbDesign.width); const D = parseFloat(dbDesign.height);
+            const T = 0.1;
+
+            const matValue = dbDesign.colorHex || 'white';
+            const isKraft = matValue.includes('kraft');
+            const isGloss = matValue.includes('supergloss');
+
+            const rgh = isGloss ? 0.1 : (isKraft ? 0.9 : 0.8);
+            const mtl = isGloss ? 0.3 : 0.0;
+
+            const edgeColor = isKraft ? 0xa8835a : 0xe2e8f0;
+            const edgeM = new THREE.MeshStandardMaterial({ color: edgeColor, roughness: 0.9 });
+
+            const createPanel = (w, h, d, px, py, pz, outFace, inFace, rotFix = 0) => {
+                let fM = edgeM, bM = edgeM;
+                if(outFace && adminTextures[outFace]) {
+                    adminTextures[outFace].center.set(0.5, 0.5); adminTextures[outFace].rotation = rotFix;
+                    fM = new THREE.MeshStandardMaterial({map: adminTextures[outFace], color: 0xffffff});
+                } else {
+                    const outColor = isKraft ? 0xc29b70 : 0xffffff;
+                    fM = new THREE.MeshStandardMaterial({color: outColor, roughness: rgh, metalness: mtl});
+                }
+
+                if(inFace && adminTextures[inFace]) {
+                    adminTextures[inFace].center.set(0.5, 0.5);
+                    bM = new THREE.MeshStandardMaterial({map: adminTextures[inFace], color: 0xffffff});
+                } else {
+                    const inColor = isKraft ? 0xa8835a : 0xf1f5f9;
+                    bM = new THREE.MeshStandardMaterial({color: inColor, roughness: rgh, metalness: mtl});
+                }
+
+                const geo = new THREE.BoxGeometry(w, h, d); geo.translate(px, py, pz);
+                const mesh = new THREE.Mesh(geo, [edgeM, edgeM, edgeM, edgeM, bM, fM]);
+                const line = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x000000, transparent:true, opacity: 0.15 }));
+                mesh.add(line);
+                const hinge = new THREE.Group(); hinge.add(mesh);
+                return { mesh, hinge };
+            };
+
+            const bot = createPanel(L, W, T, 0,0,0, 'bottom', 'inside', 0).mesh; adminBoxGroup.add(bot);
+            const back = createPanel(L, D, T, 0, D/2, 0, 'back', null, 0); back.hinge.position.set(0, W/2, 0); adminBoxGroup.add(back.hinge);
+            const front = createPanel(L, D, T, 0, -D/2, 0, 'front', null, Math.PI); front.hinge.position.set(0, -W/2, 0); adminBoxGroup.add(front.hinge);
+            const left = createPanel(D, W-T*2, T, -D/2, 0, 0, 'left', null, Math.PI/2); left.hinge.position.set(-L/2, 0, 0); adminBoxGroup.add(left.hinge);
+            const right = createPanel(D, W-T*2, T, D/2, 0, 0, 'right', null, -Math.PI/2); right.hinge.position.set(L/2, 0, 0); adminBoxGroup.add(right.hinge);
+            const top = createPanel(L, W, T, 0, W/2, 0, 'top', 'inside', Math.PI); top.hinge.position.set(0, D, 0); back.mesh.add(top.hinge);
+
+            back.hinge.rotation.x = Math.PI/2; front.hinge.rotation.x = -Math.PI/2; left.hinge.rotation.y = Math.PI/2; right.hinge.rotation.y = -Math.PI/2;
+            adminAnimatedParts.push({ obj: top.hinge, closedRot: { x: Math.PI/2 }, openRot: { x: 0 } });
+
+            const box3 = new THREE.Box3().setFromObject(adminBoxGroup);
+            const center = box3.getCenter(new THREE.Vector3());
+            adminBoxGroup.position.sub(center);
+            adminScene.add(adminBoxGroup);
+            adminCamera.position.set(0, (L+W), (L+W)); adminControls.update();
+        }
+
+        function toggleAdmin3DAnimation() {
+            isAdminBoxOpen = !isAdminBoxOpen;
+            adminAnimatedParts.forEach(p => {
+                const tr = isAdminBoxOpen ? p.openRot : p.closedRot;
+                new TWEEN.Tween(p.obj.rotation).to(tr, 800).easing(TWEEN.Easing.Quadratic.InOut).start();
+            });
+        }
+
         function downloadFaceImage(faceKey, productName) {
             const canvas = printCanvases[faceKey];
             if (!canvas) return;
-
-            // استخراج الصورة بجودتها الداخلية الأصلية والمضاعفة x2 لمزيد من الدقة (Print Quality)
-            const dataURL = canvas.toDataURL({
-                format: 'png',
-                multiplier: 2
-            });
-
             const link = document.createElement('a');
-            link.download = `Printnes_${productName}_${faceKey}_HighRes.png`;
-            link.href = dataURL;
+            link.download = `${productName}_${faceKey}.png`;
+            link.href = canvas.toDataURL({ format: 'png', multiplier: 2 });
             link.click();
         }
 
         function closePrintExtractionModal() {
             document.getElementById('designExtractModal').classList.remove('active');
             document.body.style.overflow = 'auto';
-            // مسح الذاكرة
-            printCanvases = {};
+            if(adminRenderer) { adminRenderer.dispose(); }
         }
-
-        // إغلاق المودال عند الضغط خارجه
-        document.getElementById('designExtractModal').addEventListener('click', function(e) {
-            if (e.target === this) closePrintExtractionModal();
-        });
     </script>
 }
