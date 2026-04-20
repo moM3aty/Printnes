@@ -16,6 +16,14 @@ namespace Printnes.Helpers
                 var defaultSettings = new StudioSettingsViewModel
                 {
                     BasePrintCost = 0.50m,
+                    // العلب الافتراضية
+                    BoxTypes = new List<StudioBoxType>
+                    {
+                        new StudioBoxType { Name = "علبة بريدية", InternalValue = "mailer", Description = "التجربة الأمثل لفتح منتجات المتاجر الإلكترونية.", ImagePath = "/images/blue-mailer.jpg", IsActive = true },
+                        new StudioBoxType { Name = "كرتون مطوي", InternalValue = "folding", Description = "علب نحيفة مثالية للأرفف التجارية والتجميل.", ImagePath = "/images/blue-folding.jpg", IsActive = true },
+                        new StudioBoxType { Name = "علبة هدايا صلبة", InternalValue = "rigid", Description = "علب فاخرة وسميكة تضفي طابعاً من الأناقة.", ImagePath = "/images/blue-rigid.jpg", IsActive = true },
+                        new StudioBoxType { Name = "كرتون شحن", InternalValue = "shipping", Description = "صناديق مموجة شديدة التحمل مصممة لحماية بضائعك.", ImagePath = "/images/blue-shipping.jpg", IsActive = true }
+                    },
                     Materials = new List<StudioMaterial>
                     {
                         new StudioMaterial { Name = "ورق مقوى أبيض", InternalValue = "white", ColorHex = "#ffffff", IsGlossy = false, CostPerCm2 = 0.015m },
@@ -38,7 +46,22 @@ namespace Printnes.Helpers
             }
 
             string json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<StudioSettingsViewModel>(json);
+            var settings = JsonSerializer.Deserialize<StudioSettingsViewModel>(json);
+
+            // حماية: إذا كان الملف القديم لا يحتوي على علب، نضيفها له
+            if (settings.BoxTypes == null || settings.BoxTypes.Count == 0)
+            {
+                settings.BoxTypes = new List<StudioBoxType>
+                {
+                    new StudioBoxType { Name = "علبة بريدية", InternalValue = "mailer", Description = "التجربة الأمثل لفتح منتجات المتاجر الإلكترونية.", ImagePath = "/images/blue-mailer.jpg", IsActive = true },
+                    new StudioBoxType { Name = "كرتون مطوي", InternalValue = "folding", Description = "علب نحيفة مثالية للأرفف التجارية والتجميل.", ImagePath = "/images/blue-folding.jpg", IsActive = true },
+                    new StudioBoxType { Name = "علبة هدايا صلبة", InternalValue = "rigid", Description = "علب فاخرة وسميكة تضفي طابعاً من الأناقة.", ImagePath = "/images/blue-rigid.jpg", IsActive = true },
+                    new StudioBoxType { Name = "كرتون شحن", InternalValue = "shipping", Description = "صناديق مموجة شديدة التحمل مصممة لحماية بضائعك.", ImagePath = "/images/blue-shipping.jpg", IsActive = true }
+                };
+                SaveSettings(settings);
+            }
+
+            return settings;
         }
 
         public static void SaveSettings(StudioSettingsViewModel settings)

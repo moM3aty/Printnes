@@ -680,11 +680,12 @@ button {
     }
 
     .premium-table td {
-        padding: 16px 18px;
+        padding: 10px;
         border-bottom: 1px solid var(--border-light);
         font-size: 14px;
         font-weight: 600;
         vertical-align: middle;
+
     }
 
     .premium-table tr:last-child td {

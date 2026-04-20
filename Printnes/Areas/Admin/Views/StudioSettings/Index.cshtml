@@ -3,158 +3,646 @@
     ViewData["Title"] = "إعدادات وتسعير الاستوديو 3D";
 }
 
-<div class="page-header">
-    <h1 class="page-title"><i class="fas fa-cubes"></i> إعدادات وتسعير الاستوديو 3D</h1>
-    <p style="color: var(--text-muted); margin-top: 10px;">تحكم في المقاسات والألوان و **الأسعار** التي تظهر للعملاء داخل الاستوديو بشكل مستقل تماماً.</p>
+<style>
+    /* Premium UI Styles */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
+        margin-top: 20px;
+    }
+
+    .glass-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .glass-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 20px 25px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .glass-header i {
+            font-size: 22px;
+            color: var(--primary-color);
+        }
+
+        .glass-header h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+    .glass-body {
+        padding: 25px;
+    }
+
+    .modern-form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: flex-end;
+    }
+
+    .modern-form-group {
+        flex: 1;
+    }
+
+    .modern-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .modern-input {
+        width: 100%;
+        padding: 12px 15px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        color: #0f172a;
+        transition: 0.3s;
+    }
+
+        .modern-input:focus {
+            background: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(15,98,254,0.1);
+            outline: none;
+        }
+        
+    /* تنسيق لزر رفع الصورة */
+    input[type=file].modern-input {
+        padding: 9px 15px;
+        background: #fff;
+        cursor: pointer;
+    }
+    input[type=file].modern-input::file-selector-button {
+        background: var(--primary-light);
+        color: var(--primary-color);
+        border: none;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 800;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: 0.2s;
+    }
+    input[type=file].modern-input::file-selector-button:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-action {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-blue {
+        background: var(--primary-color);
+        color: #fff;
+    }
+
+        .btn-blue:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(15,98,254,0.2);
+        }
+
+    .btn-emerald {
+        background: #10b981;
+        color: #fff;
+    }
+
+        .btn-emerald:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16,185,129,0.2);
+        }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: 10px;
+    }
+
+        .styled-table th {
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: right;
+            padding: 0 15px 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .styled-table td {
+            background: #f8fafc;
+            padding: 15px;
+            font-weight: 600;
+            color: #334155;
+            font-size: 14px;
+        }
+
+            .styled-table td:first-child {
+                border-radius: 0 12px 12px 0;
+            }
+
+            .styled-table td:last-child {
+                border-radius: 12px 0 0 12px;
+            }
+
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+    }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: #10b981;
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+    /* Box Types Grid */
+    .boxes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+    }
+
+    .box-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: 0.3s;
+    }
+
+        .box-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+        }
+
+    .box-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .box-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 14px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    /* Shape Selector */
+    .shape-selector-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-top: 10px;
+    }
+    .shape-option {
+        cursor: pointer;
+        position: relative;
+    }
+    .shape-option input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .shape-card-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px 10px;
+        text-align: center;
+        transition: 0.3s;
+        background: #fff;
+    }
+    .shape-card-select span {
+        font-size: 13px;
+        font-weight: 800;
+        color: #64748b;
+        display: block;
+    }
+    .shape-option input:checked + .shape-card-select {
+        border-color: var(--primary-color);
+        background: #eff6ff;
+        box-shadow: 0 4px 15px rgba(15, 98, 254, 0.1);
+    }
+    .shape-option input:checked + .shape-card-select span {
+        color: var(--primary-color);
+    }
+    .shape-option input:checked + .shape-card-select i {
+        color: var(--primary-color) !important;
+    }
+
+    /* ==========================================
+       📱 شاشات الموبايل والتابلت (Media Queries Premium)
+       ========================================== */
+    @@media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .modern-form-row {
+            flex-direction: column;
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .styled-table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding-bottom: 5px;
+        }
+
+        .glass-header h3 {
+            font-size: 15px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .page-title {
+            font-size: 22px !important;
+        }
+        
+        .page-header p {
+            font-size: 13px;
+        }
+
+        .glass-body {
+            padding: 15px;
+        }
+
+        .glass-header {
+            padding: 15px;
+        }
+
+        .boxes-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .box-card {
+            padding: 12px;
+            gap: 10px;
+        }
+
+        .modern-input {
+            font-size: 16px !important;
+        }
+
+        .btn-action {
+            padding: 12px;
+            font-size: 13px;
+        }
+        
+        .shape-selector-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="page-header" style="margin-bottom: 30px;">
+    <h1 class="page-title" style="font-size: 26px; font-weight: 900;"><i class="fas fa-cubes" style="color: var(--primary-color);"></i> إدارة الاستوديو 3D</h1>
+    <p style="color: #64748b; margin-top: 5px; font-weight: 600;">تحكم كامل في العلب، الأسعار، الخامات، والخصومات (تحديث فوري للعملاء).</p>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-auto-dismiss">
+    <div class="alert alert-success alert-auto-dismiss" style="border-radius: 12px; font-weight: 700;">
         <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
     </div>
 }
-
-<div class="form-grid">
-
-    <!-- التكلفة الأساسية للعلبة -->
-    <div class="premium-card">
-        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
-            <i class="fas fa-coins"></i> التكلفة الأساسية للعلبة
-        </h3>
-        <form asp-action="SaveBaseCost" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label style="font-size: 12px; font-weight: bold;">السعر الثابت للقص والتجهيز (يضاف لكل علبة قبل حساب المساحة)</label>
-                <input type="number" step="0.01" name="basePrintCost" class="form-control" value="@Model.BasePrintCost" required>
-            </div>
-            <button type="submit" class="btn-premium btn-sm" style="width: 100%; background: #10b981;"><i class="fas fa-save"></i> تحديث التكلفة الأساسية</button>
-        </form>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-auto-dismiss" style="border-radius: 12px; font-weight: 700;">
+        <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
     </div>
+}
 
-    <!-- شرائح الخصم -->
-    <div class="premium-card">
-        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
-            <i class="fas fa-percent"></i> شرائح خصم الكميات
-        </h3>
-        <form asp-action="AddDiscountTier" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: bold;">أكبر من أو يساوي (كمية)</label>
-                    <input type="number" name="MinQuantity" class="form-control" placeholder="مثال: 500" required>
-                </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: bold;">نسبة الخصم (0.15 = 15%)</label>
-                    <input type="number" step="0.01" name="DiscountPercentage" class="form-control" placeholder="مثال: 0.15" required>
-                </div>
-            </div>
-            <button type="submit" class="btn-premium btn-sm" style="width: 100%;"><i class="fas fa-plus"></i> إضافة شريحة خصم</button>
-        </form>
-        <table class="premium-table" style="font-size: 13px;">
-            <thead><tr><th>الكمية فوق</th><th>الخصم المطبق</th><th>حذف</th></tr></thead>
-            <tbody>
-                @foreach (var tier in Model.DiscountTiers.OrderBy(t => t.MinQuantity))
-                {
-                    <tr>
-                        <td><strong>@tier.MinQuantity</strong> علبة</td>
-                        <td><span class="badge badge-success">@(tier.DiscountPercentage * 100)%</span></td>
-                        <td>
-                            <form asp-action="DeleteDiscountTier" method="post"><input type="hidden" name="id" value="@tier.Id" /><button type="submit" class="btn-outline btn-icon btn-sm" style="color: red; border-color: red;"><i class="fas fa-trash"></i></button></form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<!-- 1. التحكم في أنواع العلب -->
+<div class="glass-card" style="margin-bottom: 25px;">
+    <div class="glass-header">
+        <i class="fas fa-box-open"></i>
+        <h3>أنواع العلب المتاحة في الاستوديو</h3>
     </div>
-
-    <!-- قسم الخامات والألوان -->
-    <div class="premium-card">
-        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
-            <i class="fas fa-swatchbook"></i> خامات الورق وتسعيرها
-        </h3>
-
-        <form asp-action="AddMaterial" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: bold;">اسم الخامة (عربي)</label>
-                    <input type="text" name="Name" class="form-control" required>
+    <div class="glass-body">
+        
+        <!-- 🟢 فورم إضافة علبة جديدة -->
+        <form asp-action="AddBoxType" method="post" enctype="multipart/form-data" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed #e2e8f0;">
+            
+            <div class="modern-form-row">
+                <div class="modern-form-group">
+                    <label class="modern-label">اسم العلبة المعروض للعميل</label>
+                    <input type="text" name="Name" class="modern-input" placeholder="مثال: كرتون شحن فاخر" required>
                 </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: bold;">البرمجة (white/kraft/supergloss)</label>
-                    <input type="text" name="InternalValue" class="form-control" required>
+                <div class="modern-form-group">
+                    <label class="modern-label">وصف قصير للعميل</label>
+                    <input type="text" name="Description" class="modern-input" placeholder="صناديق مموجة شديدة التحمل..." required>
                 </div>
             </div>
-            <div style="display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-end;">
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: bold;">تكلفة 1 سم²</label>
-                    <input type="number" step="0.001" name="CostPerCm2" class="form-control" placeholder="0.015" required>
-                </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; font-weight: bold;">لون العلبة (Hex)</label>
-                    <input type="color" name="ColorHex" class="form-control" style="height: 45px; padding: 5px;" value="#ffffff" required>
-                </div>
-                <div style="flex: 1; padding-bottom: 12px;">
-                    <input type="checkbox" name="IsGlossy" id="IsGlossy" value="true">
-                    <label for="IsGlossy" style="font-size: 13px; font-weight: bold;">لامع؟</label>
+
+            <!-- رفع الصورة الخارجية -->
+            <div class="modern-form-row">
+                <div class="modern-form-group">
+                    <label class="modern-label">صورة العلبة الخارجية (تظهر في الشاشة الترحيبية)</label>
+                    <input type="file" name="boxImage" class="modern-input" accept="image/*" required>
                 </div>
             </div>
-            <button type="submit" class="btn-premium btn-sm" style="width: 100%; background: var(--info);"><i class="fas fa-plus"></i> إضافة الخامة</button>
+            
+            <!-- اختيار الشكل 3D الداخلي -->
+            <div class="modern-form-group" style="margin-bottom: 20px;">
+                <label class="modern-label">اختر البرمجة الهندسية (شكل المجسم 3D داخل الاستوديو)</label>
+                <div class="shape-selector-grid">
+                    <label class="shape-option">
+                        <input type="radio" name="InternalValue" value="mailer" checked>
+                        <div class="shape-card-select">
+                            <i class="fas fa-box-open" style="font-size: 28px; margin-bottom: 8px; color: #94a3b8; transition: 0.3s;"></i>
+                            <span>برمجة: علبة بريدية</span>
+                        </div>
+                    </label>
+                    <label class="shape-option">
+                        <input type="radio" name="InternalValue" value="folding">
+                        <div class="shape-card-select">
+                            <i class="fas fa-box" style="font-size: 28px; margin-bottom: 8px; color: #94a3b8; transition: 0.3s;"></i>
+                            <span>برمجة: كرتون مطوي</span>
+                        </div>
+                    </label>
+                    <label class="shape-option">
+                        <input type="radio" name="InternalValue" value="rigid">
+                        <div class="shape-card-select">
+                            <i class="fas fa-cube" style="font-size: 28px; margin-bottom: 8px; color: #94a3b8; transition: 0.3s;"></i>
+                            <span>برمجة: علبة صلبة</span>
+                        </div>
+                    </label>
+                    <label class="shape-option">
+                        <input type="radio" name="InternalValue" value="shipping">
+                        <div class="shape-card-select">
+                            <i class="fas fa-cubes" style="font-size: 28px; margin-bottom: 8px; color: #94a3b8; transition: 0.3s;"></i>
+                            <span>برمجة: كرتون شحن</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-action btn-blue" style="width: auto; padding: 10px 30px;"><i class="fas fa-upload"></i> رفع وإضافة العلبة</button>
+            </div>
         </form>
 
-        <table class="premium-table" style="font-size: 13px;">
-            <thead><tr><th>الخامة</th><th>سعر سم²</th><th>اللون واللمعان</th><th>حذف</th></tr></thead>
-            <tbody>
-                @foreach (var mat in Model.Materials)
-                {
-                    <tr>
-                        <td><strong>@mat.Name</strong><br><small>@mat.InternalValue</small></td>
-                        <td style="color:var(--primary-color); font-weight:bold;">@mat.CostPerCm2</td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <div style="width: 15px; height: 15px; background-color: @mat.ColorHex; border: 1px solid #ccc;"></div>
-                                @if (mat.IsGlossy)
-                                {
-                                    <span class="badge badge-warning" style="font-size:10px;">لامع</span>
-                                }
-                            </div>
-                        </td>
-                        <td>
-                            <form asp-action="DeleteMaterial" method="post"><input type="hidden" name="id" value="@mat.Id" /><button type="submit" class="btn-outline btn-icon btn-sm" style="color: red; border-color: red;"><i class="fas fa-trash"></i></button></form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <!-- شبكة العلب الحالية -->
+        <div class="boxes-grid">
+            @foreach (var box in Model.BoxTypes)
+            {
+                <div class="box-card" style="@(box.IsActive ? "" : "opacity: 0.6; background: #f1f5f9;")">
+                    <img src="@box.ImagePath" class="box-img" alt="@box.Name" onerror="this.src='https://cdn.salla.sa/rDvVQ/cOd3EfWfrDP0n64aE7wrEEXzWprxjvx6kvvsO0aR.png'">
+                    <div class="box-info" style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                        <h4>@box.Name <span style="font-size: 10px; color: var(--text-muted); font-weight: 500;">(@box.InternalValue)</span></h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <form asp-action="ToggleBoxType" method="post" style="margin: 0;">
+                                <input type="hidden" name="id" value="@box.Id" />
+                                <label class="toggle-switch">
+                                    <input type="checkbox" onchange="this.form.submit()" @(box.IsActive ? "checked" : "")>
+                                    <span class="slider"></span>
+                                </label>
+                            </form>
+                            <form asp-action="DeleteBoxType" method="post" style="margin: 0;" onsubmit="return confirm('هل أنت متأكد من حذف هذه العلبة من الاستوديو؟');">
+                                <input type="hidden" name="id" value="@box.Id" />
+                                <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;" title="حذف العلبة"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- 2. التكلفة الأساسية -->
+    <div class="glass-card">
+        <div class="glass-header">
+            <i class="fas fa-coins"></i>
+            <h3>تكلفة القص والتجهيز الأساسية</h3>
+        </div>
+        <div class="glass-body">
+            <form asp-action="SaveBaseCost" method="post">
+                <div class="modern-form-group" style="margin-bottom: 20px;">
+                    <label class="modern-label">السعر الثابت (يُضاف لكل علبة قبل حساب المساحة)</label>
+                    <div style="position: relative;">
+                        <input type="number" step="0.01" name="basePrintCost" class="modern-input" value="@Model.BasePrintCost" required style="font-size: 20px; font-weight: 900; color: var(--primary-color);">
+                        <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-weight: 800; color: #94a3b8;">ر.س</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-action btn-emerald"><i class="fas fa-check"></i> حفظ التكلفة</button>
+            </form>
+        </div>
     </div>
 
-    <!-- قسم المقاسات -->
-    <div class="premium-card">
-        <h3 style="margin-bottom: 20px; color: var(--navy); border-bottom: 2px solid var(--border-light); padding-bottom: 10px;">
-            <i class="fas fa-ruler-combined"></i> المقاسات الجاهزة
-        </h3>
-        <form asp-action="AddSize" method="post" style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-            <div style="margin-bottom: 10px;">
-                <label style="font-size: 12px; font-weight: bold;">اسم المقاس</label>
-                <input type="text" name="Name" class="form-control" required>
-            </div>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <input type="number" step="0.1" name="Length" class="form-control" placeholder="الطول" required>
-                <input type="number" step="0.1" name="Width" class="form-control" placeholder="العرض" required>
-                <input type="number" step="0.1" name="Depth" class="form-control" placeholder="الارتفاع" required>
-            </div>
-            <button type="submit" class="btn-premium btn-sm" style="width: 100%;"><i class="fas fa-plus"></i> إضافة المقاس</button>
-        </form>
-        <table class="premium-table" style="font-size: 13px;">
-            <thead><tr><th>المقاس</th><th>الأبعاد</th><th>حذف</th></tr></thead>
-            <tbody>
-                @foreach (var size in Model.Sizes)
-                {
-                    <tr>
-                        <td><strong>@size.Name</strong></td>
-                        <td dir="ltr">@size.DimensionsString</td>
-                        <td><form asp-action="DeleteSize" method="post"><input type="hidden" name="id" value="@size.Id" /><button type="submit" class="btn-outline btn-icon btn-sm" style="color: red; border-color: red;"><i class="fas fa-trash"></i></button></form></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <!-- 3. شرائح الخصم -->
+    <div class="glass-card">
+        <div class="glass-header">
+            <i class="fas fa-percent"></i>
+            <h3>خصومات الكميات (جملة)</h3>
+        </div>
+        <div class="glass-body">
+            <form asp-action="AddDiscountTier" method="post">
+                <div class="modern-form-row">
+                    <div class="modern-form-group">
+                        <label class="modern-label">تبدأ من كمية</label>
+                        <input type="number" name="MinQuantity" class="modern-input" placeholder="مثال: 500" required>
+                    </div>
+                    <div class="modern-form-group">
+                        <label class="modern-label">الخصم (0.15 = 15%)</label>
+                        <input type="number" step="0.01" name="DiscountPercentage" class="modern-input" placeholder="0.15" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-action btn-blue"><i class="fas fa-plus"></i> إضافة الخصم</button>
+            </form>
+
+            <table class="styled-table">
+                <thead><tr><th>أكثر من</th><th>الخصم</th><th>إجراء</th></tr></thead>
+                <tbody>
+                    @foreach (var tier in Model.DiscountTiers.OrderBy(t => t.MinQuantity))
+                    {
+                        <tr>
+                            <td>@tier.MinQuantity علبة</td>
+                            <td><span style="color:#10b981; font-weight:900;">@(tier.DiscountPercentage * 100)%</span></td>
+                            <td style="width: 50px;">
+                                <form asp-action="DeleteDiscountTier" method="post"><input type="hidden" name="id" value="@tier.Id" /><button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;"><i class="fas fa-trash"></i></button></form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- 4. المقاسات -->
+    <div class="glass-card">
+        <div class="glass-header">
+            <i class="fas fa-ruler-combined"></i>
+            <h3>المقاسات الجاهزة</h3>
+        </div>
+        <div class="glass-body">
+            <form asp-action="AddSize" method="post">
+                <div class="modern-form-group" style="margin-bottom: 15px;">
+                    <label class="modern-label">اسم المقاس الوصفي</label>
+                    <input type="text" name="Name" class="modern-input" placeholder="مثال: مقاس وسط للحلويات" required>
+                </div>
+                <div class="modern-form-row">
+                    <div class="modern-form-group"><label class="modern-label">طول</label><input type="number" step="0.1" name="Length" class="modern-input" required></div>
+                    <div class="modern-form-group"><label class="modern-label">عرض</label><input type="number" step="0.1" name="Width" class="modern-input" required></div>
+                    <div class="modern-form-group"><label class="modern-label">ارتفاع</label><input type="number" step="0.1" name="Depth" class="modern-input" required></div>
+                </div>
+                <button type="submit" class="btn-action btn-blue"><i class="fas fa-plus"></i> إضافة مقاس</button>
+            </form>
+
+            <table class="styled-table">
+                <thead><tr><th>الاسم</th><th>الأبعاد (سم)</th><th>إجراء</th></tr></thead>
+                <tbody>
+                    @foreach (var size in Model.Sizes)
+                    {
+                        <tr>
+                            <td>@size.Name</td>
+                            <td dir="ltr">@size.DimensionsString</td>
+                            <td style="width: 50px;"><form asp-action="DeleteSize" method="post"><input type="hidden" name="id" value="@size.Id" /><button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;"><i class="fas fa-trash"></i></button></form></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. الخامات -->
+    <div class="glass-card">
+        <div class="glass-header">
+            <i class="fas fa-swatchbook"></i>
+            <h3>خامات الورق والتسعير</h3>
+        </div>
+        <div class="glass-body">
+            <form asp-action="AddMaterial" method="post">
+                <div class="modern-form-row">
+                    <div class="modern-form-group">
+                        <label class="modern-label">اسم الخامة</label>
+                        <input type="text" name="Name" class="modern-input" placeholder="مثال: مقوى أبيض" required>
+                    </div>
+                    <div class="modern-form-group">
+                        <label class="modern-label">البرمجة (white/kraft)</label>
+                        <input type="text" name="InternalValue" class="modern-input" required>
+                    </div>
+                </div>
+                <div class="modern-form-row">
+                    <div class="modern-form-group">
+                        <label class="modern-label">تكلفة 1 سم²</label>
+                        <input type="number" step="0.001" name="CostPerCm2" class="modern-input" placeholder="0.015" required>
+                    </div>
+                    <div class="modern-form-group">
+                        <label class="modern-label">اللون (Hex)</label>
+                        <input type="color" name="ColorHex" class="modern-input" style="height: 48px; padding: 5px;" value="#ffffff" required>
+                    </div>
+                    <div class="modern-form-group" style="padding-bottom: 12px;">
+                        <input type="checkbox" name="IsGlossy" id="IsGlossy" value="true" style="width:16px; height:16px; accent-color:var(--primary-color);">
+                        <label for="IsGlossy" style="font-size: 13px; font-weight: 800;">لامع؟</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-action btn-blue"><i class="fas fa-plus"></i> إضافة خامة</button>
+            </form>
+
+            <table class="styled-table">
+                <thead><tr><th>الخامة</th><th>التكلفة</th><th>الشكل</th><th>إجراء</th></tr></thead>
+                <tbody>
+                    @foreach (var mat in Model.Materials)
+                    {
+                        <tr>
+                            <td>@mat.Name</td>
+                            <td style="color:var(--primary-color);">@mat.CostPerCm2</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <div style="width: 20px; height: 20px; background-color: @mat.ColorHex; border-radius: 4px; box-shadow: 0 0 0 1px #e2e8f0;"></div>
+                                    @if (mat.IsGlossy)
+                                    {
+                                        <i class="fas fa-sparkles" style="color:#f59e0b; font-size: 12px;"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td style="width: 50px;">
+                                <form asp-action="DeleteMaterial" method="post"><input type="hidden" name="id" value="@mat.Id" /><button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;"><i class="fas fa-trash"></i></button></form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>

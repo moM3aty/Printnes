@@ -86,38 +86,58 @@ namespace Printnes.Areas.Admin.Controllers
         public async Task<IActionResult> Create(Product product, IFormFile coverImageFile)
         {
             ModelState.Remove("CoverImageUrl");
+
             if (ModelState.IsValid)
             {
-                if (coverImageFile != null && coverImageFile.Length > 0)
+                try
                 {
-                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-                    var ext = Path.GetExtension(coverImageFile.FileName).ToLowerInvariant();
-
-                    if (!allowedExtensions.Contains(ext))
+                    // التحقق من عدم تكرار الـ Slug
+                    bool slugExists = await _context.Products.AnyAsync(p => p.Slug == product.Slug);
+                    if (slugExists)
                     {
-                        ModelState.AddModelError("CoverImageUrl", "صيغة الصورة غير مدعومة. استخدم JPG, PNG أو WebP");
-                        ViewData["CategoryId"] = new SelectList(
-                            _context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
+                        ModelState.AddModelError("Slug", "هذا الرابط (Slug) مستخدم بالفعل لمنتج آخر، يرجى اختيار رابط مختلف.");
+                        ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
                         return View(product);
                     }
 
-                    
-                    product.CoverImageUrl = await UploadFileAsync(coverImageFile, "products");
+                    if (coverImageFile != null && coverImageFile.Length > 0)
+                    {
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                        var ext = Path.GetExtension(coverImageFile.FileName).ToLowerInvariant();
+
+                        if (!allowedExtensions.Contains(ext))
+                        {
+                            ModelState.AddModelError("CoverImageUrl", "صيغة الصورة غير مدعومة. استخدم JPG, PNG أو WebP");
+                            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
+                            return View(product);
+                        }
+
+                        product.CoverImageUrl = await UploadFileAsync(coverImageFile, "products");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("CoverImageUrl", "يجب رفع صورة للمنتج");
+                        ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
+                        return View(product);
+                    }
+
+                    // تأمين الحقول الفارغة حتى لا تضرب قاعدة البيانات
+                    product.DescriptionAr = product.DescriptionAr ?? "";
+                    product.DescriptionEn = product.DescriptionEn ?? "";
+
+                    product.CreatedAt = DateTime.UtcNow;
+                    _context.Add(product);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "تم إضافة المنتج بنجاح!";
+                    return RedirectToAction(nameof(Index));
                 }
-                else
+                catch (Exception ex)
                 {
-                    ModelState.AddModelError("CoverImageUrl", "يجب رفع صورة للمنتج");
-                    ViewData["CategoryId"] = new SelectList(
-                        _context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
-                    return View(product);
+                    // التقاط الخطأ بدلاً من إغلاق الاتصال وعرض شاشة الكروم البيضاء
+                    string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    ModelState.AddModelError("", "حدث خطأ أثناء الحفظ: " + errorMsg);
                 }
-
-                product.CreatedAt = DateTime.UtcNow;
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "تم إضافة المنتج بنجاح!";
-                return RedirectToAction(nameof(Index));
             }
 
             ViewData["CategoryId"] = new SelectList(
@@ -142,23 +162,46 @@ namespace Printnes.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id, Product product, IFormFile coverImageFile)
         {
             if (id != product.Id) return NotFound();
+
             ModelState.Remove("CoverImageUrl");
+
             if (ModelState.IsValid)
             {
-                if (coverImageFile != null && coverImageFile.Length > 0)
+                try
                 {
-                    if (!string.IsNullOrEmpty(product.CoverImageUrl))
-                        DeleteFile(product.CoverImageUrl);
+                    // التحقق من عدم تكرار الـ Slug لمنتج آخر غير الحالي
+                    bool slugExists = await _context.Products.AnyAsync(p => p.Slug == product.Slug && p.Id != product.Id);
+                    if (slugExists)
+                    {
+                        ModelState.AddModelError("Slug", "هذا الرابط (Slug) مستخدم بالفعل لمنتج آخر، يرجى اختيار رابط مختلف.");
+                        ViewData["CategoryId"] = new SelectList(_context.Categories.Where(c => c.IsActive), "Id", "NameAr", product.CategoryId);
+                        return View(product);
+                    }
 
-                    product.CoverImageUrl = await UploadFileAsync(coverImageFile, "products");
+                    if (coverImageFile != null && coverImageFile.Length > 0)
+                    {
+                        if (!string.IsNullOrEmpty(product.CoverImageUrl))
+                            DeleteFile(product.CoverImageUrl);
+
+                        product.CoverImageUrl = await UploadFileAsync(coverImageFile, "products");
+                    }
+
+                    // تأمين الحقول
+                    product.DescriptionAr = product.DescriptionAr ?? "";
+                    product.DescriptionEn = product.DescriptionEn ?? "";
+
+                    product.UpdatedAt = DateTime.UtcNow;
+                    _context.Update(product);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "تم تعديل المنتج بنجاح!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                product.UpdatedAt = DateTime.UtcNow;
-                _context.Update(product);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "تم تعديل المنتج بنجاح!";
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    ModelState.AddModelError("", "حدث خطأ أثناء التعديل: " + errorMsg);
+                }
             }
 
             ViewData["CategoryId"] = new SelectList(
@@ -207,7 +250,10 @@ namespace Printnes.Areas.Admin.Controllers
 
         private async Task<string> UploadFileAsync(IFormFile file, string folderName)
         {
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", folderName);
+            // تأمين المسار في حال كان _webHostEnvironment.WebRootPath يساوي null على الاستضافة
+            var webRootPath = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+            string uploadsFolder = Path.Combine(webRootPath, "uploads", folderName);
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
@@ -226,7 +272,9 @@ namespace Printnes.Areas.Admin.Controllers
         {
             if (!string.IsNullOrEmpty(fileUrl))
             {
-                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, fileUrl.TrimStart('/'));
+                var webRootPath = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string imagePath = Path.Combine(webRootPath, fileUrl.TrimStart('/'));
+
                 if (System.IO.File.Exists(imagePath))
                     System.IO.File.Delete(imagePath);
             }
