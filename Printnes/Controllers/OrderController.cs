@@ -23,6 +23,12 @@ namespace Printnes.Controllers
         // GET: /Order/Checkout
         public IActionResult Checkout()
         {
+            // جلب إعدادات المتجر لتمرير بيانات البنك لصفحة الدفع
+            var settings = Printnes.Helpers.SiteSettingsManager.LoadSettings();
+            ViewBag.BankName = settings.BankName;
+            ViewBag.BankAccountName = settings.BankAccountName;
+            ViewBag.BankIban = settings.BankIban;
+
             return View(new CheckoutViewModel());
         }
 

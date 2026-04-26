@@ -190,7 +190,32 @@
 
         <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
 
-        <!-- 🟢 جديد: الصفحات القانونية والمعلوماتية 🟢 -->
+        <!-- 🟢 جديد: بيانات الحساب البنكي 🟢 -->
+        <h3 style="font-size: 16px; margin: 0 0 20px 0; color: #3b82f6; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-university"></i>
+            </div>
+            بيانات الحساب البنكي (تظهر للعميل عند اختيار تحويل بنكي)
+        </h3>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="BankName" class="form-label">اسم البنك</label>
+                <input asp-for="BankName" class="form-control" placeholder="مثال: مصرف الراجحي" />
+            </div>
+            <div class="form-group">
+                <label asp-for="BankAccountName" class="form-label">اسم صاحب الحساب</label>
+                <input asp-for="BankAccountName" class="form-control" placeholder="مثال: مؤسسة مطابع برنتس" />
+            </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label asp-for="BankIban" class="form-label">رقم الآيبان (IBAN)</label>
+            <input asp-for="BankIban" class="form-control" dir="ltr" style="text-align: left; font-family: monospace; font-size: 16px; font-weight: bold;" placeholder="SA0000000000000000000000" />
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+        <!-- الصفحات القانونية والمعلوماتية -->
         <h3 style="font-size: 16px; margin: 0 0 20px 0; color: #f59e0b; font-weight: 800; display: flex; align-items: center; gap: 10px;">
             <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: #fef3c7; color: #f59e0b; display: flex; align-items: center; justify-content: center;">
                 <i class="fas fa-file-contract"></i>

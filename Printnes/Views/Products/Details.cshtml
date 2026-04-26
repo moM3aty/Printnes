@@ -7,10 +7,10 @@
     // جلب الإعدادات ديناميكياً
     var siteSettings = SiteSettingsManager.LoadSettings();
     string waNumber = siteSettings.WhatsappNumber?.Replace("+", "") ?? "";
-
-    bool hasAnyOptions = (ViewBag.PaperOptions != null && Enumerable.Count(ViewBag.PaperOptions) > 0) ||
+    bool hasAnyOptions = !Model.IsReadyProduct && ((ViewBag.PaperOptions != null && ((ViewBag.PaperOptions != null && Enumerable.Count(ViewBag.PaperOptions) > 0) ||
                          (ViewBag.SizeOptions != null && Enumerable.Count(ViewBag.SizeOptions) > 0) ||
-                         (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0);
+                         (ViewBag.SidesOptions != null && Enumerable.Count(ViewBag.SidesOptions) > 0))));
+
 
     var approvedReviews = Model?.ProductReviews?.Where(r => r.IsApproved).OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Printnes.Models.ProductReview>();
     int reviewsCount = approvedReviews.Count;

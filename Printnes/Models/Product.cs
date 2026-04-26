@@ -33,7 +33,7 @@ namespace Printnes.Models
         public string Slug { get; set; }
 
         public string? DescriptionAr { get; set; }
-
+        public bool IsReadyProduct { get; set; }
         public string? DescriptionEn { get; set; }
 
         [Required(ErrorMessage = "رابط الصورة مطلوب")]

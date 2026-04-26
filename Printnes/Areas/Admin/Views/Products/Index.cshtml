@@ -1,5 +1,4 @@
-﻿<!-- الملف: Areas/Admin/Views/Products/Index.cshtml -->
-@model IEnumerable<Printnes.Models.Product>
+﻿@model IEnumerable<Printnes.Models.Product>
 @{
     ViewData["Title"] = "إدارة المنتجات";
 }
@@ -11,9 +10,16 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-auto-dismiss">
+    <div class="alert alert-success alert-auto-dismiss" style="border-radius: 12px; font-weight: 700;">
         <i class="fas fa-check-circle"></i>
         @TempData["SuccessMessage"]
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-auto-dismiss" style="border-radius: 12px; font-weight: 700; background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; padding: 15px; margin-bottom: 20px;">
+        <i class="fas fa-exclamation-triangle"></i>
+        @TempData["ErrorMessage"]
     </div>
 }
 
@@ -141,8 +147,10 @@
                                     <a href="/Products/Details/@item.Id" target="_blank" class="btn-outline btn-icon" title="عرض في المتجر" style="color: var(--info);">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
-                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟');">
-                                        <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: var(--danger);">
+                                    <!-- 🟢 تعديل زر الحذف هنا 🟢 -->
+                                    <form action="/Admin/Products/Delete/@item.Id" method="post" style="display: inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج نهائياً؟');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-outline btn-icon btn-delete-confirm" title="حذف" style="color: #ef4444; border-color: #fecaca; background: #fef2f2;">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

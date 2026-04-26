@@ -121,7 +121,6 @@ namespace Printnes.Areas.Admin.Controllers
                         return View(product);
                     }
 
-                    // تأمين الحقول الفارغة حتى لا تضرب قاعدة البيانات
                     product.DescriptionAr = product.DescriptionAr ?? "";
                     product.DescriptionEn = product.DescriptionEn ?? "";
 
@@ -134,7 +133,6 @@ namespace Printnes.Areas.Admin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // التقاط الخطأ بدلاً من إغلاق الاتصال وعرض شاشة الكروم البيضاء
                     string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     ModelState.AddModelError("", "حدث خطأ أثناء الحفظ: " + errorMsg);
                 }
@@ -169,7 +167,6 @@ namespace Printnes.Areas.Admin.Controllers
             {
                 try
                 {
-                    // التحقق من عدم تكرار الـ Slug لمنتج آخر غير الحالي
                     bool slugExists = await _context.Products.AnyAsync(p => p.Slug == product.Slug && p.Id != product.Id);
                     if (slugExists)
                     {
@@ -186,7 +183,6 @@ namespace Printnes.Areas.Admin.Controllers
                         product.CoverImageUrl = await UploadFileAsync(coverImageFile, "products");
                     }
 
-                    // تأمين الحقول
                     product.DescriptionAr = product.DescriptionAr ?? "";
                     product.DescriptionEn = product.DescriptionEn ?? "";
 
@@ -224,33 +220,76 @@ namespace Printnes.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // 🟢 التعديل الجذري: الحذف الإجباري (Force Delete)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            // بدء عملية Transaction لضمان الحذف الآمن للبيانات المرتبطة
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                bool hasOrders = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
-                if (hasOrders)
+                var product = await _context.Products.FindAsync(id);
+                if (product != null)
                 {
-                    TempData["ErrorMessage"] = "لا يمكن حذف هذا المنتج لوجود طلبات مرتبطة به. يمكنك تعطيله بدلاً من ذلك.";
-                    return RedirectToAction(nameof(Index));
+                    // 1. مسح مصفوفة التسعير (الأسعار المخصصة) المرتبطة بالمنتج
+                    var pricing = await _context.PricingMatrices.Where(p => p.ProductId == id).ToListAsync();
+                    _context.PricingMatrices.RemoveRange(pricing);
+
+                    // 2. مسح الخيارات المرتبطة (المقاسات، أنواع الورق، التغليف)
+                    var options = await _context.ProductOptions.Where(o => o.ProductId == id).ToListAsync();
+                    _context.ProductOptions.RemoveRange(options);
+
+                    // 3. مسح الإضافات الاختيارية المرتبطة بالمنتج
+                    var extras = await _context.ProductExtras.Where(e => e.ProductId == id).ToListAsync();
+                    _context.ProductExtras.RemoveRange(extras);
+
+                    // 4. مسح شرائح الكميات (الخصومات الجملة)
+                    var tiers = await _context.QuantityTiers.Where(q => q.ProductId == id).ToListAsync();
+                    _context.QuantityTiers.RemoveRange(tiers);
+
+                    // 5. مسح التقييمات المرتبطة بالمنتج
+                    var reviews = await _context.ProductReviews.Where(r => r.ProductId == id).ToListAsync();
+                    _context.ProductReviews.RemoveRange(reviews);
+
+                    // 6. مسح المنتج من مفضلات العملاء
+                    var favs = await _context.UserFavorites.Where(f => f.ProductId == id).ToListAsync();
+                    _context.UserFavorites.RemoveRange(favs);
+
+                    // 7. فك ارتباط المنتج بالطلبات السابقة (حتى لا يتم حذف فواتير العملاء القديمة من المتجر)
+                    var orderItems = await _context.OrderItems.Where(oi => oi.ProductId == id).ToListAsync();
+                    foreach (var item in orderItems)
+                    {
+                        item.ProductId = null;
+                    }
+
+                    // حفظ مسح البيانات المرتبطة أولاً
+                    await _context.SaveChangesAsync();
+
+                    // 8. حذف صورة المنتج من السيرفر لتوفير المساحة
+                    if (!string.IsNullOrEmpty(product.CoverImageUrl))
+                        DeleteFile(product.CoverImageUrl);
+
+                    // 9. أخيراً، حذف المنتج نفسه
+                    _context.Products.Remove(product);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    TempData["SuccessMessage"] = "تم حذف المنتج وكافة بياناته المرتبطة بنجاح.";
                 }
-
-                if (!string.IsNullOrEmpty(product.CoverImageUrl))
-                    DeleteFile(product.CoverImageUrl);
-
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "تم حذف المنتج بنجاح.";
             }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                TempData["ErrorMessage"] = "حدث خطأ أثناء الحذف الإجباري: " + (ex.InnerException?.Message ?? ex.Message);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
         private async Task<string> UploadFileAsync(IFormFile file, string folderName)
         {
-            // تأمين المسار في حال كان _webHostEnvironment.WebRootPath يساوي null على الاستضافة
             var webRootPath = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
             string uploadsFolder = Path.Combine(webRootPath, "uploads", folderName);

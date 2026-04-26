@@ -50,6 +50,9 @@ namespace Printnes.ViewModels
         [StringLength(100)]
         public string StoreName { get; set; }
         public string PrivacyPolicy { get; set; }
+        public string BankName { get; set; }
+        public string BankAccountName { get; set; }
+        public string BankIban { get; set; }
         public string FAQ { get; set; }
         public string RefundPolicy { get; set; }
         public string TermsAndConditions { get; set; }

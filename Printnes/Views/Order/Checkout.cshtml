@@ -1,5 +1,4 @@
-﻿<!-- الملف: Views/Order/Checkout.cshtml -->
-@model Printnes.ViewModels.CheckoutViewModel
+﻿@model Printnes.ViewModels.CheckoutViewModel
 @{
     ViewData["Title"] = "إتمام الطلب";
     Layout = "_Layout";
@@ -81,12 +80,32 @@
 
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label asp-for="PaymentMethod" style="display: block; font-weight: bold; margin-bottom: 5px;">طريقة الدفع *</label>
-                    <select asp-for="PaymentMethod" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                    <select asp-for="PaymentMethod" id="paymentMethodSelect" onchange="toggleBankDetails()" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;">
                         <option value="1">بطاقة مدى</option>
                         <option value="2">البطاقة الائتمانية (Visa/Mastercard)</option>
                         <option value="3">Apple Pay</option>
                         <option value="4">تحويل بنكي</option>
                     </select>
+                </div>
+
+                <!-- 🟢 مربع بيانات البنك (مخفي افتراضياً) 🟢 -->
+                <div id="bankDetailsInfo" style="display: none; background: #eff6ff; border: 1px dashed #3b82f6; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    <strong style="color: #1e3a8a; display: block; margin-bottom: 15px; font-size: 15px;"><i class="fas fa-university"></i> بيانات التحويل البنكي المعتمدة:</strong>
+                    <div style="font-size: 14px; color: #1e40af; line-height: 1.8;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #bfdbfe; padding-bottom: 5px; margin-bottom: 5px;">
+                            <span><strong>اسم البنك:</strong></span> <span>@(ViewBag.BankName ?? "غير محدد")</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #bfdbfe; padding-bottom: 5px; margin-bottom: 5px;">
+                            <span><strong>اسم الحساب:</strong></span> <span>@(ViewBag.BankAccountName ?? "غير محدد")</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 5px;">
+                            <span><strong>الآيبان (IBAN):</strong></span>
+                            <span dir="ltr" style="font-family: monospace; font-weight: 900; font-size: 15px; background: #fff; padding: 4px 10px; border-radius: 6px; border: 1px solid #bfdbfe;">@(ViewBag.BankIban ?? "غير محدد")</span>
+                        </div>
+                    </div>
+                    <p style="color: #dc2626; font-size: 12px; font-weight: 700; margin-top: 15px; margin-bottom: 0;">
+                        <i class="fas fa-info-circle"></i> يرجى تحويل المبلغ ثم إرسال صورة إيصال التحويل عبر الواتساب مع رقم الطلب لتأكيد البدء في التنفيذ.
+                    </p>
                 </div>
 
                 <button type="submit" class="btn-add-main" style="width: 100%; font-size: 18px; padding: 15px; border-radius: 8px; border: none; background: var(--orange); color: #fff; font-weight: bold; cursor: pointer;">
@@ -100,7 +119,21 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // 🟢 دالة إظهار/إخفاء بيانات البنك
+        function toggleBankDetails() {
+            var select = document.getElementById("paymentMethodSelect");
+            var bankInfo = document.getElementById("bankDetailsInfo");
+            if (select && select.value === "4") {
+                bankInfo.style.display = "block";
+            } else if (bankInfo) {
+                bankInfo.style.display = "none";
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
+            // تشغيل الدالة فوراً للتأكد من حالة البنك عند تحميل الصفحة
+            toggleBankDetails();
+
             const cart = JSON.parse(localStorage.getItem('printnesCart')) || [];
             if(cart.length === 0) {
                 alert("سلتك فارغة، سيتم توجيهك للرئيسية.");

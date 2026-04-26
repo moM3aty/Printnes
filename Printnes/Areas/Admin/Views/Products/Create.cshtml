@@ -1,11 +1,167 @@
-﻿<!--
-    الملف: Areas/Admin/Views/Products/Create.cshtml
-    صفحة إضافة منتج جديد مع رفع الصور واختيار الأيقونة
--->
-@model Printnes.Models.Product
+﻿@model Printnes.Models.Product
 @{
     ViewData["Title"] = "إضافة منتج جديد";
 }
+
+<style>
+    /* Premium UI Styles */
+    .glass-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid #f1f5f9;
+        padding: 30px;
+        margin-top: 20px;
+    }
+
+    .modern-form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .modern-form-group {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .modern-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 800;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .modern-input {
+        width: 100%;
+        padding: 14px 15px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        color: #0f172a;
+        transition: 0.3s;
+    }
+
+        .modern-input:focus {
+            background: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(15,98,254,0.1);
+            outline: none;
+        }
+
+    .upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 16px;
+        padding: 40px 20px;
+        text-align: center;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: 0.3s;
+        position: relative;
+    }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+
+        .upload-area:hover i {
+            color: var(--primary-color);
+        }
+
+        .upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+    .smart-hint {
+        background: #eff6ff;
+        border: 1px dashed #3b82f6;
+        padding: 20px;
+        border-radius: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .smart-hint i {
+            font-size: 28px;
+            color: #3b82f6;
+            margin-top: 5px;
+        }
+
+        .smart-hint p {
+            margin: 0;
+            font-size: 14px;
+            color: #1e3a8a;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: #10b981;
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+</style>
 
 <div class="page-header">
     <h1 class="page-title"><i class="fas fa-box-open"></i> إضافة منتج جديد</h1>
@@ -15,99 +171,129 @@
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success alert-auto-dismiss">
-        <i class="fas fa-check-circle"></i>
-        @TempData["SuccessMessage"]
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
     </div>
 }
 
-<div class="premium-card" style="max-width: 900px;">
+<div class="smart-hint">
+    <i class="fas fa-lightbulb"></i>
+    <div>
+        <strong style="display: block; font-size: 16px; margin-bottom: 5px;">كيف تجعل هذا المنتج "جاهز" للطلب السريع؟</strong>
+        <p>النظام ذكي تلقائياً! إذا لم تضف له خيارات من شاشة "الخيارات" سيُعتبر منتجاً جاهزاً. ولتأكيد ذلك يمكنك تفعيل زر <b>(إجبار كمنتج جاهز)</b> بالأسفل ليتم تجاهل أي خيارات قد ترتبط به بالخطأ، ويظهر للعميل فوراً بزر إضافة للسلة.</p>
+    </div>
+</div>
+
+<div class="glass-card" style="max-width: 1000px; margin: 0 auto;">
     <form asp-action="Create" method="post" enctype="multipart/form-data">
-        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 20px; font-weight: bold;"></div>
 
         <!-- رفع صورة المنتج -->
-        <div class="form-group">
-            <label class="form-label">صورة المنتج الرئيسية <span class="required">*</span></label>
-            <div class="file-upload-wrapper" id="imageUploadWrapper">
+        <div class="modern-form-group" style="margin-bottom: 25px;">
+            <label class="modern-label" style="font-size: 15px;">صورة المنتج الرئيسية <span class="required">*</span></label>
+            <div class="upload-area" id="imageUploadWrapper">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <span>اضغط هنا أو اسحب الصورة لرفعها</span>
-                <span class="file-name" id="fileName"></span>
-                <input type="file" name="coverImageFile" accept="image/*" id="coverImageFile"
-                       onchange="handleFileUpload(this)" required />
+                <h4 style="color: var(--navy); font-weight: 800; margin-bottom: 5px;">اسحب الصورة هنا أو اضغط للرفع</h4>
+                <p style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">صيغ JPG, PNG, WebP (بحد أقصى 5 ميجابايت)</p>
+                <span class="file-name" id="fileName" style="font-weight: 900; color: var(--primary-color);"></span>
+                <input type="file" name="coverImageFile" accept="image/*" id="coverImageFile" onchange="handleFileUpload(this)" required />
             </div>
-            <div class="img-preview-container">
-                <img id="imagePreview" class="img-preview" src="#" alt="معاينة الصورة" />
-                <button type="button" id="removePreviewBtn" class="btn-remove-preview" onclick="removePreview()">
-                    <i class="fas fa-trash"></i> حذف
+
+            <div class="img-preview-container" style="margin-top: 15px; display: none; text-align: center; background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;" id="previewContainer">
+                <img id="imagePreview" src="#" alt="معاينة الصورة" style="max-width: 100%; max-height: 200px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px;" />
+                <br>
+                <button type="button" class="btn-outline btn-sm" onclick="removePreview()" style="color: #ef4444; border-color: #ef4444;">
+                    <i class="fas fa-trash"></i> إزالة وتغيير الصورة
                 </button>
             </div>
-            <span class="form-hint">الصيغ المقبولة: JPG, PNG, WebP - الحد الأقصى: 5MB</span>
         </div>
 
-        <div class="form-grid">
-            <div class="form-group">
-                <label asp-for="NameAr" class="form-label">الاسم بالعربية <span class="required">*</span></label>
-                <input asp-for="NameAr" class="form-control" placeholder="مثال: كروت شخصية فاخرة" required />
-                <span asp-validation-for="NameAr" class="field-validation-error"></span>
+        <div class="modern-form-row">
+            <div class="modern-form-group">
+                <label asp-for="NameAr" class="modern-label">الاسم بالعربية <span class="required">*</span></label>
+                <input asp-for="NameAr" class="modern-input" placeholder="مثال: كروت شخصية فاخرة" required />
+                <span asp-validation-for="NameAr" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="NameEn" class="form-label">الاسم بالإنجليزية <span class="required">*</span></label>
-                <input asp-for="NameEn" class="form-control" placeholder="e.g: Premium Business Cards" required />
-                <span asp-validation-for="NameEn" class="field-validation-error"></span>
+            <div class="modern-form-group">
+                <label asp-for="NameEn" class="modern-label">الاسم بالإنجليزية <span class="required">*</span></label>
+                <input asp-for="NameEn" class="modern-input" placeholder="e.g: Premium Business Cards" required />
+                <span asp-validation-for="NameEn" class="text-danger"></span>
             </div>
         </div>
 
-        <div class="form-grid">
-            <div class="form-group">
-                <label asp-for="Slug" class="form-label">الرابط (Slug) <span class="required">*</span></label>
-                <input asp-for="Slug" class="form-control" placeholder="business-cards" id="slugInput" required />
-                <span asp-validation-for="Slug" class="field-validation-error"></span>
-                <span class="form-hint">يستخدم في رابط المنتج، استخدم أحرف إنجليزية صغيرة وشرطات</span>
+        <div class="modern-form-row">
+            <div class="modern-form-group">
+                <label asp-for="Slug" class="modern-label">الرابط (Slug) <span class="required">*</span></label>
+                <input asp-for="Slug" class="modern-input" placeholder="business-cards" id="slugInput" required />
+                <span class="form-hint" style="font-size: 11px; margin-top: 5px; display: block; color: #94a3b8;">يُولد تلقائياً، استخدم أحرف إنجليزية صغيرة وشرطات.</span>
             </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="form-label">القسم الرئيسي <span class="required">*</span></label>
-                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control" required>
+            <div class="modern-form-group">
+                <label asp-for="CategoryId" class="modern-label">القسم الرئيسي <span class="required">*</span></label>
+                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="modern-input" required>
                     <option value="">-- اختر القسم المناسب --</option>
                 </select>
-                <span asp-validation-for="CategoryId" class="field-validation-error"></span>
             </div>
         </div>
 
-        <div class="form-grid">
-            <div class="form-group">
-                <label asp-for="MinQuantity" class="form-label">الحد الأدنى للكمية</label>
-                <input asp-for="MinQuantity" type="number" class="form-control" value="100" min="1" />
+        <div class="modern-form-row">
+            <div class="modern-form-group">
+                <label asp-for="MinQuantity" class="modern-label">الحد الأدنى للكمية</label>
+                <input asp-for="MinQuantity" type="number" class="modern-input" value="1" min="1" />
             </div>
-            <div class="form-group">
-                <label asp-for="MaxQuantity" class="form-label">الحد الأقصى للكمية</label>
-                <input asp-for="MaxQuantity" type="number" class="form-control" value="100000" min="1" />
+            <div class="modern-form-group">
+                <label asp-for="MaxQuantity" class="modern-label">الحد الأقصى للكمية</label>
+                <input asp-for="MaxQuantity" type="number" class="modern-input" value="10000" min="1" />
             </div>
         </div>
 
-        <div class="form-group">
-            <label asp-for="DescriptionAr" class="form-label">وصف المنتج (عربي)</label>
-            <textarea asp-for="DescriptionAr" rows="4" class="form-control"
-                      placeholder="اكتب وصفاً جذاباً للمنتج يظهر للعميل..."></textarea>
+        <div class="modern-form-group" style="margin-bottom: 25px;">
+            <label asp-for="DescriptionAr" class="modern-label">وصف المنتج الجذاب للعميل</label>
+            <textarea asp-for="DescriptionAr" rows="4" class="modern-input" placeholder="اكتب وصفاً جذاباً للمنتج يظهر للعميل..."></textarea>
         </div>
 
-        <div style="display: flex; gap: 30px; margin-bottom: 28px; padding: 18px;
-                    background: var(--border-light); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <label class="form-check">
-                <input type="checkbox" asp-for="IsActive" checked />
-                <label asp-for="IsActive">المنتج نشط ويظهر في المتجر</label>
-            </label>
-            <label class="form-check">
-                <input type="checkbox" asp-for="AllowCustomSize" />
-                <label asp-for="AllowCustomSize">السماح للعميل بإدخال مقاس مخصص</label>
-            </label>
+        <!-- مفاتيح التحكم -->
+        <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 30px; padding: 25px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 250px;">
+                <label class="toggle-switch">
+                    <input type="checkbox" asp-for="IsActive" checked />
+                    <span class="slider"></span>
+                </label>
+                <div>
+                    <strong style="display:block; color:var(--navy); font-size:14px;">المنتج نشط ويظهر في المتجر</strong>
+                    <span style="color:#64748b; font-size:12px;">أغلق هذا الخيار إذا أردت إخفاءه مؤقتاً</span>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 250px;">
+                <label class="toggle-switch">
+                    <input type="checkbox" asp-for="AllowCustomSize" />
+                    <span class="slider"></span>
+                </label>
+                <div>
+                    <strong style="display:block; color:var(--navy); font-size:14px;">السماح بمقاس مخصص</strong>
+                    <span style="color:#64748b; font-size:12px;">يُظهر للعميل خيار إدخال (طول وعرض) خاص به</span>
+                </div>
+            </div>
+
+            <!-- 🟢 الخيار الجديد: إجبار المنتج كجاهز -->
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 250px;">
+                <label class="toggle-switch">
+                    <input type="checkbox" asp-for="IsReadyProduct" />
+                    <span class="slider"></span>
+                </label>
+                <div>
+                    <strong style="display:block; color:var(--orange); font-size:14px;">إجبار كمنتج جاهز (بدون خيارات)</strong>
+                    <span style="color:#64748b; font-size:12px;">يخفي جميع الخيارات في صفحة المتجر (إن وجدت)</span>
+                </div>
+            </div>
         </div>
 
-        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0;">
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin-bottom: 25px;">
 
-        <div style="display: flex; gap: 12px;">
-            <button type="submit" class="btn-premium">
-                <i class="fas fa-save"></i> حفظ المنتج
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <a href="/Admin/Products" class="btn-outline" style="padding: 14px 25px; border-radius: 12px; font-weight: 800;">إلغاء</a>
+            <button type="submit" class="btn-premium" style="padding: 14px 35px; border-radius: 12px; border: none; font-size: 15px;">
+                <i class="fas fa-save"></i> حفظ المنتج الجديد
             </button>
-            <a href="/Admin/Products" class="btn-outline">إلغاء</a>
         </div>
     </form>
 </div>
@@ -115,9 +301,9 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // توليد Slug تلقائياً من الاسم العربي
-        document.getElementById('NameAr').addEventListener('input', function() {
-            const nameEn = document.getElementById('NameEn').value;
+        // توليد Slug تلقائياً من الاسم الإنجليزي (لأنه الأفضل للروابط)
+        document.getElementById('NameEn').addEventListener('input', function() {
+            const nameEn = this.value;
             if (nameEn) {
                 document.getElementById('slugInput').value = nameEn
                     .toLowerCase()
@@ -131,24 +317,19 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
 
-                // التحقق من الحجم (5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('حجم الملف يتجاوز 5MB، يرجى اختيار ملف أصغر.');
                     input.value = '';
                     return;
                 }
 
-                // عرض اسم الملف
                 document.getElementById('fileName').textContent = file.name;
-                document.getElementById('imageUploadWrapper').classList.add('has-file');
+                document.getElementById('imageUploadWrapper').style.display = 'none';
 
-                // عرض المعاينة
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = e.target.result;
-                    preview.classList.add('visible');
-                    document.getElementById('removePreviewBtn').classList.add('visible');
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
                 };
                 reader.readAsDataURL(file);
             }
@@ -156,16 +337,11 @@
 
         // حذف المعاينة
         function removePreview() {
-            const input = document.getElementById('coverImageFile');
-            const preview = document.getElementById('imagePreview');
-            const wrapper = document.getElementById('imageUploadWrapper');
-
-            input.value = '';
-            preview.src = '#';
-            preview.classList.remove('visible');
-            document.getElementById('removePreviewBtn').classList.remove('visible');
+            document.getElementById('coverImageFile').value = '';
+            document.getElementById('imagePreview').src = '#';
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('imageUploadWrapper').style.display = 'block';
             document.getElementById('fileName').textContent = '';
-            wrapper.classList.remove('has-file');
         }
     </script>
 }
