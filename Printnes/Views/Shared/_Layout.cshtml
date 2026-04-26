@@ -234,10 +234,10 @@
             <div class="footer-col links-col">
                 <h3>روابط مهمة</h3>
                 <ul class="footer-links">
-                    <li><a href="/Privacy">سياسة الخصوصية</a></li>
-                    <li><a href="/FAQ">الأسئلة الشائعة</a></li>
-                    <li><a href="/RefundPolicy">سياسة الاستبدال والاسترجاع</a></li>
-                    <li><a href="/Terms">سياسة الطباعة والتصميم</a></li>
+                    <li><a href="~/Home/Privacy">سياسة الخصوصية</a></li>
+                    <li><a href="~/Home/FAQ">الأسئلة الشائعة</a></li>
+                    <li><a href="~/Home/RefundPolicy">سياسة الاستبدال والاسترجاع</a></li>
+                    <li><a href="~/Home/Terms">سياسة الطباعة والتصميم</a></li>
                 </ul>
             </div>
 
@@ -261,7 +261,10 @@
                     <img src="https://img.icons8.com/color/48/apple-pay.png" alt="apple-pay">
                     <span class="tabby-tamara">Tabby | Tamara</span>
                 </div>
-                <div class="tax-info">الرقم الضريبي : <span>310595349100003</span></div>
+                @if (!string.IsNullOrEmpty(siteSettings.TaxNumber))
+                {
+                    <div class="tax-info">الرقم الضريبي : <span>@siteSettings.TaxNumber</span></div>
+                }
                 <div class="copyright">الحقوق محفوظة @DateTime.Now.Year | <a href="/">@siteSettings.StoreName.Split(' ')[0]</a></div>
                 <div class="copyright">تصميم وتطوير <a href="https://gmtweb.online/" style="color:var(--orange);">GMTWEB</a></div>
             </div>

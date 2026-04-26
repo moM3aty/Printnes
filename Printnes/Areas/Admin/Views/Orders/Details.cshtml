@@ -7,8 +7,8 @@
 
 <style>
     /* ==========================================
-           1. التنسيقات المتقدمة للصفحة (Advanced UI)
-           ========================================== */
+               1. التنسيقات المتقدمة للصفحة (Advanced UI)
+               ========================================== */
     .order-page-wrapper {
         display: grid;
         grid-template-columns: 2.2fr 1fr;
@@ -305,8 +305,8 @@
         }
 
     /* ==========================================
-           2. تنسيقات نافذة استخراج ملفات الطباعة (Modal)
-           ========================================== */
+               2. تنسيقات نافذة استخراج ملفات الطباعة (Modal)
+               ========================================== */
     .design-modal-overlay {
         position: fixed;
         top: 0;
@@ -403,51 +403,6 @@
         flex: 1;
     }
 
-    .dm-stats-row {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-    }
-
-    .dm-stat-card {
-        flex: 1;
-        min-width: 200px;
-        background: #fff;
-        padding: 20px;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-    }
-
-    .dm-stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-    }
-
-    .dm-stat-info h4 {
-        margin: 0 0 5px 0;
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .dm-stat-info p {
-        margin: 0;
-        font-size: 16px;
-        color: #0f172a;
-        font-weight: 900;
-    }
-
     .dm-section-title {
         font-size: 18px;
         font-weight: 900;
@@ -510,7 +465,6 @@
         align-items: center;
         justify-content: center;
         min-height: 250px;
-        display: none;
     }
 
     .dm-face-canvas-inner {
@@ -770,10 +724,46 @@
         </div>
     </div>
 
-    <!-- الجانب الأيسر: العميل والمالية والإدارة -->
+    <!-- الجانب الأيسر: الإدارة والمالية والعميل -->
     <div style="display: flex; flex-direction: column;">
 
-        <!-- كارت العميل المتقدم -->
+        <!-- 🟢 كارت تحديث حالة الطلب 🟢 -->
+        <div class="adv-card" style="background: #f8fafc; border: 1px solid var(--primary-light);">
+            <div class="adv-card-header">
+                <i class="fas fa-edit" style="background: #fff;"></i>
+                <h3>تحديث حالة الطلب</h3>
+            </div>
+            <form asp-action="UpdateStatus" method="post" style="margin: 0;">
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; display: block;">الحالة الجديدة</label>
+                    <select name="newStatus" class="form-control" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 700; background: #fff;">
+                        <option value="1" selected="@(Model.OrderStatus == 1)">جديد (بانتظار المراجعة)</option>
+                        <option value="2" selected="@(Model.OrderStatus == 2)">قيد المراجعة والتصميم</option>
+                        <option value="3" selected="@(Model.OrderStatus == 3)">جاري الطباعة والتجهيز</option>
+                        <option value="4" selected="@(Model.OrderStatus == 4)">تم الشحن والتوصيل</option>
+                        <option value="5" selected="@(Model.OrderStatus == 5)">مكتمل</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; display: block;">ملاحظة للعميل (اختياري)</label>
+                    <input type="text" name="note" class="form-control" placeholder="مثال: جاري مراجعة ملفات التصميم..." style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 600;" />
+                </div>
+
+                <label class="form-check" style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="sendWhatsApp" value="true" style="width: 18px; height: 18px; accent-color: var(--primary-color);">
+                    <span style="font-weight: 700; font-size: 13px; color: var(--text-main);">إرسال إشعار بالتحديث للعميل عبر واتساب</span>
+                </label>
+
+                <button type="submit" class="btn-premium" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; background: var(--primary-color); color: #fff; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(15, 98, 254, 0.2);">
+                    <i class="fas fa-save"></i> حفظ وتحديث الحالة
+                </button>
+            </form>
+        </div>
+
+        <!-- كارت العميل המتقدم -->
         <div class="adv-card">
             <div class="adv-card-header">
                 <i class="fas fa-user-circle"></i>
@@ -792,7 +782,6 @@
                         }
                         else
                         {
-
                             <span>عضو مسجل</span>
                         }
                     </div>

@@ -49,7 +49,11 @@ namespace Printnes.ViewModels
         [Required(ErrorMessage = "اسم المتجر مطلوب")]
         [StringLength(100)]
         public string StoreName { get; set; }
-
+        public string PrivacyPolicy { get; set; }
+        public string FAQ { get; set; }
+        public string RefundPolicy { get; set; }
+        public string TermsAndConditions { get; set; }
+        public string TaxNumber { get; set; }
         [Required(ErrorMessage = "البريد الإلكتروني مطلوب")]
         [EmailAddress(ErrorMessage = "صيغة البريد غير صحيحة")]
         public string ContactEmail { get; set; }

@@ -7,6 +7,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Printnes.Data;
+using Printnes.Helpers;
 using Printnes.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -127,6 +128,33 @@ namespace Printnes.Controllers
                 ordersCount,
                 reviewsCount
             });
+        }
+        public IActionResult Privacy()
+        {
+            var settings = SiteSettingsManager.LoadSettings();
+            ViewBag.PageTitle = "سياسة الخصوصية";
+            return View("LegalPage", model: settings.PrivacyPolicy);
+        }
+
+        public IActionResult FAQ()
+        {
+            var settings = SiteSettingsManager.LoadSettings();
+            ViewBag.PageTitle = "الأسئلة الشائعة";
+            return View("LegalPage", model: settings.FAQ);
+        }
+
+        public IActionResult RefundPolicy()
+        {
+            var settings = SiteSettingsManager.LoadSettings();
+            ViewBag.PageTitle = "سياسة الاستبدال والاسترجاع";
+            return View("LegalPage", model: settings.RefundPolicy);
+        }
+
+        public IActionResult Terms()
+        {
+            var settings = SiteSettingsManager.LoadSettings();
+            ViewBag.PageTitle = "سياسة الطباعة والتصميم";
+            return View("LegalPage", model: settings.TermsAndConditions);
         }
     }
 }

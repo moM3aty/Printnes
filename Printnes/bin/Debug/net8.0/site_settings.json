@@ -1,0 +1,21 @@
+{
+  "StoreName": "cartony",
+  "TaxNumber": "Alanoud.carton@gmail.com",
+  "ContactEmail": "support@printnes.co",
+  "ContactPhone": "0505180897",
+  "StoreLogoUrl": "/uploads/settings/90e6fd71-3f3a-4c89-8bea-ec09c94ae85a.jpg",
+  "WhatsappNumber": "966564498963",
+  "StoreDescription": null,
+  "FacebookUrl": null,
+  "InstagramUrl": null,
+  "TiktokUrl": null,
+  "TwitterUrl": null,
+  "Currency": null,
+  "EnableReviews": true,
+  "EnableUserRegistration": true,
+  "EnableGuestCheckout": true,
+  "MinimumOrderAmount": 0,
+  "FreeShippingAbove": 0,
+  "TaxPercentage": 15.0,
+  "DefaultShippingCost": 25.0
+}

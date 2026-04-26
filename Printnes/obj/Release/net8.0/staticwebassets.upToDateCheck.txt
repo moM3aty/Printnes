@@ -126,3 +126,4 @@ wwwroot\uploads\designs\f3a1aaea-8075-4c59-9a8e-1d95da553ee8.png
 wwwroot\uploads\designs\f8c9d5ef-7168-4b2e-ac04-f05b98b3076a.png
 wwwroot\uploads\settings\97a14341-8cca-421a-b963-4f73796e8bd3.png
 wwwroot\uploads\settings\a670514a-2543-4305-810d-90d4ba5c312c.jpg
+wwwroot\uploads\settings\90e6fd71-3f3a-4c89-8bea-ec09c94ae85a.jpg
